@@ -1,417 +1,164 @@
-
 <!DOCTYPE html>
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Candy Crush Ultimate 3D</title>
-    <meta name="theme-color" content="#ff00cc">
-
+    <title>Candy Crush 3D - Working Version</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
-
         :root {
-            /* अल्ट्रा वाइब्रेंट बैकग्राउंड */
-            --bg-anim: linear-gradient(45deg, #ff00cc, #3333ff, #00ffcc, #ffcc00, #ff0055);
-            --glass-bg: rgba(255, 255, 255, 0.25);
-            --glass-border: rgba(255, 255, 255, 0.5);
+            --bg-anim: linear-gradient(45deg, #ff00cc, #3333ff, #00ffcc, #ffcc00);
+            --glass: rgba(255, 255, 255, 0.2);
         }
-
         body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Fredoka One', cursive;
-            background: var(--bg-anim);
-            background-size: 600% 600%;
-            animation: gradientFlow 15s ease infinite;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            color: white;
-            overflow-x: hidden;
+            margin: 0; padding: 0; font-family: 'Fredoka One', cursive;
+            background: var(--bg-anim); background-size: 400% 400%;
+            animation: gradient 10s ease infinite;
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+            color: white; overflow: hidden; touch-action: manipulation;
         }
+        @keyframes gradient { 0% {background-position: 0% 50%;} 50% {background-position: 100% 50%;} 100% {background-position: 0% 50%;} }
 
-        @keyframes gradientFlow {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        /* Astra Ad Slots - Glassy Look */
-        .ad-slot {
-            width: 95%;
-            max-width: 350px;
-            height: 60px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            margin: 10px 0;
-            border: 2px solid var(--glass-border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            border-radius: 15px;
-            color: #fff;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        /* Glassmorphism Header */
-        .header-box {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding: 10px 25px;
-            border-radius: 30px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            border: 3px solid var(--glass-border);
-            margin-bottom: 10px;
-        }
-
-        .stats {
-            display: flex;
-            gap: 25px;
-            font-size: 22px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
-        }
-
-        .level-tag span { color: #FFD700; }
-        .score-tag span { color: #00ffcc; }
-
-        /* Juicy Progress Bar */
-        .progress-container {
-            width: 85%;
-            height: 18px;
-            background: rgba(0,0,0,0.4);
-            border-radius: 20px;
-            padding: 3px;
-            border: 2px solid rgba(255,255,255,0.7);
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
-        }
-
-        #progressFill {
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(180deg, #ffcc00 0%, #ff00cc 100%);
-            border-radius: 20px;
-            transition: width 0.4s cubic-bezier(0.4, 2.5, 0.6, 1); /* Bouncy effect */
-            box-shadow: 0 0 15px #ff00cc, inset 0 2px 2px rgba(255,255,255,0.8);
-        }
-
-        /* The Game Board - Deep Glass Look */
-        .grid-container {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            padding: 12px;
-            border-radius: 25px;
-            box-shadow: 
-                0 30px 60px rgba(0,0,0,0.5),
-                inset 0 0 20px rgba(255,255,255,0.2);
-            margin: 15px auto;
-            border: 4px solid var(--glass-border);
-            position: relative;
-        }
-
-        .grid {
-            display: flex;
-            flex-wrap: wrap;
-            width: 320px;
-            height: 320px;
-        }
-
-        /* --- NEW 3D CANDY STYLES --- */
+        .header { background: var(--glass); backdrop-filter: blur(10px); padding: 15px 30px; border-radius: 40px; margin-top: 20px; border: 2px solid rgba(255,255,255,0.4); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .stats { display: flex; gap: 30px; font-size: 24px; text-shadow: 2px 2px 5px rgba(0,0,0,0.3); }
+        
+        .grid-box { background: rgba(0,0,0,0.2); padding: 10px; border-radius: 20px; border: 4px solid #fff; margin: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .grid { display: grid; grid-template-columns: repeat(8, 40px); grid-template-rows: repeat(8, 40px); gap: 4px; }
+        
         .grid div {
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 36px; /* Slightly bigger for impact */
-            cursor: grab;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            
-            /* The Magic 3D Effect using Layered Shadows */
-            text-shadow: 
-                0 2px 0px #aaa, /* Edge thickness */
-                0 4px 2px rgba(0,0,0,0.3), /* Soft shadow close */
-                0 8px 5px rgba(0,0,0,0.2), /* Deeper shadow */
-                0 -2px 2px rgba(255,255,255,0.7); /* Top Rim Light for shine */
-            
-            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.3));
+            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+            font-size: 30px; cursor: pointer; user-select: none;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-shadow: 0 3px 0 #999, 0 6px 10px rgba(0,0,0,0.4);
+            filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2));
         }
+        .grid div.selected { transform: scale(1.2); outline: 3px solid #fff; border-radius: 10px; z-index: 10; background: rgba(255,255,255,0.3); }
+        
+        .pop { animation: popOut 0.4s forwards; }
+        @keyframes popOut { 0% {transform: scale(1);} 50% {transform: scale(1.5); filter: brightness(2);} 100% {transform: scale(0); opacity: 0;} }
 
-        /* Hover Effect - Lift up */
-        .grid div:hover {
-            transform: translateY(-6px) scale(1.1);
-            text-shadow: 
-                0 4px 0px #aaa,
-                0 8px 5px rgba(0,0,0,0.3),
-                0 15px 10px rgba(0,0,0,0.2),
-                0 -2px 2px rgba(255,255,255,0.9);
-            filter: drop-shadow(0 15px 10px rgba(0,0,0,0.4));
-            z-index: 10;
-        }
-
-        .grid div:active { 
-            transform: scale(0.9); 
-            cursor: grabbing;
-        }
-
-        /* New 3D Explosive Match Animation */
-        .pop { animation: explode3D 0.5s ease-out forwards; }
-        @keyframes explode3D {
-            0% { transform: scale(1) rotate(0deg); filter: brightness(1); }
-            40% { 
-                transform: scale(1.6) rotate(20deg); 
-                filter: brightness(2) drop-shadow(0 0 20px #fff); 
-                opacity: 1; 
-            }
-            100% { 
-                transform: scale(0) rotate(45deg); 
-                opacity: 0; 
-            }
-        }
-        /* --------------------------- */
-
-        /* Floating Text Animation (+3) */
-        .floating-text {
-            position: absolute;
-            color: #fff;
-            font-size: 28px;
-            font-weight: 900;
-            text-shadow: 
-                2px 2px 0 #ff00cc,
-                -2px -2px 0 #ff00cc,
-                0 0 15px #fff;
-            pointer-events: none;
-            animation: floatUp 0.8s ease-out forwards;
-            z-index: 20;
-        }
-
-        @keyframes floatUp {
-            0% { transform: translateY(0) scale(0.5); opacity: 0; }
-            20% { transform: translateY(-10px) scale(1.2); opacity: 1; }
-            100% { transform: translateY(-60px) scale(1); opacity: 0; }
-        }
-
-        .msg-box {
-            position: fixed;
-            top: 45%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(255, 255, 255, 0.95);
-            color: #ff0055;
-            padding: 25px 50px;
-            border-radius: 30px;
-            font-size: 36px;
-            display: none;
-            z-index: 100;
-            box-shadow: 
-                0 10px 30px rgba(0,0,0,0.5),
-                0 0 50px rgba(255, 0, 85, 0.6),
-                inset 0 0 20px #fff;
-            border: 6px solid #FFD700;
-            text-shadow: 2px 2px 5px rgba(0,0,0,0.3);
-            animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-        @keyframes bounceIn {
-            0% { transform: translate(-50%, -50%) scale(0); }
-            80% { transform: translate(-50%, -50%) scale(1.1); }
-            100% { transform: translate(-50%, -50%) scale(1); }
-        }
+        .ad-space { width: 320px; height: 50px; background: rgba(255,255,255,0.1); margin: 10px; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-size: 12px; border: 1px dashed #fff; }
     </style>
 </head>
 <body>
 
-    <div class="ad-slot">Astra Ad Slot Top</div>
+<div class="ad-space">Astra Ad Here</div>
 
-    <div class="header-box">
-        <div class="stats">
-            <span class="level-tag">Level: <span id="level">1</span></span>
-            <span class="score-tag">Score: <span id="score">0</span></span>
-        </div>
+<div class="header">
+    <div class="stats">
+        <span>Lvl: <span id="level">1</span></span>
+        <span>Score: <span id="score">0</span></span>
     </div>
+</div>
 
-    <div class="progress-container"><div id="progressFill"></div></div>
+<div class="grid-box">
+    <div class="grid" id="gameGrid"></div>
+</div>
 
-    <div class="grid-container">
-        <div class="grid" id="grid"></div>
-    </div>
+<div class="ad-space">Astra Ad Here</div>
 
-    <div class="msg-box" id="msgBox">LEVEL UP! 🚀</div>
+<script>
+    const grid = document.getElementById('gameGrid');
+    const scoreText = document.getElementById('score');
+    const levelText = document.getElementById('level');
+    let squares = [];
+    let score = 0;
+    let level = 1;
+    let firstSelected = null;
+    const fruits = ['🍎', '🍇', '🍊', '🍓', '🍍', '🍒'];
 
-    <div class="ad-slot">Astra Ad Slot Bottom</div>
+    function init() {
+        for (let i = 0; i < 64; i++) {
+            const square = document.createElement('div');
+            square.dataset.id = i;
+            square.innerHTML = fruits[Math.floor(Math.random() * 4)]; // Start easy
+            square.onclick = () => handleTap(i);
+            grid.appendChild(square);
+            squares.push(square);
+        }
+        checkMatches();
+    }
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const grid = document.querySelector('.grid');
-            const gridContainer = document.querySelector('.grid-container');
-            const scoreDisplay = document.getElementById('score');
-            const levelDisplay = document.getElementById('level');
-            const progressFill = document.getElementById('progressFill');
-            const msgBox = document.getElementById('msgBox');
-            
-            const width = 8;
-            let score = 0;
-            let level = 1;
-            let squares = [];
-            let scoreThreshold = 75; // Increased slightly for better pacing
-            
-            // Using fruits that look good in 3D style
-            const candies = ['🍎', '🍇', '🍊', '🍓', '🍉', '🍒', '🥝', '🍋'];
-            let currentCandies = candies.slice(0, 4); 
-
-            function createBoard() {
-                for (let i = 0; i < width * width; i++) {
-                    const square = document.createElement('div');
-                    square.setAttribute('draggable', true);
-                    square.setAttribute('id', i);
-                    let randomColor = Math.floor(Math.random() * currentCandies.length);
-                    square.innerHTML = currentCandies[randomColor];
-                    grid.appendChild(square);
-                    squares.push(square);
-                }
-            }
-            createBoard();
-
-            let colorBeingDragged, colorBeingReplaced, squareIdBeingDragged, squareIdBeingReplaced;
-
-            squares.forEach(s => s.addEventListener('dragstart', function(){
-                colorBeingDragged = this.innerHTML;
-                squareIdBeingDragged = parseInt(this.id);
-            }));
-
-            squares.forEach(s => s.addEventListener('drop', function(){
-                colorBeingReplaced = this.innerHTML;
-                squareIdBeingReplaced = parseInt(this.id);
-                this.innerHTML = colorBeingDragged;
-                squares[squareIdBeingDragged].innerHTML = colorBeingReplaced;
-            }));
-
-            squares.forEach(s => s.addEventListener('dragover', e => e.preventDefault()));
-            squares.forEach(s => s.addEventListener('dragend', checkValidMove));
-
-            function checkValidMove() {
-                let validMoves = [squareIdBeingDragged-1, squareIdBeingDragged+1, squareIdBeingDragged-width, squareIdBeingDragged+width];
-                if (squareIdBeingReplaced >= 0 && validMoves.includes(squareIdBeingReplaced)) {
-                    let isMatch = checkMatches();
-                    if (!isMatch) {
-                         squares[squareIdBeingDragged].innerHTML = colorBeingDragged;
-                         squares[squareIdBeingReplaced].innerHTML = colorBeingReplaced;
+    function handleTap(id) {
+        if (firstSelected === null) {
+            firstSelected = id;
+            squares[id].classList.add('selected');
+        } else {
+            const secondSelected = id;
+            if (isAdjacent(firstSelected, secondSelected)) {
+                swap(firstSelected, secondSelected);
+                setTimeout(() => {
+                    if (!checkMatches()) {
+                        swap(firstSelected, secondSelected); // Back if no match
                     }
-                } else {
-                    squares[squareIdBeingDragged].innerHTML = colorBeingDragged;
-                    squares[squareIdBeingReplaced].innerHTML = colorBeingReplaced;
-                }
-                squareIdBeingDragged = null;
-                squareIdBeingReplaced = null;
+                }, 300);
             }
+            squares[firstSelected].classList.remove('selected');
+            firstSelected = null;
+        }
+    }
 
-            function checkMatches() {
-                let matchFound = false;
-                // Horizontal Match
-                for (let i = 0; i < 62; i++) {
-                    let row = [i, i+1, i+2];
-                    let color = squares[i].innerHTML;
-                    const isBlank = squares[i].innerHTML === '';
-                    const notValid = [6, 7, 14, 15, 22, 23, 30, 31, 38, 39, 46, 47, 54, 55];
-                    if (notValid.includes(i)) continue;
+    function isAdjacent(id1, id2) {
+        const diff = Math.abs(id1 - id2);
+        const isNext = diff === 1 && Math.floor(id1 / 8) === Math.floor(id2 / 8);
+        const isAbove = diff === 8;
+        return isNext || isAbove;
+    }
 
-                    if (row.every(index => squares[index].innerHTML === color && !isBlank)) {
-                        updateScore(3);
-                        showFloatingText(row[1]); 
-                        row.forEach(index => { 
-                            squares[index].classList.add('pop');
-                        });
-                        matchFound = true;
-                    }
-                }
-                // Vertical Match
-                for (let i = 0; i < 48; i++) {
-                    let col = [i, i+width, i+width*2];
-                    let color = squares[i].innerHTML;
-                    const isBlank = squares[i].innerHTML === '';
+    function swap(id1, id2) {
+        let temp = squares[id1].innerHTML;
+        squares[id1].innerHTML = squares[id2].innerHTML;
+        squares[id2].innerHTML = temp;
+    }
 
-                    if (col.every(index => squares[index].innerHTML === color && !isBlank)) {
-                        updateScore(3);
-                        showFloatingText(col[1]);
-                        col.forEach(index => { 
-                             squares[index].classList.add('pop');
-                        });
-                        matchFound = true;
-                    }
-                }
-                
-                if(matchFound) {
-                    setTimeout(removePopAndFill, 500); // Longer wait for new 3D animation
-                }
-                return matchFound;
-            }
-
-            function removePopAndFill() {
-                 squares.forEach(square => {
-                    if(square.classList.contains('pop')) {
-                        square.innerHTML = '';
-                        square.classList.remove('pop');
-                    }
-                });
-                fillGaps();
-            }
-
-            function fillGaps() {
-                for (let i = 0; i < 64; i++) {
-                    if (squares[i].innerHTML === '') {
-                        let rnd = Math.floor(Math.random() * currentCandies.length);
-                        squares[i].innerHTML = currentCandies[rnd];
-                    }
-                }
-                setTimeout(checkMatches, 250);
-            }
-            
-            function showFloatingText(index) {
-                const floatTxt = document.createElement('div');
-                floatTxt.classList.add('floating-text');
-                floatTxt.innerHTML = '+3';
-                const rect = squares[index].getBoundingClientRect();
-                const containerRect = gridContainer.getBoundingClientRect();
-                floatTxt.style.left = (rect.left - containerRect.left + 10) + 'px';
-                floatTxt.style.top = (rect.top - containerRect.top) + 'px';
-                gridContainer.appendChild(floatTxt);
-                setTimeout(() => gridContainer.removeChild(floatTxt), 800);
-            }
-
-            function updateScore(n) {
-                score += n;
-                scoreDisplay.innerHTML = score;
-                let progress = (score % scoreThreshold) / scoreThreshold * 100; 
-                progressFill.style.width = progress + '%';
-
-                if (score > 0 && score % scoreThreshold === 0) {
-                    levelUp();
+    function checkMatches() {
+        let found = false;
+        // Horizontal
+        for (let i = 0; i < 64; i++) {
+            if (i % 8 < 6) {
+                let row = [i, i+1, i+2];
+                let val = squares[i].innerHTML;
+                if (val && row.every(idx => squares[idx].innerHTML === val)) {
+                    row.forEach(idx => squares[idx].classList.add('pop'));
+                    found = true;
                 }
             }
-
-            function levelUp() {
-                level++;
-                scoreThreshold += 25; 
-                levelDisplay.innerHTML = level;
-                msgBox.style.display = 'block';
-                setTimeout(() => { msgBox.style.display = 'none'; }, 1500);
-                
-                if (level <= candies.length - 2) {
-                    currentCandies = candies.slice(0, 3 + level);
-                }
+        }
+        // Vertical
+        for (let i = 0; i < 48; i++) {
+            let col = [i, i+8, i+16];
+            let val = squares[i].innerHTML;
+            if (val && col.every(idx => squares[idx].innerHTML === val)) {
+                col.forEach(idx => squares[idx].classList.add('pop'));
+                found = true;
             }
+        }
 
-            window.setInterval(function(){
-                 checkMatches();
-            }, 800);
+        if (found) {
+            score += 10;
+            scoreText.innerText = score;
+            if(score % 100 === 0) { level++; levelText.innerText = level; }
+            setTimeout(clearAndRefill, 400);
+        }
+        return found;
+    }
+
+    function clearAndRefill() {
+        squares.forEach(s => {
+            if (s.classList.contains('pop')) {
+                s.innerHTML = '';
+                s.classList.remove('pop');
+            }
         });
-    </script>
+        squares.forEach(s => {
+            if (s.innerHTML === '') {
+                s.innerHTML = fruits[Math.floor(Math.random() * (Math.min(level + 3, 6)))];
+            }
+        });
+        setTimeout(checkMatches, 300);
+    }
+
+    init();
+</script>
 </body>
 </html>
