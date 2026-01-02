@@ -1,2 +1,0 @@
-# Candygame
-Candygame
