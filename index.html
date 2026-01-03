@@ -3,114 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Candy Crush 3D - Gravity Edition</title>
+    <title>Candy Crush Pro - Challenge Mode</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
         
         :root {
-            --bg-anim: linear-gradient(45deg, #ff00cc, #3333ff, #00ffcc, #ffcc00);
-            --glass: rgba(255, 255, 255, 0.2);
+            --bg: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            --glass: rgba(255, 255, 255, 0.15);
         }
 
         body {
             margin: 0; padding: 0; font-family: 'Fredoka One', cursive;
-            background: var(--bg-anim); background-size: 400% 400%;
-            animation: gradient 12s ease infinite;
-            display: flex; flex-direction: column; align-items: center; 
-            min-height: 100vh; color: white; overflow: hidden; touch-action: manipulation;
+            background: var(--bg); min-height: 100vh;
+            display: flex; flex-direction: column; align-items: center;
+            color: white; overflow: hidden; touch-action: manipulation;
         }
 
-        @keyframes gradient { 0% {background-position: 0% 50%;} 50% {background-position: 100% 50%;} 100% {background-position: 0% 50%;} }
+        /* Screen Shake Effect */
+        .shake { animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake { 10%, 90% {transform: translate3d(-1px, 0, 0);} 20%, 80% {transform: translate3d(2px, 0, 0);} 30%, 50%, 70% {transform: translate3d(-4px, 0, 0);} 40%, 60% {transform: translate3d(4px, 0, 0);} }
 
         .header { 
-            background: var(--glass); backdrop-filter: blur(15px); 
-            padding: 10px 40px; border-radius: 50px; margin-top: 15px; 
-            border: 2px solid rgba(255,255,255,0.5); box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex; gap: 15px; margin-top: 15px; 
+            background: var(--glass); backdrop-filter: blur(10px);
+            padding: 10px 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.3);
         }
 
-        .stats { display: flex; gap: 30px; font-size: 22px; }
-        .stats span b { color: #ffd700; text-shadow: 0 0 10px #ffd700; }
+        .info-card { text-align: center; min-width: 80px; }
+        .info-card label { font-size: 12px; display: block; opacity: 0.8; }
+        .info-card span { font-size: 20px; color: #ffd700; }
 
         .grid-container {
-            background: rgba(0,0,0,0.3); padding: 8px; border-radius: 25px;
-            border: 5px solid #fff; margin: 15px; box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-            position: relative; overflow: hidden;
+            background: rgba(0,0,0,0.4); padding: 10px; border-radius: 20px;
+            border: 4px solid #fff; margin: 15px; box-shadow: 0 15px 40px rgba(0,0,0,0.5);
         }
 
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(8, 42px);
-            grid-template-rows: repeat(8, 42px);
-            gap: 4px;
-        }
+        .grid { display: grid; grid-template-columns: repeat(8, 42px); grid-template-rows: repeat(8, 42px); gap: 4px; }
 
         .grid div {
-            width: 42px; height: 42px; display: flex; 
-            align-items: center; justify-content: center;
-            font-size: 32px; cursor: pointer; user-select: none;
-            position: relative;
-            /* 3D Effect */
-            text-shadow: 0 4px 0px #888, 0 8px 10px rgba(0,0,0,0.4);
-            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;
+            font-size: 32px; cursor: pointer; transition: 0.2s;
+            text-shadow: 0 3px 0px #888, 0 5px 10px rgba(0,0,0,0.4);
         }
 
-        /* Falling Animation */
-        .fall {
-            animation: slideDown 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        .grid div.selected { transform: scale(1.2); background: rgba(255,255,255,0.2); border-radius: 8px; }
+
+        .pop { animation: popOut 0.4s forwards; }
+        @keyframes popOut { 0% {transform: scale(1);} 50% {transform: scale(1.6); filter: hue-rotate(180deg);} 100% {transform: scale(0); opacity: 0;} }
+
+        /* Game Over Overlay */
+        #gameOver {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); display: none; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 100;
         }
 
-        @keyframes slideDown {
-            0% { transform: translateY(-100%); opacity: 0.5; }
-            100% { transform: translateY(0); opacity: 1; }
-        }
-
-        .grid div.selected { 
-            transform: scale(1.3); background: rgba(255,255,255,0.4); 
-            border-radius: 12px; box-shadow: 0 0 20px #fff; z-index: 10;
-        }
-
-        .pop { animation: popOut 0.3s forwards; }
-        @keyframes popOut {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.6); filter: brightness(2) hue-rotate(90deg); }
-            100% { transform: scale(0); opacity: 0; }
-        }
-
-        .ad-space { 
-            width: 320px; height: 60px; background: rgba(255,255,255,0.1); 
-            margin: 5px; display: flex; align-items: center; justify-content: center; 
-            border-radius: 15px; border: 2px dashed rgba(255,255,255,0.5); font-size: 14px;
+        .btn-restart {
+            background: #ffd700; color: #000; border: none; padding: 15px 40px;
+            font-size: 24px; font-family: 'Fredoka One'; border-radius: 30px; cursor: pointer;
         }
     </style>
 </head>
-<body>
-
-<div class="ad-space">Astra / Adsterra Ad Unit</div>
+<body id="mainBody">
 
 <div class="header">
-    <div class="stats">
-        <span>Level: <b id="level">1</b></span>
-        <span>Score: <b id="score">0</b></span>
-    </div>
+    <div class="info-card"><label>TIME</label><span id="timer">60</span>s</div>
+    <div class="info-card"><label>SCORE</label><span id="score">0</span></div>
+    <div class="info-card"><label>LVL</label><span id="level">1</span></div>
 </div>
 
 <div class="grid-container">
     <div class="grid" id="gameGrid"></div>
 </div>
 
-<div class="ad-space">Astra / Adsterra Ad Unit</div>
+<div id="gameOver">
+    <h1>GAME OVER! 🍬</h1>
+    <p>आपका स्कोर: <span id="finalScore">0</span></p>
+    <button class="btn-restart" onclick="location.reload()">दोबारा खेलें</button>
+</div>
 
 <script>
     const grid = document.getElementById('gameGrid');
     const scoreText = document.getElementById('score');
-    const levelText = document.getElementById('level');
+    const timerText = document.getElementById('timer');
+    const mainBody = document.getElementById('mainBody');
     let squares = [];
     let score = 0;
-    let level = 1;
+    let timeLeft = 60;
     let firstSelected = null;
-    const fruits = ['🍎', '🍇', '🍊', '🍓', '🍍', '🍒', '🍉', '🥝'];
+    const fruits = ['🍎', '🍇', '🍊', '🍓', '🍍', '🍒'];
+    const BOMB = '💣';
 
-    function createBoard() {
+    function init() {
         for (let i = 0; i < 64; i++) {
             const square = document.createElement('div');
             square.dataset.id = i;
@@ -119,22 +103,34 @@
             grid.appendChild(square);
             squares.push(square);
         }
-        setTimeout(checkMatches, 500);
+        startTimer();
+        setInterval(checkMatches, 600);
+    }
+
+    function startTimer() {
+        const countdown = setInterval(() => {
+            timeLeft--;
+            timerText.innerText = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                showGameOver();
+            }
+        }, 1000);
     }
 
     function handleTap(id) {
+        if (squares[id].innerHTML === BOMB) {
+            triggerBomb(id);
+            return;
+        }
+
         if (firstSelected === null) {
             firstSelected = id;
             squares[id].classList.add('selected');
         } else {
-            const secondSelected = id;
-            if (isAdjacent(firstSelected, secondSelected)) {
-                swap(firstSelected, secondSelected);
-                setTimeout(() => {
-                    if (!checkMatches()) {
-                        swap(firstSelected, secondSelected);
-                    }
-                }, 300);
+            if (isAdjacent(firstSelected, id)) {
+                swap(firstSelected, id);
+                setTimeout(checkMatches, 300);
             }
             squares[firstSelected].classList.remove('selected');
             firstSelected = null;
@@ -156,10 +152,10 @@
     function checkMatches() {
         let matchIds = new Set();
         
-        // Horizontal Check
+        // Horizontal
         for (let i = 0; i < 64; i++) {
             if (i % 8 < 6) {
-                if (squares[i].innerHTML !== '' && 
+                if (squares[i].innerHTML !== '' && squares[i].innerHTML !== BOMB &&
                     squares[i].innerHTML === squares[i+1].innerHTML && 
                     squares[i].innerHTML === squares[i+2].innerHTML) {
                     matchIds.add(i); matchIds.add(i+1); matchIds.add(i+2);
@@ -167,9 +163,9 @@
             }
         }
         
-        // Vertical Check
+        // Vertical
         for (let i = 0; i < 48; i++) {
-            if (squares[i].innerHTML !== '' && 
+            if (squares[i].innerHTML !== '' && squares[i].innerHTML !== BOMB &&
                 squares[i].innerHTML === squares[i+8].innerHTML && 
                 squares[i].innerHTML === squares[i+16].innerHTML) {
                 matchIds.add(i); matchIds.add(i+8); matchIds.add(i+16);
@@ -177,60 +173,69 @@
         }
 
         if (matchIds.size > 0) {
-            matchIds.forEach(id => squares[id].classList.add('pop'));
-            score += matchIds.size * 2;
-            scoreText.innerText = score;
-            if (score > level * 150) {
-                level++;
-                levelText.innerText = level;
+            // If match is big (4 or more), create a Bomb
+            if (matchIds.size >= 4) {
+                const firstId = Array.from(matchIds)[0];
+                setTimeout(() => { squares[firstId].innerHTML = BOMB; }, 500);
             }
-            setTimeout(dropGears, 400);
-            return true;
+            
+            matchIds.forEach(id => squares[id].classList.add('pop'));
+            score += matchIds.size;
+            scoreText.innerText = score;
+            setTimeout(dropItems, 400);
         }
-        return false;
     }
 
-    // --- Gravity Logic (The Core Change) ---
-    function dropGears() {
-        // 1. Clear matched items
+    function triggerBomb(id) {
+        mainBody.classList.add('shake');
+        setTimeout(() => mainBody.classList.remove('shake'), 300);
+        
+        const x = id % 8;
+        const y = Math.floor(id / 8);
+        
+        for (let i = -1; i <= 1; i++) {
+            for (let j = -1; j <= 1; j++) {
+                const nx = x + i;
+                const ny = y + j;
+                if (nx >= 0 && nx < 8 && ny >= 0 && ny < 8) {
+                    const targetId = ny * 8 + nx;
+                    squares[targetId].classList.add('pop');
+                }
+            }
+        }
+        score += 20;
+        scoreText.innerText = score;
+        setTimeout(dropItems, 400);
+    }
+
+    function dropItems() {
         for (let i = 0; i < 64; i++) {
             if (squares[i].classList.contains('pop')) {
                 squares[i].innerHTML = '';
                 squares[i].classList.remove('pop');
             }
         }
-
-        // 2. Move existing items down
+        // Gravity logic
         for (let i = 55; i >= 0; i--) {
             if (squares[i + 8].innerHTML === '') {
-                let currentPos = i;
-                while (currentPos >= 0 && squares[currentPos + 8].innerHTML === '') {
-                    squares[currentPos + 8].innerHTML = squares[currentPos].innerHTML;
-                    squares[currentPos].innerHTML = '';
-                    currentPos -= 8;
-                }
+                squares[i+8].innerHTML = squares[i].innerHTML;
+                squares[i].innerHTML = '';
             }
         }
-
-        // 3. Fill top with new items with "Fall" effect
+        // Refill top
         for (let i = 0; i < 8; i++) {
             if (squares[i].innerHTML === '') {
-                squares[i].innerHTML = fruits[Math.floor(Math.random() * Math.min(level + 3, 8))];
-                squares[i].classList.add('fall');
-                // Remove fall class after animation to reuse
-                setTimeout(() => squares[i].classList.remove('fall'), 400);
+                squares[i].innerHTML = fruits[Math.floor(Math.random() * 5)];
             }
         }
-
-        // 4. Repeat until no more matches
-        setTimeout(() => {
-            if (checkMatches()) {
-                // Recursive check for chain reactions
-            }
-        }, 400);
     }
 
-    createBoard();
+    function showGameOver() {
+        document.getElementById('gameOver').style.display = 'flex';
+        document.getElementById('finalScore').innerText = score;
+    }
+
+    init();
 </script>
 </body>
 </html>
