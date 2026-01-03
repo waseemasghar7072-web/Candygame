@@ -3,42 +3,239 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Candy Jewel Pro 3D</title>
+    <title>Candy Jewel Soda Pro</title>
+    
     <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#00c6ff">
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
-        body { margin: 0; padding: 0; font-family: 'Fredoka One', cursive; background: radial-gradient(circle, #2E0249, #0F001A); min-height: 100vh; display: flex; flex-direction: column; align-items: center; color: white; overflow: hidden; }
-        .header { display: flex; justify-content: space-between; width: 90%; max-width: 400px; margin-top: 20px; background: rgba(255,255,255,0.1); padding: 15px 20px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.2); }
-        .val { font-size: 26px; color: #ffd700; text-shadow: 0 0 10px #ffd700; }
-        .board { background: rgba(0,0,0,0.4); padding: 12px; border-radius: 25px; border: 3px solid #ff007f; box-shadow: 0 0 30px #ff007f; margin: 20px; }
-        .grid { display: grid; grid-template-columns: repeat(8, 44px); gap: 5px; }
-        .slot { width: 44px; height: 44px; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center; position: relative; }
-        .fruit { font-size: 34px; cursor: pointer; position: absolute; transition: 0.4s; filter: drop-shadow(0 4px 4px #000); }
-        .pop { animation: explode 0.5s forwards; }
-        @keyframes explode { 0% {transform: scale(1);} 100% {transform: scale(0); opacity: 0;} }
-        .music-btn { background: none; border: 2px solid #ff007f; border-radius: 50%; color: white; width: 45px; height: 45px; cursor: pointer; }
+        
+        :root {
+            --primary-blue: #00c6ff;
+            --primary-green: #00e676;
+            --accent-pink: #ff4081;
+        }
+
+        body {
+            margin: 0; padding: 0; font-family: 'Fredoka One', cursive;
+            background: linear-gradient(to bottom, #00c6ff, #0072ff);
+            min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+            color: white; overflow: hidden; touch-action: none;
+        }
+        
+        /* Soda Bubble Effect */
+        body::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 40px 40px; animation: moveBubbles 20s linear infinite;
+            z-index: 0; pointer-events: none;
+        }
+        @keyframes moveBubbles { from {background-position: 0 0;} to {background-position: 0 -400px;} }
+
+        /* Professional Header UI (Image 2 style) */
+        .header-ui {
+            width: 100%; padding: 12px 0;
+            background: linear-gradient(to bottom, var(--primary-green), #00b248);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: flex; justify-content: space-around; align-items: center;
+            z-index: 10; border-bottom: 3px solid rgba(255,255,255,0.3);
+        }
+
+        .stat-panel {
+            background: rgba(0,0,0,0.2); padding: 5px 15px; border-radius: 15px;
+            text-align: center; border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .moves-badge {
+            background: var(--accent-pink); width: 45px; height: 45px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 22px; border: 3px solid white; box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        /* Game Board Container */
+        .board-container {
+            background: rgba(255,255,255,0.2); padding: 8px; border-radius: 20px;
+            margin: 25px auto; border: 3px solid white;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 5;
+            backdrop-filter: blur(5px);
+        }
+
+        .grid {
+            display: grid; grid-template-columns: repeat(8, 42px);
+            grid-template-rows: repeat(8, 42px); gap: 4px;
+        }
+
+        .slot {
+            width: 42px; height: 42px; background: rgba(0,0,0,0.1);
+            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            position: relative;
+        }
+
+        /* 3D Glossy Fruits */
+        .fruit {
+            font-size: 32px; cursor: pointer; user-select: none;
+            position: absolute; z-index: 2;
+            filter: drop-shadow(0 3px 3px rgba(0,0,0,0.4));
+            transition: transform 0.2s;
+        }
+
+        .selected { transform: scale(1.2) rotate(10deg); filter: brightness(1.2); }
+
+        .pop { animation: popAnim 0.4s forwards; }
+        @keyframes popAnim { 0% {transform: scale(1);} 100% {transform: scale(0); opacity: 0;} }
+
+        /* Footer Soda Wave */
+        .wave-text {
+            position: absolute; bottom: 20px; width: 100%; text-align: center;
+            font-size: 18px; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            z-index: 10; font-style: italic; opacity: 0.9;
+        }
     </style>
 </head>
 <body>
+
     <audio id="bgMusic" loop><source src="https://assets.mixkit.co/music/preview/mixkit-game-level-music-689.mp3"></audio>
-    <div class="header">
-        <div>SCORE<br><b class="val" id="score">0</b></div>
-        <div>MOVES<br><b class="val" id="moves">30</b></div>
-        <button class="music-btn" onclick="toggleMusic()">🎵</button>
+
+    <div class="header-ui">
+        <div class="stat-panel">Score<br><b id="score" style="color:#ffd700;">0</b></div>
+        <div class="stat-panel">Target<br><b id="targetCount">15</b> <span id="targetIcon">🍎</span></div>
+        <div class="moves-badge" id="moves">30</div>
     </div>
-    <div class="board"><div class="grid" id="grid"></div></div>
-    <script>
-        if('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
-        const gridEl = document.getElementById('grid'), scoreEl = document.getElementById('score'), movesEl = document.getElementById('moves'), bgMusic = document.getElementById('bgMusic');
-        const fruits = ['🍎', '🍋', '🥥', '🍇', '🫐', '🍊'];
-        let squares = [], score = 0, moves = 30, firstId = null, isMusic = false;
-        function toggleMusic() { if(isMusic) bgMusic.pause(); else bgMusic.play(); isMusic = !isMusic; }
-        function init() { for(let i=0; i<64; i++) { const slot = document.createElement('div'); slot.className='slot'; const f = document.createElement('div'); f.className='fruit'; f.innerHTML=fruits[Math.floor(Math.random()*6)]; f.onclick=()=>handleTap(i); slot.appendChild(f); gridEl.appendChild(slot); squares.push(f); } setTimeout(checkMatches, 500); }
-        function handleTap(id) { if(!isMusic) toggleMusic(); if(firstId===null) { firstId=id; squares[id].style.transform='scale(1.3)'; } else { swap(firstId, id); firstId=null; } }
-        function swap(id1, id2) { let t=squares[id1].innerHTML; squares[id1].innerHTML=squares[id2].innerHTML; squares[id2].innerHTML=t; squares[id1].style.transform=''; checkMatches(); moves--; movesEl.innerText=moves; }
-        function checkMatches() { let m=new Set(); for(let i=0; i<64; i++) { if(i%8<6 && squares[i].innerHTML===squares[i+1].innerHTML && squares[i].innerHTML===squares[i+2].innerHTML) [i,i+1,i+2].forEach(x=>m.add(x)); if(i<48 && squares[i].innerHTML===squares[i+8].innerHTML && squares[i].innerHTML===squares[i+16].innerHTML) [i,i+8,i+16].forEach(x=>m.add(x)); } if(m.size>0) { m.forEach(id=>squares[id].classList.add('pop')); score+=m.size*10; scoreEl.innerText=score; setTimeout(fill, 500); } }
-        function fill() { squares.forEach(s=>{ if(s.classList.contains('pop')) { s.innerHTML=fruits[Math.floor(Math.random()*6)]; s.classList.remove('pop'); } }); checkMatches(); }
+
+    <div class="board-container">
+        <div class="grid" id="grid"></div>
+    </div>
+
+    <div class="wave-text">Easy to Play, Hard to Master!</div>
+
+<script>
+    // PWA Support
+    if('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
+
+    const gridEl = document.getElementById('grid');
+    const scoreEl = document.getElementById('score');
+    const movesEl = document.getElementById('moves');
+    const targetCountEl = document.getElementById('targetCount');
+    const targetIconEl = document.getElementById('targetIcon');
+    const bgMusic = document.getElementById('bgMusic');
+    
+    const popSound = new Audio('https://actions.google.com/sounds/v1/cartoon/pop.ogg');
+    const dropSound = new Audio('https://actions.google.com/sounds/v1/foley/glass_click.ogg');
+
+    const fruits = ['🍎', '🍊', '🍋', '🍇', '🫐', '🥥'];
+    let targetFruit = fruits[0];
+    let targetAmount = 15;
+    let squares = [], score = 0, moves = 30, firstId = null, isProcessing = false, isMusicPlaying = false;
+
+    // Ensure initialization happens only after everything is loaded
+    window.onload = function() {
         init();
-    </script>
+    };
+
+    function init() {
+        gridEl.innerHTML = ''; // Clear previous grid
+        for (let i = 0; i < 64; i++) {
+            const slot = document.createElement('div');
+            slot.className = 'slot';
+            const fruit = document.createElement('div');
+            fruit.className = 'fruit';
+            fruit.innerHTML = fruits[Math.floor(Math.random()*6)];
+            fruit.onclick = () => handleTap(i);
+            slot.appendChild(fruit);
+            gridEl.appendChild(slot);
+            squares.push(fruit);
+        }
+        setTimeout(checkMatches, 500);
+    }
+
+    function handleTap(id) {
+        if(isProcessing || moves <= 0) return;
+        if(!isMusicPlaying) { bgMusic.play(); isMusicPlaying = true; }
+        
+        if(firstId === null) {
+            firstId = id;
+            squares[firstId].classList.add('selected');
+            dropSound.play();
+        } else {
+            if(isAdjacent(firstId, id)) {
+                isProcessing = true;
+                visualSwap(firstId, id);
+            } else {
+                squares[firstId].classList.remove('selected');
+                firstId = id;
+                squares[firstId].classList.add('selected');
+            }
+        }
+    }
+
+    function isAdjacent(a, b) {
+        return (Math.abs(Math.floor(a/8) - Math.floor(b/8)) + Math.abs(a%8 - b%8)) === 1;
+    }
+
+    function visualSwap(id1, id2, isReverting = false) {
+        const f1 = squares[id1], f2 = squares[id2];
+        const r1 = f1.getBoundingClientRect(), r2 = f2.getBoundingClientRect();
+        
+        f1.style.transform = `translate(${r2.left-r1.left}px, ${r2.top-r1.top}px)`;
+        f2.style.transform = `translate(${r1.left-r2.left}px, ${r1.top-r2.top}px)`;
+
+        setTimeout(() => {
+            f1.style.transform = ''; f2.style.transform = '';
+            let t = f1.innerHTML; f1.innerHTML = f2.innerHTML; f2.innerHTML = t;
+            f1.classList.remove('selected');
+
+            if(!isReverting && !checkMatches()) {
+                setTimeout(() => visualSwap(id2, id1, true), 200);
+            } else {
+                if(!isReverting) { moves--; movesEl.innerText = moves; }
+                isProcessing = false; firstId = null;
+            }
+        }, 300);
+    }
+
+    function checkMatches() {
+        let matches = new Set();
+        for(let i=0; i<64; i++) {
+            if(i%8<6 && squares[i].innerHTML === squares[i+1].innerHTML && squares[i].innerHTML === squares[i+2].innerHTML) [i,i+1,i+2].forEach(x=>matches.add(x));
+            if(i<48 && squares[i].innerHTML === squares[i+8].innerHTML && squares[i].innerHTML === squares[i+16].innerHTML) [i,i+8,i+16].forEach(x=>matches.add(x));
+        }
+        if(matches.size > 0) {
+            popSound.play();
+            matches.forEach(id => {
+                squares[id].classList.add('pop');
+                if(squares[id].innerHTML === targetFruit && targetAmount > 0) {
+                    targetAmount--;
+                    targetCountEl.innerText = targetAmount;
+                }
+            });
+            score += matches.size * 10;
+            scoreEl.innerText = score;
+            setTimeout(applyGravity, 400);
+            return true;
+        }
+        return false;
+    }
+
+    function applyGravity() {
+        squares.forEach(s => { if(s.classList.contains('pop')) { s.innerHTML = ''; s.classList.remove('pop'); } });
+        for(let c=0; c<8; c++) {
+            let empty = 0;
+            for(let r=7; r>=0; r--) {
+                let idx = r*8+c;
+                if(squares[idx].innerHTML === '') empty++;
+                else if(empty > 0) {
+                    squares[(r+empty)*8+c].innerHTML = squares[idx].innerHTML;
+                    squares[idx].innerHTML = '';
+                }
+            }
+            for(let r=0; r<empty; r++) {
+                let idx = r*8+c;
+                squares[idx].innerHTML = fruits[Math.floor(Math.random()*6)];
+            }
+        }
+        setTimeout(() => { if(!checkMatches()) isProcessing = false; }, 400);
+    }
+</script>
 </body>
 </html>
