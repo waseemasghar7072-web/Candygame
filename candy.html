@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Candy Jewel Pro 3D</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
+        body { margin: 0; padding: 0; font-family: 'Fredoka One', cursive; background: radial-gradient(circle, #2E0249, #0F001A); min-height: 100vh; display: flex; flex-direction: column; align-items: center; color: white; overflow: hidden; }
+        .header { display: flex; justify-content: space-between; width: 90%; max-width: 400px; margin-top: 20px; background: rgba(255,255,255,0.1); padding: 15px 20px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.2); }
+        .val { font-size: 26px; color: #ffd700; text-shadow: 0 0 10px #ffd700; }
+        .board { background: rgba(0,0,0,0.4); padding: 12px; border-radius: 25px; border: 3px solid #ff007f; box-shadow: 0 0 30px #ff007f; margin: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(8, 44px); gap: 5px; }
+        .slot { width: 44px; height: 44px; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center; position: relative; }
+        .fruit { font-size: 34px; cursor: pointer; position: absolute; transition: 0.4s; filter: drop-shadow(0 4px 4px #000); }
+        .pop { animation: explode 0.5s forwards; }
+        @keyframes explode { 0% {transform: scale(1);} 100% {transform: scale(0); opacity: 0;} }
+        .music-btn { background: none; border: 2px solid #ff007f; border-radius: 50%; color: white; width: 45px; height: 45px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <audio id="bgMusic" loop><source src="https://assets.mixkit.co/music/preview/mixkit-game-level-music-689.mp3"></audio>
+    <div class="header">
+        <div>SCORE<br><b class="val" id="score">0</b></div>
+        <div>MOVES<br><b class="val" id="moves">30</b></div>
+        <button class="music-btn" onclick="toggleMusic()">🎵</button>
+    </div>
+    <div class="board"><div class="grid" id="grid"></div></div>
+    <script>
+        if('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
+        const gridEl = document.getElementById('grid'), scoreEl = document.getElementById('score'), movesEl = document.getElementById('moves'), bgMusic = document.getElementById('bgMusic');
+        const fruits = ['🍎', '🍋', '🥥', '🍇', '🫐', '🍊'];
+        let squares = [], score = 0, moves = 30, firstId = null, isMusic = false;
+        function toggleMusic() { if(isMusic) bgMusic.pause(); else bgMusic.play(); isMusic = !isMusic; }
+        function init() { for(let i=0; i<64; i++) { const slot = document.createElement('div'); slot.className='slot'; const f = document.createElement('div'); f.className='fruit'; f.innerHTML=fruits[Math.floor(Math.random()*6)]; f.onclick=()=>handleTap(i); slot.appendChild(f); gridEl.appendChild(slot); squares.push(f); } setTimeout(checkMatches, 500); }
+        function handleTap(id) { if(!isMusic) toggleMusic(); if(firstId===null) { firstId=id; squares[id].style.transform='scale(1.3)'; } else { swap(firstId, id); firstId=null; } }
+        function swap(id1, id2) { let t=squares[id1].innerHTML; squares[id1].innerHTML=squares[id2].innerHTML; squares[id2].innerHTML=t; squares[id1].style.transform=''; checkMatches(); moves--; movesEl.innerText=moves; }
+        function checkMatches() { let m=new Set(); for(let i=0; i<64; i++) { if(i%8<6 && squares[i].innerHTML===squares[i+1].innerHTML && squares[i].innerHTML===squares[i+2].innerHTML) [i,i+1,i+2].forEach(x=>m.add(x)); if(i<48 && squares[i].innerHTML===squares[i+8].innerHTML && squares[i].innerHTML===squares[i+16].innerHTML) [i,i+8,i+16].forEach(x=>m.add(x)); } if(m.size>0) { m.forEach(id=>squares[id].classList.add('pop')); score+=m.size*10; scoreEl.innerText=score; setTimeout(fill, 500); } }
+        function fill() { squares.forEach(s=>{ if(s.classList.contains('pop')) { s.innerHTML=fruits[Math.floor(Math.random()*6)]; s.classList.remove('pop'); } }); checkMatches(); }
+        init();
+    </script>
+</body>
+</html>
