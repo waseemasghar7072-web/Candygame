@@ -3,82 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Candy Crush - Ultra Slow Sound Edition</title>
+    <title>Candy Jewel Pro 3D</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a0f2e">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/528/528164.png">
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
         
         :root {
+            --neon-pink: #ff007f;
             --neon-blue: #00d4ff;
-            --glass: rgba(255, 255, 255, 0.1);
         }
 
         body {
             margin: 0; padding: 0; font-family: 'Fredoka One', cursive;
-            background: radial-gradient(circle, #1a0f2e, #05000a);
+            background: radial-gradient(circle at center, #2E0249 0%, #0F001A 100%);
             min-height: 100vh; display: flex; flex-direction: column; align-items: center;
             color: white; overflow: hidden; touch-action: manipulation;
         }
 
+        /* 3D Glass Header */
         .header { 
-            display: flex; gap: 20px; margin-top: 25px; 
-            background: var(--glass); backdrop-filter: blur(20px);
-            padding: 12px 45px; border-radius: 50px; border: 2px solid rgba(255,255,255,0.15);
+            display: flex; justify-content: space-between; align-items: center;
+            width: 90%; max-width: 400px; margin-top: 20px; 
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(12px);
+            padding: 15px 25px; border-radius: 30px; 
+            border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        .info-card span { font-size: 26px; color: #ffd700; text-shadow: 0 0 15px rgba(255,215,0,0.4); }
+        .info-val { font-size: 28px; color: #ffd700; text-shadow: 0 0 10px rgba(255,215,0,0.6); }
 
+        /* Board Styling */
         .board-container {
-            background: rgba(0, 0, 0, 0.4); padding: 12px; border-radius: 25px;
-            margin: 25px auto; border: 4px solid var(--neon-blue);
-            box-shadow: 0 0 40px rgba(0,212,255,0.3); position: relative;
+            background: rgba(20, 20, 20, 0.6); padding: 15px; border-radius: 35px;
+            margin: 25px auto; border: 3px solid rgba(255,255,255,0.1);
+            box-shadow: 0 0 30px var(--neon-pink);
         }
 
         .grid {
-            display: grid; grid-template-columns: repeat(8, 44px);
-            grid-template-rows: repeat(8, 44px); gap: 6px;
+            display: grid; grid-template-columns: repeat(8, 45px);
+            grid-template-rows: repeat(8, 45px); gap: 6px;
         }
 
         .slot {
-            width: 44px; height: 44px; background: rgba(255,255,255,0.02);
-            border-radius: 10px; border: 1px solid rgba(255,255,255,0.04);
+            width: 45px; height: 45px; 
+            background: rgba(0,0,0,0.4); border-radius: 12px; 
+            box-shadow: inset 3px 3px 8px rgba(0,0,0,0.7);
             display: flex; align-items: center; justify-content: center;
             position: relative;
         }
 
+        /* 3D Candies */
         .fruit {
-            font-size: 32px; cursor: pointer; user-select: none;
+            font-size: 36px; cursor: pointer; user-select: none;
             position: absolute; z-index: 2;
-            text-shadow: 0 6px 8px rgba(0,0,0,0.6);
-            /* --- EVEN SLOWER SWAP (1.5 Seconds) --- */
-            transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            filter: drop-shadow(0 5px 4px rgba(0,0,0,0.6)) drop-shadow(0 -2px 2px rgba(255,255,255,0.3));
         }
 
-        /* --- Slow Motion Heavy Gravity (2.0 Seconds) --- */
-        .fall-anim {
-            animation: extraSlowFall 2s cubic-bezier(0.22, 1, 0.36, 1);
-        }
+        .selected { transform: scale(1.3); filter: brightness(1.4) drop-shadow(0 0 15px var(--neon-blue)); z-index: 10; }
 
-        @keyframes extraSlowFall {
-            0% { transform: translateY(-400%); opacity: 0; }
-            70% { transform: translateY(10%); opacity: 1; }
-            100% { transform: translateY(0); opacity: 1; }
-        }
-
-        .selected { transform: scale(1.4); filter: brightness(1.4); z-index: 10; }
-
-        .pop { animation: slowCinemaPop 1.2s forwards; }
-        @keyframes slowCinemaPop {
+        /* Animations */
+        .pop { animation: explode 0.5s forwards; }
+        @keyframes explode {
             0% { transform: scale(1); opacity: 1; }
-            30% { transform: scale(2); filter: brightness(2) blur(1px); }
-            100% { transform: scale(0); opacity: 0; filter: blur(5px); }
+            50% { transform: scale(1.6); filter: brightness(3); }
+            100% { transform: scale(0); opacity: 0; }
+        }
+        
+        .fall-anim { animation: bounceIn 0.6s ease-out; }
+        @keyframes bounceIn {
+            0% { transform: translateY(-300%); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
         }
     </style>
 </head>
 <body>
 
+    <audio id="bgMusic" loop>
+        <source src="https://assets.mixkit.co/music/preview/mixkit-game-level-music-689.mp3" type="audio/mpeg">
+    </audio>
+
     <div class="header">
-        <div class="info-card"><span>Score: <b id="score">0</b></span></div>
-        <div class="info-card"><span>Level: <b id="level">1</b></span></div>
+        <div class="info-card"><span>SCORE</span><br><b class="info-val" id="score">0</b></div>
+        <div class="info-card"><span>MOVES</span><br><b class="info-val" id="moves">30</b></div>
+        <button id="musicBtn" onclick="toggleMusic()" style="background:none; border:2px solid var(--neon-pink); border-radius:50%; color:white; width:45px; height:45px; font-size:20px;">🎵</button>
     </div>
 
     <div class="board-container">
@@ -86,28 +97,32 @@
     </div>
 
 <script>
+    // Register Service Worker for PWA
+    if('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
+
     const gridEl = document.getElementById('grid');
     const scoreEl = document.getElementById('score');
-    const levelEl = document.getElementById('level');
+    const movesEl = document.getElementById('moves');
+    const bgMusic = document.getElementById('bgMusic');
     
-    // Sounds using Web Audio API for better browser compatibility
     const popSound = new Audio('https://actions.google.com/sounds/v1/cartoon/pop.ogg');
     const dropSound = new Audio('https://actions.google.com/sounds/v1/foley/glass_click.ogg');
 
-    const fruits = ['🍭', '🍬', '🍩', '🍫', '🍎', '🍇', '🍓', '🍊'];
-    let squares = [];
-    let score = 0;
-    let level = 1;
-    let firstId = null;
-    let isProcessing = false;
+    const fruits = ['🍎', '🍊', '🍋', '🍇', '🫐', '🥥'];
+    let squares = [], score = 0, moves = 30, firstId = null, isProcessing = false, isMusicPlaying = false;
 
-    function createBoard() {
+    function toggleMusic() {
+        if(isMusicPlaying) { bgMusic.pause(); } else { bgMusic.play(); }
+        isMusicPlaying = !isMusicPlaying;
+    }
+
+    function init() {
         for (let i = 0; i < 64; i++) {
             const slot = document.createElement('div');
             slot.className = 'slot';
             const fruit = document.createElement('div');
             fruit.className = 'fruit';
-            fruit.innerHTML = fruits[Math.floor(Math.random() * 4)];
+            fruit.innerHTML = fruits[Math.floor(Math.random()*6)];
             fruit.onclick = () => handleTap(i);
             slot.appendChild(fruit);
             gridEl.appendChild(slot);
@@ -117,117 +132,89 @@
     }
 
     function handleTap(id) {
-        if (isProcessing) return;
-        if (firstId === null) {
+        if(isProcessing || moves <= 0) return;
+        if(!isMusicPlaying) toggleMusic();
+        
+        if(firstId === null) {
             firstId = id;
             squares[firstId].classList.add('selected');
+            dropSound.play();
         } else {
-            const secondId = id;
-            if (isAdjacent(firstId, secondId)) {
+            if(isAdjacent(firstId, id)) {
                 isProcessing = true;
-                swap(firstId, secondId);
-                setTimeout(() => { 
-                    if (!checkMatches()) {
-                        swap(firstId, secondId);
-                        setTimeout(() => { isProcessing = false; }, 1500);
-                    } else {
-                        isProcessing = false;
-                    }
-                }, 1600);
+                visualSwap(firstId, id);
+            } else {
+                squares[firstId].classList.remove('selected');
+                firstId = id;
+                squares[firstId].classList.add('selected');
             }
-            squares[firstId].classList.remove('selected');
-            firstId = null;
         }
     }
 
     function isAdjacent(a, b) {
-        return (Math.abs(a % 8 - b % 8) + Math.abs(Math.floor(a / 8) - Math.floor(b / 8))) === 1;
+        return (Math.abs(Math.floor(a/8) - Math.floor(b/8)) + Math.abs(a%8 - b%8)) === 1;
     }
 
-    function swap(a, b) {
-        let temp = squares[a].innerHTML;
-        squares[a].innerHTML = squares[b].innerHTML;
-        squares[b].innerHTML = temp;
+    function visualSwap(id1, id2, isReverting = false) {
+        const f1 = squares[id1], f2 = squares[id2];
+        const r1 = f1.getBoundingClientRect(), r2 = f2.getBoundingClientRect();
+        
+        f1.style.transform = `translate(${r2.left-r1.left}px, ${r2.top-r1.top}px)`;
+        f2.style.transform = `translate(${r1.left-r2.left}px, ${r1.top-r2.top}px)`;
+
+        setTimeout(() => {
+            f1.style.transform = ''; f2.style.transform = '';
+            let t = f1.innerHTML; f1.innerHTML = f2.innerHTML; f2.innerHTML = t;
+            f1.classList.remove('selected');
+
+            if(!isReverting && !checkMatches()) {
+                setTimeout(() => visualSwap(id2, id1, true), 200);
+            } else {
+                if(!isReverting) { moves--; movesEl.innerText = moves; }
+                isProcessing = false; firstId = null;
+            }
+        }, 300);
     }
 
     function checkMatches() {
         let matches = new Set();
-        // Row check
-        for (let i = 0; i < 64; i++) {
-            if (i % 8 < 6) {
-                if (squares[i].innerHTML && squares[i].innerHTML === squares[i+1].innerHTML && squares[i].innerHTML === squares[i+2].innerHTML) {
-                    [i, i+1, i+2].forEach(x => matches.add(x));
-                }
-            }
+        for(let i=0; i<64; i++) {
+            if(i%8<6 && squares[i].innerHTML === squares[i+1].innerHTML && squares[i].innerHTML === squares[i+2].innerHTML) [i,i+1,i+2].forEach(x=>matches.add(x));
+            if(i<48 && squares[i].innerHTML === squares[i+8].innerHTML && squares[i].innerHTML === squares[i+16].innerHTML) [i,i+8,i+16].forEach(x=>matches.add(x));
         }
-        // Col check
-        for (let i = 0; i < 48; i++) {
-            if (squares[i].innerHTML && squares[i].innerHTML === squares[i+8].innerHTML && squares[i].innerHTML === squares[i+16].innerHTML) {
-                [i, i+8, i+16].forEach(x => matches.add(x));
-            }
-        }
-
-        if (matches.size > 0) {
-            isProcessing = true;
-            popSound.currentTime = 0;
-            popSound.play(); // Play match sound
-            
+        if(matches.size > 0) {
+            popSound.play();
             matches.forEach(id => squares[id].classList.add('pop'));
-            score += matches.size * 10;
-            scoreElementUpdate();
-            
-            setTimeout(applyGravity, 1300);
+            score += matches.size * 10; scoreEl.innerText = score;
+            setTimeout(applyGravity, 500);
             return true;
         }
         return false;
     }
 
-    function scoreElementUpdate() {
-        scoreEl.innerText = score;
-        if (score > 0 && score % 500 === 0) {
-            level++;
-            levelEl.innerText = level;
-        }
-    }
-
     function applyGravity() {
-        squares.forEach(s => { if (s.classList.contains('pop')) { s.innerHTML = ''; s.classList.remove('pop'); } });
-
-        let hadEmpty = false;
-        for (let c = 0; c < 8; c++) {
-            let emptyCount = 0;
-            for (let r = 7; r >= 0; r--) {
-                let idx = r * 8 + c;
-                if (squares[idx].innerHTML === '') {
-                    emptyCount++;
-                    hadEmpty = true;
-                } else if (emptyCount > 0) {
-                    squares[(r + emptyCount) * 8 + c].innerHTML = squares[idx].innerHTML;
+        squares.forEach(s => { if(s.classList.contains('pop')) { s.innerHTML = ''; s.classList.remove('pop'); } });
+        for(let c=0; c<8; c++) {
+            let empty = 0;
+            for(let r=7; r>=0; r--) {
+                let idx = r*8+c;
+                if(squares[idx].innerHTML === '') empty++;
+                else if(empty > 0) {
+                    squares[(r+empty)*8+c].innerHTML = squares[idx].innerHTML;
                     squares[idx].innerHTML = '';
                 }
             }
-            for (let r = 0; r < emptyCount; r++) {
-                let idx = r * 8 + c;
-                squares[idx].innerHTML = fruits[Math.floor(Math.random() * Math.min(level + 3, 8))];
+            for(let r=0; r<empty; r++) {
+                let idx = r*8+c;
+                squares[idx].innerHTML = fruits[Math.floor(Math.random()*6)];
                 squares[idx].classList.add('fall-anim');
-                
-                // Play collision sound when they land (approx time)
-                setTimeout(() => {
-                    dropSound.currentTime = 0;
-                    dropSound.volume = 0.5;
-                    dropSound.play();
-                }, 1800);
-
-                setTimeout(() => squares[idx].classList.remove('fall-anim'), 2100);
+                setTimeout(()=>squares[idx].classList.remove('fall-anim'), 600);
             }
         }
-        
-        setTimeout(() => {
-            if (!checkMatches()) isProcessing = false;
-        }, 2200);
+        setTimeout(() => { if(!checkMatches()) isProcessing = false; }, 700);
     }
 
-    createBoard();
+    init();
 </script>
 </body>
 </html>
