@@ -3,37 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mega Game Hub - 10+ Games</title>
+    <title>Mega Game Hub - Hall of Fame</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
+        :root { --neon-pink: #ff007f; --neon-blue: #00d4ff; --gold: #ffd700; }
         body { margin: 0; padding: 0; font-family: 'Fredoka One', cursive; background: #0f0c29; color: white; text-align: center; }
-        header { padding: 30px; background: rgba(255, 255, 255, 0.1); border-bottom: 3px solid #00d4ff; box-shadow: 0 0 20px #00d4ff; }
-        h1 { font-size: 32px; text-shadow: 0 0 10px #ff007f; margin: 0; }
-        .game-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 20px; max-width: 600px; margin: 0 auto; }
-        .game-card { background: rgba(255, 255, 255, 0.05); border-radius: 20px; border: 2px solid #00d4ff; padding: 20px; text-decoration: none; color: white; transition: 0.3s; }
-        .game-card:hover { transform: scale(1.05); box-shadow: 0 0 15px #00d4ff; }
-        .game-icon { font-size: 50px; display: block; }
-        .play-btn { background: #ff007f; border: none; padding: 10px 20px; border-radius: 15px; color: white; margin-top: 10px; cursor: pointer; }
+        header { padding: 25px; border-bottom: 4px solid var(--neon-blue); background: rgba(0,0,0,0.3); }
+        h1 { font-size: 28px; text-transform: uppercase; text-shadow: 0 0 15px var(--neon-pink); margin: 0; }
+        .leaderboard-box { background: rgba(255, 255, 255, 0.05); margin: 20px auto; width: 90%; max-width: 400px; border-radius: 20px; border: 2px solid var(--gold); padding: 15px; box-shadow: 0 0 20px rgba(255, 215, 0, 0.2); }
+        .leaderboard-title { color: var(--gold); font-size: 20px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .score-row { display: flex; justify-content: space-between; padding: 8px 15px; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 16px; }
+        .your-score { background: rgba(0, 212, 255, 0.2); border-radius: 10px; color: var(--neon-blue); font-weight: bold; }
+        .game-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 20px; max-width: 500px; margin: 0 auto; }
+        .game-card { background: rgba(255, 255, 255, 0.05); border-radius: 25px; border: 2px solid var(--neon-blue); padding: 15px; text-decoration: none; color: white; transition: 0.3s; }
+        .game-card:hover { transform: scale(1.05); box-shadow: 0 0 20px var(--neon-blue); }
+        .game-icon { font-size: 50px; display: block; margin-bottom: 5px; }
+        .play-btn { background: var(--neon-pink); border: none; padding: 8px 20px; border-radius: 15px; color: white; font-weight: bold; margin-top: 10px; cursor: pointer; font-family: 'Fredoka One'; }
     </style>
 </head>
 <body>
-    <header><h1>🎮 MEGA GAME HUB</h1></header>
+    <header><h1>🕹️ MEGA GAME HUB</h1></header>
+    <div class="leaderboard-box">
+        <div class="leaderboard-title">🏆 HALL OF FAME</div>
+        <div class="score-row"><span>1. Sameer</span><span>28,500</span></div>
+        <div class="score-row"><span>2. Rahul</span><span>24,200</span></div>
+        <div class="score-row"><span>3. Priya</span><span>19,800</span></div>
+        <div class="score-row your-score"><span>YOU (Best)</span><span id="personalBest">0</span></div>
+    </div>
     <div class="game-grid">
         <a href="candy.html" class="game-card">
             <span class="game-icon">🍭</span>
-            <span>Candy Crush 3D</span><br>
-            <button class="play-btn">अभी खेलें</button>
+            <div style="font-size: 16px;">Candy Soda 3D</div>
+            <button class="play-btn">PLAY NOW</button>
         </a>
         <a href="bubbles.html" class="game-card">
             <span class="game-icon">🔮</span>
-            <span>Bubbles</span><br>
-            <button class="play-btn">अभी खेलें</button>
-        </a>
-        <a href="snake.html" class="game-card">
-            <span class="game-icon">🐍</span>
-            <span>Neon Snake</span><br>
-            <button class="play-btn">अभी खेलें</button>
+            <div style="font-size: 16px;">Bubbles</div>
+            <button class="play-btn">PLAY NOW</button>
         </a>
     </div>
+    <script>
+        window.onload = function() {
+            let highScore = localStorage.getItem('candyHighScore') || 0;
+            document.getElementById('personalBest').innerText = parseInt(highScore).toLocaleString();
+        };
+    </script>
 </body>
 </html>
