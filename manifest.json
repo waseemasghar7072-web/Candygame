@@ -1,0 +1,9 @@
+{
+  "name": "Mega Game Hub",
+  "short_name": "GameHub",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#0f0c29",
+  "theme_color": "#ff007f",
+  "icons": [{ "src": "https://cdn-icons-png.flaticon.com/512/528/528164.png", "sizes": "512x512", "type": "image/png" }]
+}
