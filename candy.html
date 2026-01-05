@@ -3,220 +3,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Candy Soda Pro - Power-Ups Fix</title>
-    <link rel="manifest" href="manifest.json">
+    <title>Candy Soda Ultra - Power Fix</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
-        :root { --primary-blue: #00c6ff; --primary-green: #00e676; --accent-pink: #ff4081; --gold: #ffd700; }
-        body { margin: 0; padding: 0; font-family: 'Fredoka One', cursive; background: linear-gradient(to bottom, #00c6ff, #0072ff); min-height: 100vh; display: flex; flex-direction: column; align-items: center; color: white; overflow: hidden; touch-action: none; position: relative; }
+        :root { --p-blue: #00c6ff; --p-green: #00e676; --pink: #ff4081; --gold: #ffd700; }
+        body { margin: 0; padding: 0; font-family: 'Fredoka One', cursive; background: linear-gradient(#00c6ff, #0072ff); min-height: 100vh; display: flex; flex-direction: column; align-items: center; color: white; overflow: hidden; touch-action: none; }
         
-        .header-ui { width: 100%; padding: 10px 0; background: linear-gradient(to bottom, var(--primary-green), #00b248); box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; justify-content: space-around; align-items: center; z-index: 10; border-bottom: 3px solid white; }
-        .stat-panel { background: rgba(0,0,0,0.2); padding: 5px 10px; border-radius: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.2); min-width: 65px; }
-        .coin-wallet { background: rgba(0,0,0,0.4); padding: 5px 12px; border-radius: 20px; border: 2px solid var(--gold); color: var(--gold); display: flex; align-items: center; gap: 5px; cursor: pointer; }
+        /* Header */
+        .header { width: 100%; padding: 10px 0; background: linear-gradient(var(--p-green), #00b248); display: flex; justify-content: space-around; align-items: center; border-bottom: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 10; }
+        .stat { background: rgba(0,0,0,0.2); padding: 5px 12px; border-radius: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.2); }
         
-        .board-container { background: rgba(255,255,255,0.2); padding: 8px; border-radius: 20px; margin: 20px auto; border: 3px solid white; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 5; backdrop-filter: blur(5px); transition: transform 0.1s; }
-        .grid { display: grid; grid-template-columns: repeat(8, 42px); grid-template-rows: repeat(8, 42px); gap: 4px; }
+        /* Board */
+        .board-bg { background: rgba(255,255,255,0.2); padding: 8px; border-radius: 20px; margin: 20px auto; border: 3px solid white; box-shadow: 0 10px 25px rgba(0,0,0,0.2); backdrop-filter: blur(5px); }
+        .grid { display: grid; grid-template-columns: repeat(8, 42px); gap: 4px; }
         .slot { width: 42px; height: 42px; background: rgba(0,0,0,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; position: relative; }
         
-        .fruit { font-size: 32px; cursor: pointer; position: absolute; z-index: 2; filter: drop-shadow(0 3px 3px rgba(0,0,0,0.4)); transition: transform 0.2s; }
-        .selected { transform: scale(1.25); filter: brightness(1.2); z-index: 10; }
-
-        /* Special Candy Styles */
-        .striped { border: 2px solid white; border-radius: 50%; box-shadow: 0 0 15px white; background: rgba(255,255,255,0.2); }
-        .bomb { filter: hue-rotate(90deg) brightness(1.5); animation: pulse 0.5s infinite alternate; }
-        @keyframes pulse { from {transform: scale(1);} to {transform: scale(1.2);} }
-
-        .pop { animation: popAnim 0.4s forwards; }
-        @keyframes popAnim { 0% {transform: scale(1);} 100% {transform: scale(0); opacity: 0;} }
+        /* Candies & Powers */
+        .fruit { font-size: 32px; cursor: pointer; position: absolute; transition: transform 0.2s; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.4)); }
+        .selected { transform: scale(1.3); filter: brightness(1.3); z-index: 10; }
         
-        .shake { animation: shakeBoard 0.3s; }
-        @keyframes shakeBoard { 0%, 100% {transform: translate(0,0);} 25% {transform: translate(-4px,0);} 75% {transform: translate(4px,0);} }
+        /* Power-Up Look */
+        .power-rocket { background: rgba(255, 255, 255, 0.4); border-radius: 50%; box-shadow: 0 0 15px #fff; animation: glow 0.8s infinite alternate; }
+        .power-bomb { background: rgba(255, 64, 129, 0.4); border-radius: 50%; box-shadow: 0 0 20px var(--pink); animation: pulse 0.5s infinite alternate; }
+        
+        @keyframes glow { from {box-shadow: 0 0 5px #fff;} to {box-shadow: 0 0 20px #fff;} }
+        @keyframes pulse { from {transform: scale(1);} to {transform: scale(1.15);} }
+        @keyframes shake { 0%, 100% {transform: translate(0,0);} 25% {transform: translate(-5px,0);} 75% {transform: translate(5px,0);} }
+        .shake { animation: shake 0.3s; }
+        .pop { animation: pop 0.4s forwards; }
+        @keyframes pop { 0% {transform: scale(1);} 100% {transform: scale(0); opacity: 0;} }
 
-        #stageOverlay, #shopOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); z-index: 200; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .shop-box { background: #2E0249; padding: 20px; border-radius: 20px; border: 3px solid var(--gold); width: 80%; max-width: 280px; }
-        .item-row { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.1); padding: 8px; margin: 8px 0; border-radius: 12px; }
-        .buy-btn { background: var(--primary-green); border: none; padding: 8px 12px; border-radius: 8px; color: white; cursor: pointer; font-family: 'Fredoka One'; }
+        /* Shop & Overlays */
+        .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); z-index: 100; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .btn { padding: 12px 30px; background: var(--p-green); border: none; border-radius: 25px; color: white; font-size: 20px; font-family: 'Fredoka One'; cursor: pointer; }
     </style>
 </head>
 <body>
-    <audio id="bgMusic" loop><source src="https://assets.mixkit.co/music/preview/mixkit-game-level-music-689.mp3"></audio>
-    
-    <div id="shopOverlay"><div class="shop-box"><h2 style="color: var(--gold);">🛒 SHOP</h2><div class="item-row"><span>➕ 5 Moves</span><button class="buy-btn" onclick="buyItem('moves')">💰 100</button></div><div class="item-row"><span>🔨 Hammer</span><button class="buy-btn" onclick="buyItem('hammer')">💰 200</button></div><button onclick="toggleShop()" style="margin-top: 10px; color: white; background: none; border: 1px solid white; padding: 5px 15px; border-radius: 10px;">Close</button></div></div>
-    
-    <div id="stageOverlay"><h1 style="color: #fff;">STAGE <span id="clearedStageNum">1</span> DONE! 🌟</h1><div style="color: var(--gold); font-size: 24px; margin: 15px;">💰 +50 COINS</div><button onclick="startNextStage()" style="padding: 15px 40px; background: var(--primary-green); border: none; border-radius: 30px; color: white; font-size: 20px; font-family: 'Fredoka One';">Next Level ▶</button></div>
+    <div id="winScreen" class="overlay">
+        <h1 style="color: var(--gold);">STAGE COMPLETE! 🌟</h1>
+        <p>You earned 💰 50 Coins</p>
+        <button class="btn" onclick="nextStage()">NEXT LEVEL ▶</button>
+    </div>
 
-    <div class="header-ui">
-        <div class="coin-wallet" onclick="toggleShop()">💰 <span id="coinBalance">0</span></div>
-        <div class="stat-panel">Score<br><b id="score" style="color:#ffd700;">0</b></div>
-        <div class="stat-panel">Stage<br><b id="stageNum">1</b></div>
-        <div class="stat-panel" style="background:var(--accent-pink);">Moves<br><b id="moves">30</b></div>
+    <div class="header">
+        <div class="stat">Coins<br><b id="coins" style="color:var(--gold);">0</b></div>
+        <div class="stat">Score<br><b id="score">0</b></div>
+        <div class="stat">Stage<br><b id="stage">1</b></div>
+        <div class="stat" style="background:var(--pink);">Moves<br><b id="moves">30</b></div>
     </div>
     
-    <div style="margin-top: 10px; font-size: 16px;">Target: <span id="targetCount">15</span> <span id="targetIcon">🍎</span></div>
-    <div class="board-container" id="board"><div class="grid" id="grid"></div></div>
+    <div style="margin-top: 15px;">Target: <span id="targetCount">15</span> <span id="targetIcon">🍎</span></div>
+    
+    <div class="board-bg" id="board"><div class="grid" id="grid"></div></div>
 
 <script>
-    const gridEl = document.getElementById('grid'), scoreEl = document.getElementById('score'), movesEl = document.getElementById('moves'), targetCountEl = document.getElementById('targetCount'), coinBalanceEl = document.getElementById('coinBalance'), stageNumEl = document.getElementById('stageNum'), boardEl = document.getElementById('board');
-    const bgMusic = document.getElementById('bgMusic'), popSound = new Audio('https://actions.google.com/sounds/v1/cartoon/pop.ogg');
-    
+    const gridEl = document.getElementById('grid'), scoreEl = document.getElementById('score'), movesEl = document.getElementById('moves');
+    const targetCountEl = document.getElementById('targetCount'), coinEl = document.getElementById('coins'), boardEl = document.getElementById('board');
     const fruits = ['🍎', '🍊', '🍋', '🍇', '🫐', '🥥'];
-    let currentStage = 1, targetFruit = '🍎', targetAmount = 15, score = 0, moves = 30, firstId = null, isProcessing = false, hammerMode = false;
-    let coins = parseInt(localStorage.getItem('candyCoins')) || 0;
-    coinBalanceEl.innerText = coins;
+    let stage = 1, targetAmount = 15, score = 0, moves = 30, coins = parseInt(localStorage.getItem('candyCoins'))||0;
+    let squares = [], firstId = null, isProcessing = false;
 
-    window.onload = () => init();
-
-    function toggleShop() { document.getElementById('shopOverlay').style.display = (document.getElementById('shopOverlay').style.display === 'flex') ? 'none' : 'flex'; }
-
-    function buyItem(type) { 
-        if(type === 'moves' && coins >= 100) { coins -= 100; moves += 5; } 
-        else if(type === 'hammer' && coins >= 200) { coins -= 200; hammerMode = true; alert("Hammer Active! Click a candy to smash."); } 
-        else { alert("Sikke kam hain!"); } 
-        localStorage.setItem('candyCoins', coins); coinBalanceEl.innerText = coins; movesEl.innerText = moves; toggleShop(); 
+    function init() {
+        gridEl.innerHTML = ''; squares = []; coinEl.innerText = coins;
+        for (let i = 0; i < 64; i++) {
+            const slot = document.createElement('div'); slot.className = 'slot';
+            const f = document.createElement('div'); f.className = 'fruit';
+            f.innerHTML = fruits[Math.floor(Math.random()*6)];
+            f.dataset.type = "normal"; f.onclick = () => tap(i);
+            slot.appendChild(f); gridEl.appendChild(slot); squares.push(f);
+        }
+        setTimeout(() => check(null), 500);
     }
 
-    function init() { 
-        gridEl.innerHTML = ''; squares = []; 
-        for (let i = 0; i < 64; i++) { 
-            const slot = document.createElement('div'); slot.className = 'slot'; 
-            const fruit = document.createElement('div'); fruit.className = 'fruit'; 
-            fruit.innerHTML = fruits[Math.floor(Math.random()*6)]; 
-            fruit.dataset.type = "normal";
-            fruit.onclick = () => handleTap(i); 
-            slot.appendChild(fruit); gridEl.appendChild(slot); squares.push(fruit); 
-        } 
-        setTimeout(() => checkMatches(), 500); 
+    function tap(id) {
+        if(isProcessing || moves <= 0) return;
+        if(firstId === null) { firstId = id; squares[id].classList.add('selected'); }
+        else { swap(firstId, id); firstId = null; }
     }
 
-    function handleTap(id) { 
-        if(isProcessing || moves <= 0) return; 
-        if(bgMusic.paused) bgMusic.play(); 
+    function swap(id1, id2) {
+        if(Math.abs(Math.floor(id1/8)-Math.floor(id2/8)) + Math.abs(id1%8-id2%8) !== 1) {
+            squares[id1].classList.remove('selected'); return;
+        }
+        isProcessing = true;
+        let f1 = squares[id1], f2 = squares[id2];
+        let t = f1.innerHTML, ty = f1.dataset.type, cl = f1.className;
+        f1.innerHTML = f2.innerHTML; f1.dataset.type = f2.dataset.type; f1.className = f2.className;
+        f2.innerHTML = t; f2.dataset.type = ty; f2.className = cl;
+        f1.classList.remove('selected');
 
-        if(hammerMode) { 
-            squares[id].classList.add('pop'); 
-            setTimeout(() => { hammerMode = false; applyGravity(); }, 400); 
-            return; 
-        } 
-
-        if(firstId === null) { firstId = id; squares[firstId].classList.add('selected'); } 
-        else { 
-            if(isAdjacent(firstId, id)) { isProcessing = true; visualSwap(firstId, id); } 
-            else { squares[firstId].classList.remove('selected'); firstId = id; squares[firstId].classList.add('selected'); } 
-        } 
+        if(!check(id2)) {
+            setTimeout(() => { // Revert
+                let t = f1.innerHTML; f1.innerHTML = f2.innerHTML; f2.innerHTML = t;
+                isProcessing = false;
+            }, 300);
+        } else {
+            moves--; movesEl.innerText = moves; isProcessing = false;
+        }
     }
 
-    function isAdjacent(a, b) { return (Math.abs(Math.floor(a/8) - Math.floor(b/8)) + Math.abs(a%8 - b%8)) === 1; }
+    function check(lastId) {
+        let matches = new Set();
+        // Row check
+        for(let r=0; r<8; r++) {
+            for(let c=0; c<6; c++) {
+                let i = r*8+c;
+                if(squares[i].innerHTML === squares[i+1].innerHTML && squares[i].innerHTML === squares[i+2].innerHTML) {
+                    matches.add(i); matches.add(i+1); matches.add(i+2);
+                }
+            }
+        }
+        // Col check
+        for(let c=0; c<8; c++) {
+            for(let r=0; r<6; r++) {
+                let i = r*8+c;
+                if(squares[i].innerHTML === squares[i+8].innerHTML && squares[i].innerHTML === squares[i+16].innerHTML) {
+                    matches.add(i); matches.add(i+8); matches.add(i+16);
+                }
+            }
+        }
 
-    function visualSwap(id1, id2, isReverting = false) { 
-        const f1 = squares[id1], f2 = squares[id2], r1 = f1.getBoundingClientRect(), r2 = f2.getBoundingClientRect(); 
-        f1.style.transform = `translate(${r2.left-r1.left}px, ${r2.top-r1.top}px)`; 
-        f2.style.transform = `translate(${r1.left-r2.left}px, ${r1.top-r2.top}px)`; 
-        
-        setTimeout(() => { 
-            f1.style.transform = ''; f2.style.transform = ''; 
-            let t = f1.innerHTML; let dtype = f1.dataset.type; let dclass = f1.className;
-            
-            f1.innerHTML = f2.innerHTML; f1.dataset.type = f2.dataset.type; f1.className = f2.className;
-            f2.innerHTML = t; f2.dataset.type = dtype; f2.className = dclass;
-            
-            f1.classList.remove('selected'); f2.classList.remove('selected');
-
-            if(!isReverting && !checkMatches(id2)) { 
-                setTimeout(() => visualSwap(id2, id1, true), 200); 
-            } else { 
-                if(!isReverting) { moves--; movesEl.innerText = moves; } 
-                isProcessing = false; firstId = null; 
-            } 
-        }, 300); 
-    }
-
-    function checkMatches(lastMoveId = null) { 
-        let m = new Set(); 
-        for(let i=0; i<64; i++) { 
-            if(i%8<6 && squares[i].innerHTML === squares[i+1].innerHTML && squares[i].innerHTML === squares[i+2].innerHTML) [i,i+1,i+2].forEach(x=>m.add(x)); 
-            if(i<48 && squares[i].innerHTML === squares[i+8].innerHTML && squares[i].innerHTML === squares[i+16].innerHTML) [i,i+8,i+16].forEach(x=>m.add(x)); 
-        } 
-        
-        if(m.size > 0) { 
-            popSound.play(); 
-            
-            // Power-up Creation Logic
-            if(lastMoveId !== null && m.has(lastMoveId)) {
-                if(m.size === 4) makeSpecial(lastMoveId, "striped");
-                else if(m.size >= 5) makeSpecial(lastMoveId, "bomb");
+        if(matches.size > 0) {
+            // Power-up Logic
+            if(lastId !== null && matches.has(lastId)) {
+                if(matches.size === 4) { 
+                    squares[lastId].dataset.type = "rocket"; 
+                    squares[lastId].classList.add("power-rocket");
+                    squares[lastId].innerHTML = "🚀";
+                } else if(matches.size >= 5) {
+                    squares[lastId].dataset.type = "bomb";
+                    squares[lastId].classList.add("power-bomb");
+                    squares[lastId].innerHTML = "💣";
+                }
             }
 
-            if(m.size >= 4) { boardEl.classList.add('shake'); setTimeout(()=>boardEl.classList.remove('shake'), 300); } 
+            matches.forEach(id => {
+                if(squares[id].dataset.type === "rocket") { clearRow(Math.floor(id/8)); }
+                if(squares[id].dataset.type === "bomb") { clearArea(id); }
+                if(squares[id].innerHTML === "🍎" && targetAmount > 0) { targetAmount--; targetCountEl.innerText = targetAmount; }
+                squares[id].classList.add('pop');
+            });
 
-            m.forEach(id => { 
-                // Trigger existing powers
-                if(squares[id].dataset.type === "striped") clearLine(id);
-                if(squares[id].dataset.type === "bomb") clearArea(id);
-
-                if(squares[id].innerHTML === targetFruit && targetAmount > 0) { targetAmount--; targetCountEl.innerText = targetAmount; } 
-                squares[id].classList.add('pop'); 
-            }); 
-            
-            score += m.size * 10; scoreEl.innerText = score; 
-            
-            // Save High Score
-            let high = localStorage.getItem('candyHighScore') || 0; 
-            if(score > high) localStorage.setItem('candyHighScore', score); 
-
-            if(targetAmount <= 0) { 
-                setTimeout(() => { document.getElementById('stageOverlay').style.display='flex'; coins+=50; localStorage.setItem('candyCoins', coins); coinBalanceEl.innerText=coins; }, 600); 
-                return true; 
-            } 
-            setTimeout(applyGravity, 400); return true; 
-        } 
-        return false; 
+            score += matches.size * 10; scoreEl.innerText = score;
+            if(targetAmount <= 0) { win(); return true; }
+            setTimeout(fill, 400); return true;
+        }
+        return false;
     }
 
-    function makeSpecial(id, type) {
-        setTimeout(() => {
-            squares[id].classList.remove('pop');
-            squares[id].dataset.type = type;
-            squares[id].classList.add(type);
-        }, 50);
-    }
-
-    function clearLine(id) {
-        let row = Math.floor(id/8);
-        for(let i=row*8; i<(row*8)+8; i++) { squares[i].classList.add('pop'); score += 5; }
+    function clearRow(row) {
+        boardEl.classList.add('shake'); setTimeout(()=>boardEl.classList.remove('shake'), 300);
+        for(let i=row*8; i<(row*8)+8; i++) squares[i].classList.add('pop');
     }
 
     function clearArea(id) {
+        boardEl.classList.add('shake');
         let area = [id-1, id+1, id-8, id+8, id-9, id-7, id+9, id+7];
-        area.forEach(i => { if(i>=0 && i<64) { squares[i].classList.add('pop'); score += 5; } });
+        area.forEach(i => { if(i>=0 && i<64) squares[i].classList.add('pop'); });
     }
 
-    function startNextStage() { 
-        document.getElementById('stageOverlay').style.display = 'none'; 
-        currentStage++; targetAmount = 15 + (currentStage * 5); moves = 30; 
-        document.getElementById('stageNum').innerText = currentStage; 
-        targetCountEl.innerText = targetAmount; movesEl.innerText = moves; 
-        init(); 
+    function fill() {
+        squares.forEach(s => { if(s.classList.contains('pop')) { s.innerHTML = fruits[Math.floor(Math.random()*6)]; s.dataset.type="normal"; s.className="fruit"; } });
+        check(null);
     }
 
-    function applyGravity() { 
-        squares.forEach(s => { if(s.classList.contains('pop')) { s.innerHTML = ''; s.classList.remove('pop', 'striped', 'bomb'); s.dataset.type="normal"; } }); 
-        for(let c=0; c<8; c++) { 
-            let empty = 0; 
-            for(let r=7; r>=0; r--) { 
-                let idx = r*8+c; 
-                if(squares[idx].innerHTML === '') empty++; 
-                else if(empty > 0) { 
-                    let target = (r+empty)*8+c;
-                    squares[target].innerHTML = squares[idx].innerHTML; 
-                    squares[target].dataset.type = squares[idx].dataset.type;
-                    squares[target].className = squares[idx].className;
-                    squares[idx].innerHTML = ''; squares[idx].dataset.type = "normal"; squares[idx].className = "fruit";
-                } 
-            } 
-            for(let r=0; r<empty; r++) { squares[r*8+c].innerHTML = fruits[Math.floor(Math.random()*6)]; } 
-        } 
-        setTimeout(() => { if(!checkMatches()) isProcessing = false; }, 400); 
+    function win() {
+        coins += 50; localStorage.setItem('candyCoins', coins);
+        document.getElementById('winScreen').style.display = 'flex';
     }
+
+    function nextStage() {
+        stage++; targetAmount = 15 + (stage*5);
+        document.getElementById('stage').innerText = stage;
+        targetCountEl.innerText = targetAmount;
+        moves = 30; movesEl.innerText = moves;
+        document.getElementById('winScreen').style.display = 'none';
+        init();
+    }
+
+    window.onload = init;
 </script>
 </body>
 </html>
