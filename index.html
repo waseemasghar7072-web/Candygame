@@ -3,50 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mega Game Hub - Hall of Fame</title>
+    <title>Waseem's Mega Game Hub</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
-        :root { --neon-pink: #ff007f; --neon-blue: #00d4ff; --gold: #ffd700; }
-        body { margin: 0; padding: 0; font-family: 'Fredoka One', cursive; background: #0f0c29; color: white; text-align: center; }
-        header { padding: 25px; border-bottom: 4px solid var(--neon-blue); background: rgba(0,0,0,0.3); }
-        h1 { font-size: 28px; text-transform: uppercase; text-shadow: 0 0 15px var(--neon-pink); margin: 0; }
-        .leaderboard-box { background: rgba(255, 255, 255, 0.05); margin: 20px auto; width: 90%; max-width: 400px; border-radius: 20px; border: 2px solid var(--gold); padding: 15px; box-shadow: 0 0 20px rgba(255, 215, 0, 0.2); }
-        .leaderboard-title { color: var(--gold); font-size: 20px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .score-row { display: flex; justify-content: space-between; padding: 8px 15px; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 16px; }
-        .your-score { background: rgba(0, 212, 255, 0.2); border-radius: 10px; color: var(--neon-blue); font-weight: bold; }
-        .game-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 20px; max-width: 500px; margin: 0 auto; }
-        .game-card { background: rgba(255, 255, 255, 0.05); border-radius: 25px; border: 2px solid var(--neon-blue); padding: 15px; text-decoration: none; color: white; transition: 0.3s; }
-        .game-card:hover { transform: scale(1.05); box-shadow: 0 0 20px var(--neon-blue); }
-        .game-icon { font-size: 50px; display: block; margin-bottom: 5px; }
-        .play-btn { background: var(--neon-pink); border: none; padding: 8px 20px; border-radius: 15px; color: white; font-weight: bold; margin-top: 10px; cursor: pointer; font-family: 'Fredoka One'; }
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Bebas+Neue&display=swap');
+        
+        :root {
+            --primary: #ff0055;
+            --secondary: #00ffcc;
+            --dark: #0a0a0a;
+            --glass: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            margin: 0; padding: 0;
+            background: var(--dark);
+            background-image: radial-gradient(circle at 20% 30%, #1a0033 0%, transparent 50%),
+                              radial-gradient(circle at 80% 70%, #001a1a 0%, transparent 50%);
+            color: white; font-family: 'Fredoka One', cursive;
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+        }
+
+        /* Hero Section */
+        header {
+            text-align: center; padding: 50px 20px;
+            animation: fadeIn 1.5s ease;
+        }
+        h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 80px; margin: 0; letter-spacing: 5px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 10px rgba(255,0,85,0.5));
+        }
+        p { color: #888; font-size: 18px; margin-top: -10px; }
+
+        /* Game Grid */
+        .game-container {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px; width: 90%; max-width: 1200px; padding: 20px;
+        }
+
+        .game-card {
+            background: var(--glass); backdrop-filter: blur(10px);
+            border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
+            overflow: hidden; transition: 0.4s; position: relative;
+            text-decoration: none; color: white;
+        }
+        .game-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            border-color: var(--secondary);
+            box-shadow: 0 20px 40px rgba(0, 255, 204, 0.2);
+        }
+
+        .card-img {
+            height: 180px; background: #222;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 60px; transition: 0.4s;
+        }
+        .game-card:hover .card-img { font-size: 80px; }
+
+        .card-info { padding: 20px; text-align: center; }
+        .card-info h2 { margin: 10px 0; font-family: 'Bebas Neue'; font-size: 30px; color: var(--secondary); }
+
+        /* Hall of Fame */
+        .leaderboard {
+            width: 90%; max-width: 600px; margin: 50px 0;
+            background: var(--glass); border-radius: 20px; padding: 25px;
+            border: 1px solid var(--primary);
+        }
+        .leaderboard h2 { text-align: center; color: var(--primary); font-family: 'Bebas Neue'; font-size: 40px; margin-top: 0; }
+        .entry {
+            display: flex; justify-content: space-between;
+            padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .entry:last-child { border: none; }
+        .rank { color: var(--secondary); font-weight: bold; width: 30px; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        @media (max-width: 600px) { h1 { font-size: 50px; } }
     </style>
 </head>
 <body>
-    <header><h1>🕹️ MEGA GAME HUB</h1></header>
-    <div class="leaderboard-box">
-        <div class="leaderboard-title">🏆 HALL OF FAME</div>
-        <div class="score-row"><span>1. Sameer</span><span>28,500</span></div>
-        <div class="score-row"><span>2. Rahul</span><span>24,200</span></div>
-        <div class="score-row"><span>3. Priya</span><span>19,800</span></div>
-        <div class="score-row your-score"><span>YOU (Best)</span><span id="personalBest">0</span></div>
-    </div>
-    <div class="game-grid">
+
+    <header>
+        <h1>MEGA GAME HUB</h1>
+        <p>Experience the Cinematic Gaming Revolution</p>
+    </header>
+
+    <div class="game-container">
         <a href="candy.html" class="game-card">
-            <span class="game-icon">🍭</span>
-            <div style="font-size: 16px;">Candy Soda 3D</div>
-            <button class="play-btn">PLAY NOW</button>
+            <div class="card-img" style="background: linear-gradient(45deg, #430080, #ff0055);">🍭</div>
+            <div class="card-info">
+                <h2>CANDY MAFIA 3D</h2>
+                <p>Action, Dialogues & Sweets. Join the underworld!</p>
+                <div style="background: var(--primary); padding: 8px; border-radius: 10px; display: inline-block;">PLAY NOW</div>
+            </div>
         </a>
+
         <a href="bubbles.html" class="game-card">
-            <span class="game-icon">🔮</span>
-            <div style="font-size: 16px;">Bubbles</div>
-            <button class="play-btn">PLAY NOW</button>
+            <div class="card-img" style="background: linear-gradient(45deg, #004d4d, #00ffcc);">🔮</div>
+            <div class="card-info">
+                <h2>NEON BUBBLES</h2>
+                <p>Pop the bubbles in a high-speed arcade thriller.</p>
+                <div style="background: var(--secondary); color: black; padding: 8px; border-radius: 10px; display: inline-block;">PLAY NOW</div>
+            </div>
         </a>
     </div>
+
+    <div class="leaderboard">
+        <h2>🏆 HALL OF FAME</h2>
+        <div class="entry"><span class="rank">1.</span> Sameer <span>28,500</span></div>
+        <div class="entry"><span class="rank">2.</span> Rahul <span>24,200</span></div>
+        <div class="entry"><span class="rank">3.</span> Priya <span>19,800</span></div>
+        <div class="entry" style="color: var(--secondary);"><span class="rank">YOU</span> (Best) <span id="userBest">0</span></div>
+    </div>
+
+    <footer style="margin-bottom: 40px; color: #555; font-size: 14px;">
+        &copy; 2026 Waseem Productions | All Rights Reserved
+    </footer>
+
     <script>
-        window.onload = function() {
-            let highScore = localStorage.getItem('candyHighScore') || 0;
-            document.getElementById('personalBest').innerText = parseInt(highScore).toLocaleString();
-        };
+        // Highscore sync (agar candy game se save hai)
+        document.getElementById('userBest').innerText = localStorage.getItem('candyScore') || 0;
     </script>
 </body>
 </html>
