@@ -10,6 +10,7 @@
         :root {
             --primary: #ff0055;
             --secondary: #00ffcc;
+            --ff-yellow: #ffcc00;
             --dark: #0a0a0a;
             --glass: rgba(255, 255, 255, 0.1);
         }
@@ -23,65 +24,41 @@
             display: flex; flex-direction: column; align-items: center; min-height: 100vh;
         }
 
-        /* Hero Section */
         header {
-            text-align: center; padding: 50px 20px;
-            animation: fadeIn 1.5s ease;
+            text-align: center; padding: 40px 20px;
         }
         h1 {
             font-family: 'Bebas Neue', sans-serif;
-            font-size: 80px; margin: 0; letter-spacing: 5px;
+            font-size: 60px; margin: 0; letter-spacing: 5px;
             background: linear-gradient(to right, var(--primary), var(--secondary));
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 10px rgba(255,0,85,0.5));
         }
-        p { color: #888; font-size: 18px; margin-top: -10px; }
 
-        /* Game Grid */
         .game-container {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px; width: 90%; max-width: 1200px; padding: 20px;
+            gap: 25px; width: 90%; max-width: 1200px; padding: 20px;
         }
 
         .game-card {
             background: var(--glass); backdrop-filter: blur(10px);
             border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
-            overflow: hidden; transition: 0.4s; position: relative;
-            text-decoration: none; color: white;
+            overflow: hidden; transition: 0.4s; text-decoration: none; color: white;
+            display: flex; flex-direction: column;
         }
         .game-card:hover {
-            transform: translateY(-15px) scale(1.02);
-            border-color: var(--secondary);
-            box-shadow: 0 20px 40px rgba(0, 255, 204, 0.2);
+            transform: translateY(-10px);
+            border-color: var(--ff-yellow);
+            box-shadow: 0 15px 30px rgba(255, 204, 0, 0.2);
         }
 
         .card-img {
-            height: 180px; background: #222;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 60px; transition: 0.4s;
+            height: 160px; display: flex; align-items: center; justify-content: center;
+            font-size: 60px; background: rgba(0,0,0,0.3);
         }
-        .game-card:hover .card-img { font-size: 80px; }
 
-        .card-info { padding: 20px; text-align: center; }
-        .card-info h2 { margin: 10px 0; font-family: 'Bebas Neue'; font-size: 30px; color: var(--secondary); }
-
-        /* Hall of Fame */
-        .leaderboard {
-            width: 90%; max-width: 600px; margin: 50px 0;
-            background: var(--glass); border-radius: 20px; padding: 25px;
-            border: 1px solid var(--primary);
-        }
-        .leaderboard h2 { text-align: center; color: var(--primary); font-family: 'Bebas Neue'; font-size: 40px; margin-top: 0; }
-        .entry {
-            display: flex; justify-content: space-between;
-            padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-        .entry:last-child { border: none; }
-        .rank { color: var(--secondary); font-weight: bold; width: 30px; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        
-        @media (max-width: 600px) { h1 { font-size: 50px; } }
+        .card-info { padding: 15px; text-align: center; }
+        .card-info h2 { margin: 5px 0; font-family: 'Bebas Neue'; font-size: 28px; color: var(--ff-yellow); }
+        .play-btn { background: var(--ff-yellow); color: black; padding: 8px 20px; border-radius: 10px; display: inline-block; font-weight: bold; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -96,35 +73,30 @@
             <div class="card-img" style="background: linear-gradient(45deg, #430080, #ff0055);">🍭</div>
             <div class="card-info">
                 <h2>CANDY MAFIA 3D</h2>
-                <p>Action, Dialogues & Sweets. Join the underworld!</p>
-                <div style="background: var(--primary); padding: 8px; border-radius: 10px; display: inline-block;">PLAY NOW</div>
+                <p>Action & Dialogues. Join the underworld!</p>
+                <div class="play-btn" style="background: var(--primary); color: white;">PLAY NOW</div>
             </div>
         </a>
 
-        <a href="bubbles.html" class="game-card">
-            <div class="card-img" style="background: linear-gradient(45deg, #004d4d, #00ffcc);">🔮</div>
+        <a href="freefire.html" class="game-card">
+            <div class="card-img" style="background: linear-gradient(45deg, #ff3300, #ffcc00);">🔫</div>
             <div class="card-info">
-                <h2>NEON BUBBLES</h2>
-                <p>Pop the bubbles in a high-speed arcade thriller.</p>
-                <div style="background: var(--secondary); color: black; padding: 8px; border-radius: 10px; display: inline-block;">PLAY NOW</div>
+                <h2>FREE FIRE: HEADSHOT</h2>
+                <p>Training Range. Show your aiming skills!</p>
+                <div class="play-btn">PLAY NOW</div>
             </div>
         </a>
     </div>
 
-    <div class="leaderboard">
-        <h2>🏆 HALL OF FAME</h2>
-        <div class="entry"><span class="rank">1.</span> Sameer <span>28,500</span></div>
-        <div class="entry"><span class="rank">2.</span> Rahul <span>24,200</span></div>
-        <div class="entry"><span class="rank">3.</span> Priya <span>19,800</span></div>
-        <div class="entry" style="color: var(--secondary);"><span class="rank">YOU</span> (Best) <span id="userBest">0</span></div>
+    <div style="margin: 40px 0; background: var(--glass); padding: 20px; border-radius: 20px; width: 80%; max-width: 500px; text-align: center; border: 1px solid var(--primary);">
+        <h2 style="color: var(--primary); font-family: 'Bebas Neue';">🏆 HALL OF FAME</h2>
+        <p>User: Waseem Asghar (Producer)</p>
+        <p>Best Score: <span id="userBest">0</span></p>
     </div>
 
-    <footer style="margin-bottom: 40px; color: #555; font-size: 14px;">
-        &copy; 2026 Waseem Productions | All Rights Reserved
-    </footer>
+    <footer style="margin-bottom: 20px; color: #555;">&copy; 2026 Waseem Productions</footer>
 
     <script>
-        // Highscore sync (agar candy game se save hai)
         document.getElementById('userBest').innerText = localStorage.getItem('candyScore') || 0;
     </script>
 </body>
