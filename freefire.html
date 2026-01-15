@@ -2,69 +2,31 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Free Fire: Waseem Productions</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waseem's Mega Game Hub</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
-        body {
-            margin: 0; overflow: hidden;
-            background: #111 url('https://wallpaperaccess.com/full/1500412.jpg') no-repeat center;
-            background-size: cover; font-family: 'Bebas Neue', cursive; touch-action: none;
-        }
-        .ui { position: absolute; top: 15px; width: 100%; display: flex; justify-content: space-around; color: white; font-size: 24px; z-index: 10; text-shadow: 2px 2px #000; }
-        .target { position: absolute; width: 80px; height: 110px; background: url('https://www.freeiconspng.com/uploads/free-fire-character-png-17.png') no-repeat center; background-size: contain; transition: 0.1s; }
-        .headshot { width: 30px; height: 30px; position: absolute; top: 0; left: 25px; border-radius: 50%; }
-        #crosshair { position: fixed; width: 35px; height: 35px; border: 2px solid #ffcc00; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 1000; }
-        .booyah-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 2000; }
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Bebas+Neue&display=swap');
+        body { margin: 0; background: #0a0a0a; color: white; font-family: 'Fredoka One', cursive; display: flex; flex-direction: column; align-items: center; }
+        header { text-align: center; padding: 25px; }
+        .game-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 20px; }
+        .game-card { background: rgba(255,255,255,0.1); border-radius: 20px; width: 280px; overflow: hidden; text-decoration: none; color: white; border: 1px solid rgba(255,255,255,0.1); transition: 0.3s; }
+        .game-card:hover { transform: translateY(-10px); border-color: #ffcc00; }
+        .card-img { height: 140px; display: flex; align-items: center; justify-content: center; font-size: 50px; background: #222; }
+        .card-info { padding: 15px; text-align: center; }
+        .play-btn { background: #ffcc00; color: black; padding: 10px 20px; border-radius: 10px; display: inline-block; font-weight: bold; margin-top: 10px; }
     </style>
 </head>
 <body>
-    <div id="crosshair"></div>
-    <div class="ui">
-        <div>Kills: <span id="kills">0</span></div>
-        <div style="color: #ffcc00;">MISSION: BERMUDA</div>
-        <div>Time: <span id="timer">30</span>s</div>
+    <header><h1>MEGA GAME HUB</h1><p>Cinematic Gaming by Waseem</p></header>
+    <div class="game-container">
+        <a href="candy.html" class="game-card">
+            <div class="card-img" style="background: linear-gradient(45deg, #430080, #ff0055);">🍭</div>
+            <div class="card-info"><h2>CANDY MAFIA 3D</h2><div class="play-btn" style="background: #ff0055; color: white;">PLAY NOW</div></div>
+        </a>
+        <a href="freefire.html" class="game-card">
+            <div class="card-img" style="background: linear-gradient(45deg, #ff3300, #ffcc00);">🔫</div>
+            <div class="card-info"><h2>FREE FIRE AIM</h2><div class="play-btn">PLAY NOW</div></div>
+        </a>
     </div>
-
-    <div id="win" class="booyah-screen">
-        <h1 style="color: #ffcc00; font-size: 80px; margin: 0;">BOOYAH!</h1>
-        <p style="color: white; font-size: 24px;">Kills: <span id="finalKills">0</span></p>
-        <button onclick="location.reload()" style="padding: 15px 40px; background: #ffcc00; border: none; font-family: 'Bebas Neue'; font-size: 25px; cursor: pointer;">PLAY AGAIN 🔄</button>
-    </div>
-
-    <div id="game-area" style="width: 100vw; height: 100vh;"></div>
-
-<script>
-    let kills = 0, timeLeft = 30, active = true;
-    const gArea = document.getElementById('game-area'), ch = document.getElementById('crosshair');
-
-    window.onmousemove = (e) => { ch.style.left = e.clientX+'px'; ch.style.top = e.clientY+'px'; };
-    window.ontouchstart = (e) => { ch.style.left = e.touches[0].clientX+'px'; ch.style.top = e.touches[0].clientY+'px'; };
-
-    function spawn() {
-        if(!active) return;
-        const t = document.createElement('div'); t.className = 'target';
-        t.style.left = Math.random()*(window.innerWidth-80)+'px';
-        t.style.top = Math.random()*(window.innerHeight-150)+50+'px';
-        
-        const head = document.createElement('div'); head.className = 'headshot';
-        head.onclick = (e) => { e.stopPropagation(); kills += 3; update(); t.remove(); };
-        t.onclick = () => { kills++; update(); t.remove(); };
-        
-        t.appendChild(head); gArea.appendChild(t);
-        setTimeout(() => t.remove(), 1200);
-    }
-
-    function update() { document.getElementById('kills').innerText = kills; }
-    function startTimer() {
-        const itv = setInterval(() => {
-            timeLeft--; document.getElementById('timer').innerText = timeLeft;
-            if(timeLeft <= 0) { clearInterval(itv); active = false; document.getElementById('finalKills').innerText = kills; document.getElementById('win').style.display = 'flex'; }
-        }, 1000);
-    }
-
-    setInterval(() => { if(active) spawn(); }, 1000);
-    window.onload = startTimer;
-</script>
 </body>
 </html>
