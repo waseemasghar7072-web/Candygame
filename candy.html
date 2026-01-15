@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Candy Mafia: Ultimate Cinematic - Waseem Productions</title>
+    <title>Candy Mafia: Pro Edition - Waseem Productions</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Bebas+Neue&display=swap');
         :root { --gold: #ffd700; --neon: #00f2ff; --pink: #ff0055; }
@@ -15,69 +15,66 @@
             touch-action: none;
         }
 
-        /* Music Controls */
-        .controls { position: absolute; top: 60px; right: 10px; z-index: 100; }
-        .mute-btn { background: var(--gold); border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-size: 20px; }
-
         .header { 
-            width: 100%; padding: 12px 0; background: rgba(0,0,0,0.95);
+            width: 100%; padding: 15px 0; background: rgba(0,0,0,0.95);
             display: flex; justify-content: space-around; align-items: center; 
-            border-bottom: 2px solid var(--gold); box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+            border-bottom: 2px solid var(--gold); box-shadow: 0 0 25px rgba(255, 215, 0, 0.4);
         }
 
         .board-bg { 
             background: rgba(255, 215, 0, 0.05); padding: 10px; border-radius: 20px; 
             border: 3px solid var(--gold); position: relative;
-            width: 92vw; max-width: 380px; height: 92vw; max-height: 380px;
-            box-sizing: border-box; margin-top: 20px;
+            width: 94vw; max-width: 380px; height: 94vw; max-height: 380px;
+            box-sizing: border-box; margin-top: 25px; box-shadow: 0 0 40px rgba(0,0,0,1);
         }
 
         .grid { 
             display: grid; grid-template-columns: repeat(8, 1fr); 
-            gap: 4px; height: 100%; width: 100%;
+            gap: 5px; height: 100%; width: 100%;
         }
 
         .slot { 
             position: relative; background: rgba(255,255,255,0.03); 
-            border-radius: 8px; overflow: visible; 
+            border-radius: 8px; box-shadow: inset 0 0 10px #000;
         }
 
         .fruit { 
             position: absolute; width: 100%; height: 100%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 6.5vw; cursor: pointer; 
-            transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.2s;
+            font-size: 7vw; cursor: pointer; 
+            /* SPEED SLOW KAR DI HE (0.8s) */
+            transition: top 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.2s, opacity 0.3s;
             user-select: none; z-index: 5;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));
         }
         
-        @media (min-width: 500px) { .fruit { font-size: 32px; } }
+        @media (min-width: 500px) { .fruit { font-size: 34px; } }
 
-        /* Power Look */
-        .rocket { border: 2px solid var(--neon); border-radius: 50%; box-shadow: 0 0 15px var(--neon); }
-        .bomb { border: 2px solid var(--pink); border-radius: 50%; box-shadow: 0 0 20px var(--pink); animation: pulse 0.5s infinite alternate; }
+        /* Power Visuals */
+        .rocket { border: 2px solid var(--neon); border-radius: 50%; box-shadow: 0 0 20px var(--neon); background: rgba(0, 242, 255, 0.1); }
+        .bomb { border: 2px solid var(--pink); border-radius: 50%; box-shadow: 0 0 25px var(--pink); animation: pulse 0.6s infinite alternate; background: rgba(255, 0, 85, 0.1); }
         
-        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
+        @keyframes pulse { from { transform: scale(1); filter: brightness(1); } to { transform: scale(1.1); filter: brightness(1.5); } }
 
         .vfx {
             position: fixed; pointer-events: none; color: var(--gold);
-            font-family: 'Bebas Neue'; font-size: 30px; text-shadow: 0 0 10px #000;
-            animation: float 0.8s forwards; z-index: 1000;
+            font-family: 'Bebas Neue'; font-size: 35px; text-shadow: 0 0 15px #000;
+            animation: float 1s forwards; z-index: 1000;
         }
-        @keyframes float { 0% { opacity: 1; transform: translate(-50%, 0) scale(1); } 100% { opacity: 0; transform: translate(-50%, -100px) scale(2); } }
+        @keyframes float { 0% { opacity: 1; transform: translate(-50%, 0) scale(1); } 100% { opacity: 0; transform: translate(-50%, -120px) scale(2); } }
+        
+        .mute-btn { position: absolute; top: 70px; right: 15px; background: var(--gold); border: none; border-radius: 50%; width: 45px; height: 45px; cursor: pointer; font-size: 22px; z-index: 100; box-shadow: 0 4px 10px #000; }
     </style>
 </head>
 <body>
 
     <div class="header">
         <div class="stat">Cash: <b id="coins">0</b></div>
-        <div style="font-family: 'Bebas Neue'; color: var(--gold); font-size: 20px; letter-spacing: 2px;">MAFIA MISSION</div>
+        <div style="font-family: 'Bebas Neue'; color: var(--gold); font-size: 24px; letter-spacing: 2px; text-shadow: 0 0 10px var(--gold);">MAFIA MISSION</div>
         <div class="stat">Moves: <b id="moves">30</b></div>
     </div>
 
-    <div class="controls">
-        <button class="mute-btn" onclick="toggleMute()" id="muteIcon">🔊</button>
-    </div>
+    <button class="mute-btn" onclick="toggleMute()" id="muteIcon">🔊</button>
 
     <div class="board-bg">
         <div class="grid" id="grid"></div>
@@ -88,10 +85,10 @@
     const items = ['🔫', '🕶️', '💵', '💎', '🚬', '🚗'];
     const quotes = ["JHAKAS!", "DHAMAKA!", "DON STYLE!", "MAFIA!", "BOOM!"];
     
-    // Sounds
+    // Naya Background Music aur Sounds
     const matchSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
     const powerSound = new Audio('https://assets.mixkit.co/active_storage/sfx/1654/1654-preview.mp3');
-    const bgMusic = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3');
+    const bgMusic = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3');
     bgMusic.loop = true; bgMusic.volume = 0.2;
 
     let squares = [], moves = 30, coins = 0, isMuted = false, sX, sY, isProcessing = false;
@@ -110,10 +107,16 @@
             f.innerHTML = items[Math.floor(Math.random()*6)];
             f.dataset.id = i;
             
-            f.ontouchstart = (e) => { sX = e.touches[0].clientX; sY = e.touches[0].clientY; bgMusic.play(); };
+            f.ontouchstart = (e) => { 
+                if(!isProcessing) {
+                    sX = e.touches[0].clientX; sY = e.touches[0].clientY; 
+                    if(bgMusic.paused) bgMusic.play();
+                }
+            };
             f.ontouchend = (e) => { 
+                if(isProcessing) return;
                 let dX = e.changedTouches[0].clientX - sX, dY = e.changedTouches[0].clientY - sY;
-                if(Math.abs(dX) > 20 || Math.abs(dY) > 20) {
+                if(Math.abs(dX) > 25 || Math.abs(dY) > 25) {
                     let dir = Math.abs(dX) > Math.abs(dY) ? (dX > 0 ? 1 : -1) : (dY > 0 ? 8 : -8);
                     move(i, i + dir);
                 }
@@ -129,51 +132,97 @@
         
         isProcessing = true;
         let t = squares[id1].innerHTML;
-        let power1 = squares[id1].className, power2 = squares[id2].className;
+        let c1 = squares[id1].className, c2 = squares[id2].className;
         
-        squares[id1].innerHTML = squares[id2].innerHTML; squares[id1].className = power2;
-        squares[id2].innerHTML = t; squares[id2].className = power1;
+        squares[id1].innerHTML = squares[id2].innerHTML; squares[id1].className = c2;
+        squares[id2].innerHTML = t; squares[id2].className = c1;
 
         if(!check(id2)) {
             setTimeout(() => { 
                 let t = squares[id1].innerHTML; 
-                squares[id1].innerHTML = squares[id2].innerHTML; squares[id1].className = power1;
-                squares[id2].innerHTML = t; squares[id2].className = power2;
+                squares[id1].innerHTML = squares[id2].innerHTML; squares[id1].className = c1;
+                squares[id2].innerHTML = t; squares[id2].className = c2;
                 isProcessing = false;
             }, 300);
         } else {
             moves--; movesEl.innerText = moves;
-            matchSound.play();
-            setTimeout(() => { isProcessing = false; }, 400);
+            if(!isMuted) matchSound.play();
+            setTimeout(() => { isProcessing = false; }, 800);
         }
     }
 
     function check(lastId) {
         let matches = new Set();
-        for(let i=0; i<64; i++) {
-            let r = Math.floor(i/8), c = i%8;
-            if(c < 6 && squares[i].innerHTML === squares[i+1].innerHTML && squares[i].innerHTML === squares[i+2].innerHTML) { matches.add(i); matches.add(i+1); matches.add(i+2); }
-            if(r < 6 && squares[i].innerHTML === squares[i+8].innerHTML && squares[i].innerHTML === squares[i+16].innerHTML) { matches.add(i); matches.add(i+8); matches.add(i+16); }
+        // Row check
+        for(let r=0; r<8; r++) {
+            for(let c=0; c<6; c++) {
+                let i = r*8+c;
+                if(squares[i].innerHTML === squares[i+1].innerHTML && squares[i].innerHTML === squares[i+2].innerHTML) {
+                    matches.add(i); matches.add(i+1); matches.add(i+2);
+                }
+            }
+        }
+        // Col check
+        for(let c=0; c<8; c++) {
+            for(let r=0; r<6; r++) {
+                let i = r*8+c;
+                if(squares[i].innerHTML === squares[i+8].innerHTML && squares[i].innerHTML === squares[i+16].innerHTML) {
+                    matches.add(i); matches.add(i+8); matches.add(i+16);
+                }
+            }
         }
 
         if(matches.size > 0) {
-            if(matches.size >= 4) {
-                showVFX(); powerSound.play();
-                if(lastId != null) {
-                    if(matches.size == 4) squares[lastId].className = 'fruit rocket';
-                    else if(matches.size >= 5) squares[lastId].className = 'fruit bomb';
-                }
+            let triggeredPower = false;
+            
+            // Check if any matched item was a power-up
+            matches.forEach(id => {
+                if(squares[id].classList.contains('rocket')) { clearRow(Math.floor(id/8)); triggeredPower = true; }
+                if(squares[id].classList.contains('bomb')) { clearArea(id); triggeredPower = true; }
+            });
+
+            // Create new power-ups
+            if(lastId != null && matches.has(lastId)) {
+                if(matches.size == 4) { squares[lastId].className = 'fruit rocket'; triggeredPower = true; }
+                else if(matches.size >= 5) { squares[lastId].className = 'fruit bomb'; triggeredPower = true; }
             }
+
+            if(triggeredPower) {
+                showVFX(); 
+                if(!isMuted) powerSound.play();
+            }
+
             matches.forEach(id => { 
-                if(!squares[id].classList.contains('rocket') && !squares[id].classList.contains('bomb')) {
+                if(squares[id].className === 'fruit') {
                     squares[id].style.transform = "scale(0)";
                     squares[id].dataset.empty = "true";
                 }
             });
+
             coins += matches.size * 10; coinsEl.innerText = coins;
-            setTimeout(dropAndFill, 400); return true;
+            setTimeout(dropAndFill, 450); return true;
         }
         return false;
+    }
+
+    function clearRow(row) {
+        for(let i = row*8; i < (row*8)+8; i++) {
+            squares[i].style.transform = "scale(0)";
+            squares[i].dataset.empty = "true";
+        }
+    }
+
+    function clearArea(id) {
+        let r = Math.floor(id/8), c = id%8;
+        for(let i=r-1; i<=r+1; i++) {
+            for(let j=c-1; j<=c+1; j++) {
+                if(i>=0 && i<8 && j>=0 && j<8) {
+                    let idx = i*8+j;
+                    squares[idx].style.transform = "scale(0)";
+                    squares[idx].dataset.empty = "true";
+                }
+            }
+        }
     }
 
     function dropAndFill() {
@@ -200,17 +249,20 @@
                 squares[i].className = 'fruit';
                 squares[i].dataset.empty = "false";
                 squares[i].style.transform = "scale(1)";
+                // Appearance effect
+                squares[i].style.opacity = "0";
+                setTimeout(() => { squares[i].style.opacity = "1"; }, 100);
             }
         }
-        setTimeout(check, 500);
+        setTimeout(check, 800);
     }
 
     function showVFX() {
         const v = document.createElement('div'); v.className = 'vfx';
         v.innerText = quotes[Math.floor(Math.random()*quotes.length)];
-        v.style.left = "50%"; v.style.top = "40%";
+        v.style.left = "50%"; v.style.top = "45%";
         document.body.appendChild(v);
-        setTimeout(() => v.remove(), 800);
+        setTimeout(() => v.remove(), 1000);
     }
 
     window.onload = init;
