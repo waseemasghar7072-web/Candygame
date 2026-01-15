@@ -2,31 +2,83 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Waseem's Mega Game Hub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Candy Mafia: Play Mode</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Bebas+Neue&display=swap');
-        body { margin: 0; background: #0a0a0a; color: white; font-family: 'Fredoka One', cursive; display: flex; flex-direction: column; align-items: center; }
-        header { text-align: center; padding: 30px; }
-        .game-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 20px; }
-        .game-card { background: rgba(255,255,255,0.1); border-radius: 20px; width: 280px; overflow: hidden; text-decoration: none; color: white; border: 1px solid rgba(255,255,255,0.1); transition: 0.3s; }
-        .game-card:hover { transform: translateY(-10px); border-color: #ffcc00; }
-        .card-img { height: 150px; display: flex; align-items: center; justify-content: center; font-size: 50px; background: #222; }
-        .card-info { padding: 15px; text-align: center; }
-        .play-btn { background: #ffcc00; color: black; padding: 10px 20px; border-radius: 10px; display: inline-block; font-weight: bold; margin-top: 10px; }
+        :root { --gold: #ffd700; --pink: #ff0055; }
+        body { margin: 0; padding: 0; font-family: 'Fredoka One', cursive; background: #050505; color: white; overflow: hidden; display: flex; flex-direction: column; align-items: center; touch-action: none; }
+        .header { width: 100%; padding: 15px 0; background: rgba(0,0,0,0.9); display: flex; justify-content: space-around; align-items: center; border-bottom: 2px solid var(--gold); }
+        .board-bg { background: rgba(255, 215, 0, 0.03); padding: 10px; border-radius: 20px; margin: 20px auto; border: 3px solid var(--gold); transform: rotateX(10deg); }
+        .grid { display: grid; grid-template-columns: repeat(8, 42px); gap: 6px; }
+        .slot { width: 42px; height: 42px; background: rgba(255,255,255,0.05); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+        .fruit { font-size: 28px; cursor: pointer; transition: 0.2s; user-select: none; }
     </style>
 </head>
 <body>
-    <header><h1>MEGA GAME HUB</h1><p>Cinematic Gaming by Waseem</p></header>
-    <div class="game-container">
-        <a href="candy.html" class="game-card">
-            <div class="card-img" style="background: linear-gradient(45deg, #430080, #ff0055);">🍭</div>
-            <div class="card-info"><h2>CANDY MAFIA 3D</h2><div class="play-btn" style="background: #ff0055; color: white;">PLAY NOW</div></div>
-        </a>
-        <a href="freefire.html" class="game-card">
-            <div class="card-img" style="background: linear-gradient(45deg, #ff3300, #ffcc00);">🔫</div>
-            <div class="card-info"><h2>FREE FIRE AIM</h2><div class="play-btn">PLAY NOW</div></div>
-        </a>
+    <div class="header">
+        <div class="stat">Cash: <b id="coins">0</b></div>
+        <div style="font-family: 'Bebas Neue'; color: var(--gold); font-size: 24px;">MAFIA MISSION</div>
+        <div class="stat">Moves: <b id="moves">30</b></div>
     </div>
+    
+    <div class="board-bg" id="board"><div class="grid" id="grid"></div></div>
+
+<script>
+    const gridEl = document.getElementById('grid'), coinsEl = document.getElementById('coins'), movesEl = document.getElementById('moves');
+    const items = ['🔫', '🕶️', '💵', '💎', '🚬', '🚗'];
+    let squares = [], moves = 30, coins = 0, sX, sY;
+
+    function init() {
+        gridEl.innerHTML = ''; squares = [];
+        for (let i = 0; i < 64; i++) {
+            const f = document.createElement('div'); f.className = 'fruit';
+            f.innerHTML = items[Math.floor(Math.random()*6)];
+            f.ontouchstart = (e) => { sX = e.touches[0].clientX; sY = e.touches[0].clientY; };
+            f.ontouchend = (e) => { 
+                let dX = e.changedTouches[0].clientX - sX, dY = e.changedTouches[0].clientY - sY;
+                if(Math.abs(dX) > 25 || Math.abs(dY) > 25) {
+                    let dir = Math.abs(dX) > Math.abs(dY) ? (dX > 0 ? 1 : -1) : (dY > 0 ? 8 : -8);
+                    move(i, i + dir);
+                }
+            };
+            const slot = document.createElement('div'); slot.className = 'slot';
+            slot.appendChild(f); gridEl.appendChild(slot); squares.push(f);
+        }
+        check();
+    }
+
+    function move(id1, id2) {
+        if (id2 < 0 || id2 >= 64 || (Math.abs(id1 - id2) === 1 && Math.floor(id1/8) !== Math.floor(id2/8))) return;
+        let t = squares[id1].innerHTML; squares[id1].innerHTML = squares[id2].innerHTML; squares[id2].innerHTML = t;
+        if(!check()) {
+            setTimeout(() => { let t = squares[id1].innerHTML; squares[id1].innerHTML = squares[id2].innerHTML; squares[id2].innerHTML = t; }, 250);
+        } else {
+            moves--; movesEl.innerText = moves;
+        }
+    }
+
+    function check() {
+        let matches = new Set();
+        for(let i=0; i<64; i++) {
+            let r = Math.floor(i/8), c = i%8;
+            if(c < 6 && squares[i].innerHTML === squares[i+1].innerHTML && squares[i].innerHTML === squares[i+2].innerHTML) { matches.add(i); matches.add(i+1); matches.add(i+2); }
+            if(r < 6 && squares[i].innerHTML === squares[i+8].innerHTML && squares[i].innerHTML === squares[i+16].innerHTML) { matches.add(i); matches.add(i+8); matches.add(i+16); }
+        }
+        if(matches.size > 0) {
+            matches.forEach(id => { squares[id].style.opacity = "0"; });
+            coins += matches.size * 10; coinsEl.innerText = coins;
+            setTimeout(fill, 300); return true;
+        }
+        return false;
+    }
+
+    function fill() {
+        squares.forEach(s => { if(s.style.opacity === "0") { s.innerHTML = items[Math.floor(Math.random()*6)]; s.style.opacity = "1"; } });
+        setTimeout(check, 300);
+    }
+
+    window.onload = init;
+</script>
 </body>
 </html>
