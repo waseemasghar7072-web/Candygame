@@ -3,74 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Candy Mafia: Pro Edition - Waseem Productions</title>
+    <title>Candy Mafia: Executive Edition - Waseem Productions</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Bebas+Neue&display=swap');
-        :root { --gold: #ffd700; --neon: #00f2ff; --pink: #ff0055; }
+        :root { --gold: #ffd700; --neon: #00f2ff; --pink: #ff0055; --glow: rgba(255, 215, 0, 0.3); }
 
         body { 
             margin: 0; padding: 0; font-family: 'Fredoka One', cursive; 
-            background: radial-gradient(circle, #1a1a1a, #000); color: white; 
+            background: radial-gradient(circle at center, #222, #000); color: white; 
             overflow: hidden; display: flex; flex-direction: column; align-items: center; 
             touch-action: none;
         }
 
+        /* Header Visuals */
         .header { 
-            width: 100%; padding: 15px 0; background: rgba(0,0,0,0.95);
+            width: 100%; padding: 15px 0; background: rgba(0,0,0,0.9);
             display: flex; justify-content: space-around; align-items: center; 
-            border-bottom: 2px solid var(--gold); box-shadow: 0 0 25px rgba(255, 215, 0, 0.4);
+            border-bottom: 3px solid var(--gold); box-shadow: 0 5px 30px var(--glow);
+            z-index: 10;
         }
+        .stat b { font-size: 20px; color: var(--gold); text-shadow: 0 0 5px var(--gold); }
 
+        /* Board Styling */
         .board-bg { 
-            background: rgba(255, 215, 0, 0.05); padding: 10px; border-radius: 20px; 
-            border: 3px solid var(--gold); position: relative;
+            background: rgba(0,0,0,0.6); padding: 12px; border-radius: 25px; 
+            border: 4px solid var(--gold); position: relative;
             width: 94vw; max-width: 380px; height: 94vw; max-height: 380px;
-            box-sizing: border-box; margin-top: 25px; box-shadow: 0 0 40px rgba(0,0,0,1);
+            box-sizing: border-box; margin-top: 30px;
+            box-shadow: 0 0 50px rgba(0,0,0,1), inset 0 0 20px var(--glow);
         }
 
         .grid { 
             display: grid; grid-template-columns: repeat(8, 1fr); 
-            gap: 5px; height: 100%; width: 100%;
+            gap: 6px; height: 100%; width: 100%;
         }
 
         .slot { 
-            position: relative; background: rgba(255,255,255,0.03); 
-            border-radius: 8px; box-shadow: inset 0 0 10px #000;
+            position: relative; background: rgba(255,255,255,0.02); 
+            border-radius: 10px; border: 1px solid rgba(255,255,255,0.05);
         }
 
         .fruit { 
             position: absolute; width: 100%; height: 100%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 7vw; cursor: pointer; 
-            /* SPEED SLOW KAR DI HE (0.8s) */
-            transition: top 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.2s, opacity 0.3s;
+            font-size: 7.5vw; cursor: pointer; 
+            /* EKDOM SLOW GRAVITY (1.2s) */
+            transition: top 1.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s, opacity 0.4s;
             user-select: none; z-index: 5;
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));
+            filter: drop-shadow(0 5px 8px rgba(0,0,0,0.8));
         }
         
-        @media (min-width: 500px) { .fruit { font-size: 34px; } }
+        @media (min-width: 500px) { .fruit { font-size: 36px; } }
 
-        /* Power Visuals */
-        .rocket { border: 2px solid var(--neon); border-radius: 50%; box-shadow: 0 0 20px var(--neon); background: rgba(0, 242, 255, 0.1); }
-        .bomb { border: 2px solid var(--pink); border-radius: 50%; box-shadow: 0 0 25px var(--pink); animation: pulse 0.6s infinite alternate; background: rgba(255, 0, 85, 0.1); }
+        /* Enhanced Power VFX */
+        .rocket { border: 2px solid var(--neon); border-radius: 50%; box-shadow: 0 0 20px var(--neon), inset 0 0 10px var(--neon); }
+        .bomb { border: 2px solid var(--pink); border-radius: 50%; box-shadow: 0 0 25px var(--pink); animation: pulse 0.7s infinite alternate; }
         
-        @keyframes pulse { from { transform: scale(1); filter: brightness(1); } to { transform: scale(1.1); filter: brightness(1.5); } }
+        @keyframes pulse { from { transform: scale(1); filter: brightness(1); } to { transform: scale(1.15); filter: brightness(1.6); } }
 
         .vfx {
             position: fixed; pointer-events: none; color: var(--gold);
-            font-family: 'Bebas Neue'; font-size: 35px; text-shadow: 0 0 15px #000;
-            animation: float 1s forwards; z-index: 1000;
+            font-family: 'Bebas Neue'; font-size: 40px; text-shadow: 0 0 20px #000;
+            animation: cinematicFloat 1.2s forwards; z-index: 1000;
         }
-        @keyframes float { 0% { opacity: 1; transform: translate(-50%, 0) scale(1); } 100% { opacity: 0; transform: translate(-50%, -120px) scale(2); } }
+        @keyframes cinematicFloat { 0% { opacity: 0; transform: translate(-50%, 20px) scale(0.5); } 20% { opacity: 1; transform: translate(-50%, 0) scale(1.2); } 100% { opacity: 0; transform: translate(-50%, -150px) scale(2); } }
         
-        .mute-btn { position: absolute; top: 70px; right: 15px; background: var(--gold); border: none; border-radius: 50%; width: 45px; height: 45px; cursor: pointer; font-size: 22px; z-index: 100; box-shadow: 0 4px 10px #000; }
+        .mute-btn { position: absolute; top: 80px; right: 20px; background: var(--gold); border: none; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; font-size: 24px; z-index: 100; box-shadow: 0 5px 15px rgba(0,0,0,0.5); transition: 0.2s; }
+        .mute-btn:active { transform: scale(0.9); }
     </style>
 </head>
 <body>
 
     <div class="header">
         <div class="stat">Cash: <b id="coins">0</b></div>
-        <div style="font-family: 'Bebas Neue'; color: var(--gold); font-size: 24px; letter-spacing: 2px; text-shadow: 0 0 10px var(--gold);">MAFIA MISSION</div>
+        <div style="font-family: 'Bebas Neue'; color: var(--gold); font-size: 28px; letter-spacing: 3px; text-shadow: 0 0 15px var(--gold);">MAFIA BOSS</div>
         <div class="stat">Moves: <b id="moves">30</b></div>
     </div>
 
@@ -83,15 +89,15 @@
 <script>
     const gridEl = document.getElementById('grid'), coinsEl = document.getElementById('coins'), movesEl = document.getElementById('moves');
     const items = ['🔫', '🕶️', '💵', '💎', '🚬', '🚗'];
-    const quotes = ["JHAKAS!", "DHAMAKA!", "DON STYLE!", "MAFIA!", "BOOM!"];
+    const quotes = ["AMAZING!", "UNSTOPPABLE!", "LEGENDARY!", "DON STYLE!", "POWERFUL!"];
     
-    // Naya Background Music aur Sounds
+    // Naya Cinematic Background Music
     const matchSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
     const powerSound = new Audio('https://assets.mixkit.co/active_storage/sfx/1654/1654-preview.mp3');
-    const bgMusic = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3');
-    bgMusic.loop = true; bgMusic.volume = 0.2;
+    const bgMusic = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3');
+    bgMusic.loop = true; bgMusic.volume = 0.3;
 
-    let squares = [], moves = 30, coins = 0, isMuted = false, sX, sY, isProcessing = false;
+    let squares = [], moves = 30, coins = 0, isMuted = false, sX, sY, isProcessing = false, comboCount = 0;
 
     function toggleMute() {
         isMuted = !isMuted;
@@ -110,7 +116,7 @@
             f.ontouchstart = (e) => { 
                 if(!isProcessing) {
                     sX = e.touches[0].clientX; sY = e.touches[0].clientY; 
-                    if(bgMusic.paused) bgMusic.play();
+                    if(bgMusic.paused) bgMusic.play().catch(() => {});
                 }
             };
             f.ontouchend = (e) => { 
@@ -124,13 +130,14 @@
 
             slot.appendChild(f); gridEl.appendChild(slot); squares.push(f);
         }
-        check();
+        setTimeout(check, 500);
     }
 
     function move(id1, id2) {
         if (isProcessing || id2 < 0 || id2 >= 64 || (Math.abs(id1 - id2) === 1 && Math.floor(id1/8) !== Math.floor(id2/8))) return;
         
         isProcessing = true;
+        comboCount = 0; // Reset combo on new move
         let t = squares[id1].innerHTML;
         let c1 = squares[id1].className, c2 = squares[id2].className;
         
@@ -143,17 +150,16 @@
                 squares[id1].innerHTML = squares[id2].innerHTML; squares[id1].className = c1;
                 squares[id2].innerHTML = t; squares[id2].className = c2;
                 isProcessing = false;
-            }, 300);
+            }, 400);
         } else {
             moves--; movesEl.innerText = moves;
-            if(!isMuted) matchSound.play();
-            setTimeout(() => { isProcessing = false; }, 800);
+            if(!isMuted) matchSound.play().catch(() => {});
+            setTimeout(() => { isProcessing = false; }, 1200);
         }
     }
 
     function check(lastId) {
         let matches = new Set();
-        // Row check
         for(let r=0; r<8; r++) {
             for(let c=0; c<6; c++) {
                 let i = r*8+c;
@@ -162,7 +168,6 @@
                 }
             }
         }
-        // Col check
         for(let c=0; c<8; c++) {
             for(let r=0; r<6; r++) {
                 let i = r*8+c;
@@ -173,23 +178,22 @@
         }
 
         if(matches.size > 0) {
+            comboCount++;
             let triggeredPower = false;
             
-            // Check if any matched item was a power-up
             matches.forEach(id => {
                 if(squares[id].classList.contains('rocket')) { clearRow(Math.floor(id/8)); triggeredPower = true; }
                 if(squares[id].classList.contains('bomb')) { clearArea(id); triggeredPower = true; }
             });
 
-            // Create new power-ups
             if(lastId != null && matches.has(lastId)) {
                 if(matches.size == 4) { squares[lastId].className = 'fruit rocket'; triggeredPower = true; }
                 else if(matches.size >= 5) { squares[lastId].className = 'fruit bomb'; triggeredPower = true; }
             }
 
-            if(triggeredPower) {
-                showVFX(); 
-                if(!isMuted) powerSound.play();
+            if(triggeredPower || comboCount > 1) {
+                showVFX(comboCount > 2 ? quotes[comboCount % quotes.length] : null); 
+                if(!isMuted) powerSound.play().catch(() => {});
             }
 
             matches.forEach(id => { 
@@ -199,8 +203,8 @@
                 }
             });
 
-            coins += matches.size * 10; coinsEl.innerText = coins;
-            setTimeout(dropAndFill, 450); return true;
+            coins += matches.size * 10 * comboCount; coinsEl.innerText = coins;
+            setTimeout(dropAndFill, 600); return true;
         }
         return false;
     }
@@ -249,20 +253,19 @@
                 squares[i].className = 'fruit';
                 squares[i].dataset.empty = "false";
                 squares[i].style.transform = "scale(1)";
-                // Appearance effect
-                squares[i].style.opacity = "0";
-                setTimeout(() => { squares[i].style.opacity = "1"; }, 100);
+                squares[i].style.top = "-400px"; // Start from top for falling effect
+                setTimeout(() => { squares[i].style.top = "0"; }, 50);
             }
         }
-        setTimeout(check, 800);
+        setTimeout(check, 1300); // Wait for slow fall
     }
 
-    function showVFX() {
+    function showVFX(customText) {
         const v = document.createElement('div'); v.className = 'vfx';
-        v.innerText = quotes[Math.floor(Math.random()*quotes.length)];
+        v.innerText = customText || quotes[Math.floor(Math.random()*quotes.length)];
         v.style.left = "50%"; v.style.top = "45%";
         document.body.appendChild(v);
-        setTimeout(() => v.remove(), 1000);
+        setTimeout(() => v.remove(), 1200);
     }
 
     window.onload = init;
