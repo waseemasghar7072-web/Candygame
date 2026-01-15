@@ -3,118 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Free Fire: Headshot - Waseem Productions</title>
+    <title>Free Fire: Waseem Productions</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
-        :root { --ff-yellow: #ffcc00; --ff-red: #ff3300; }
-
         body {
-            margin: 0; padding: 0; overflow: hidden;
-            background: #1a1a1a; /* Backup color */
-            background-image: url('https://wallpaperaccess.com/full/1500412.jpg');
-            background-size: cover; background-position: center;
-            font-family: 'Bebas Neue', cursive; touch-action: none;
+            margin: 0; overflow: hidden;
+            background: #111 url('https://wallpaperaccess.com/full/1500412.jpg') no-repeat center;
+            background-size: cover; font-family: 'Bebas Neue', cursive; touch-action: none;
         }
-
-        .ui {
-            position: absolute; top: 15px; width: 100%;
-            display: flex; justify-content: space-around;
-            color: white; font-size: 24px; z-index: 10;
-        }
-
-        .target {
-            position: absolute; width: 70px; height: 100px;
-            background: url('https://www.freeiconspng.com/uploads/free-fire-character-png-17.png') no-repeat center;
-            background-size: contain; z-index: 5;
-        }
-
-        .headshot {
-            width: 25px; height: 25px; position: absolute;
-            top: 2px; left: 22px; border-radius: 50%;
-        }
-
-        #crosshair {
-            position: fixed; width: 30px; height: 30px;
-            border: 2px solid var(--ff-yellow); border-radius: 50%;
-            transform: translate(-50%, -50%); pointer-events: none; z-index: 1000;
-        }
-
-        .overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 100;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-
-        .btn {
-            background: var(--ff-yellow); color: black; border: none;
-            padding: 15px 40px; border-radius: 10px; font-size: 30px;
-            font-family: 'Bebas Neue'; cursor: pointer;
-        }
+        .ui { position: absolute; top: 15px; width: 100%; display: flex; justify-content: space-around; color: white; font-size: 24px; z-index: 10; text-shadow: 2px 2px #000; }
+        .target { position: absolute; width: 80px; height: 110px; background: url('https://www.freeiconspng.com/uploads/free-fire-character-png-17.png') no-repeat center; background-size: contain; transition: 0.1s; }
+        .headshot { width: 30px; height: 30px; position: absolute; top: 0; left: 25px; border-radius: 50%; }
+        #crosshair { position: fixed; width: 35px; height: 35px; border: 2px solid #ffcc00; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 1000; }
+        .booyah-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 2000; }
     </style>
 </head>
 <body>
     <div id="crosshair"></div>
     <div class="ui">
         <div>Kills: <span id="kills">0</span></div>
-        <div style="color: var(--ff-yellow);">MISSION: TRAINING</div>
+        <div style="color: #ffcc00;">MISSION: BERMUDA</div>
         <div>Time: <span id="timer">30</span>s</div>
     </div>
 
-    <div id="menu" class="overlay">
-        <h1 id="msg" style="color:white; font-size: 50px;">FREE FIRE RANGE</h1>
-        <button class="btn" onclick="startGame()">START MISSION ▶</button>
+    <div id="win" class="booyah-screen">
+        <h1 style="color: #ffcc00; font-size: 80px; margin: 0;">BOOYAH!</h1>
+        <p style="color: white; font-size: 24px;">Kills: <span id="finalKills">0</span></p>
+        <button onclick="location.reload()" style="padding: 15px 40px; background: #ffcc00; border: none; font-family: 'Bebas Neue'; font-size: 25px; cursor: pointer;">PLAY AGAIN 🔄</button>
     </div>
 
     <div id="game-area" style="width: 100vw; height: 100vh;"></div>
 
 <script>
-    let kills = 0, timeLeft = 30, gameActive = false;
-    const gameArea = document.getElementById('game-area');
-    const crosshair = document.getElementById('crosshair');
+    let kills = 0, timeLeft = 30, active = true;
+    const gArea = document.getElementById('game-area'), ch = document.getElementById('crosshair');
 
-    window.addEventListener('mousemove', (e) => { crosshair.style.left = e.clientX + 'px'; crosshair.style.top = e.clientY + 'px'; });
-    window.addEventListener('touchstart', (e) => { crosshair.style.left = e.touches[0].clientX + 'px'; crosshair.style.top = e.touches[0].clientY + 'px'; });
-
-    function startGame() {
-        kills = 0; timeLeft = 30; gameActive = true;
-        document.getElementById('kills').innerText = kills;
-        document.getElementById('menu').style.display = 'none';
-        startTimer();
-    }
+    window.onmousemove = (e) => { ch.style.left = e.clientX+'px'; ch.style.top = e.clientY+'px'; };
+    window.ontouchstart = (e) => { ch.style.left = e.touches[0].clientX+'px'; ch.style.top = e.touches[0].clientY+'px'; };
 
     function spawn() {
-        if (!gameActive) return;
-        const t = document.createElement('div');
-        t.className = 'target';
-        t.style.left = Math.random() * (window.innerWidth - 80) + 'px';
-        t.style.top = Math.random() * (window.innerHeight - 150) + 50 + 'px';
-
-        const head = document.createElement('div');
-        head.className = 'headshot';
-        head.onclick = (e) => { e.stopPropagation(); kills += 3; update(); t.remove(); };
+        if(!active) return;
+        const t = document.createElement('div'); t.className = 'target';
+        t.style.left = Math.random()*(window.innerWidth-80)+'px';
+        t.style.top = Math.random()*(window.innerHeight-150)+50+'px';
         
+        const head = document.createElement('div'); head.className = 'headshot';
+        head.onclick = (e) => { e.stopPropagation(); kills += 3; update(); t.remove(); };
         t.onclick = () => { kills++; update(); t.remove(); };
-        t.appendChild(head);
-        gameArea.appendChild(t);
-        setTimeout(() => { if(t) t.remove(); }, 1500);
+        
+        t.appendChild(head); gArea.appendChild(t);
+        setTimeout(() => t.remove(), 1200);
     }
 
     function update() { document.getElementById('kills').innerText = kills; }
-
     function startTimer() {
-        const cd = setInterval(() => {
-            timeLeft--;
-            document.getElementById('timer').innerText = timeLeft;
-            if (timeLeft <= 0) {
-                clearInterval(cd);
-                gameActive = false;
-                document.getElementById('msg').innerText = "BOOYAH! KILLS: " + kills;
-                document.getElementById('menu').style.display = 'flex';
-            }
+        const itv = setInterval(() => {
+            timeLeft--; document.getElementById('timer').innerText = timeLeft;
+            if(timeLeft <= 0) { clearInterval(itv); active = false; document.getElementById('finalKills').innerText = kills; document.getElementById('win').style.display = 'flex'; }
         }, 1000);
     }
 
-    setInterval(() => { if(gameActive) spawn(); }, 1000);
+    setInterval(() => { if(active) spawn(); }, 1000);
+    window.onload = startTimer;
 </script>
 </body>
 </html>
