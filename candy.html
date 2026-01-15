@@ -3,95 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Candy Mafia: Waseem Productions</title>
+    <title>Candy Mafia: Ultimate Cinematic - Waseem Productions</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Bebas+Neue&display=swap');
-        
-        :root { --gold: #ffd700; --neon: #ff00ff; }
+        :root { --gold: #ffd700; --neon: #00f2ff; --pink: #ff0055; }
 
         body { 
             margin: 0; padding: 0; font-family: 'Fredoka One', cursive; 
-            background: #050505; color: white; overflow: hidden; 
-            display: flex; flex-direction: column; align-items: center;
-            touch-action: none; perspective: 1000px;
+            background: radial-gradient(circle, #1a1a1a, #000); color: white; 
+            overflow: hidden; display: flex; flex-direction: column; align-items: center; 
+            touch-action: none;
         }
 
-        /* Header Fix for Mobile */
+        /* Music Controls */
+        .controls { position: absolute; top: 60px; right: 10px; z-index: 100; }
+        .mute-btn { background: var(--gold); border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-size: 20px; }
+
         .header { 
-            width: 100%; padding: 10px 0; background: rgba(0,0,0,0.9);
+            width: 100%; padding: 12px 0; background: rgba(0,0,0,0.95);
             display: flex; justify-content: space-around; align-items: center; 
-            border-bottom: 2px solid var(--gold); font-size: 14px;
+            border-bottom: 2px solid var(--gold); box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
         }
-        .stat b { color: var(--gold); }
 
-        /* Responsive Board - Screen par fit karne ke liye */
         .board-bg { 
-            background: rgba(255, 215, 0, 0.03); 
-            padding: 8px; border-radius: 15px; 
-            margin: 20px auto; border: 3px solid var(--gold); 
-            width: 92vw; /* Phone ki width ke hisaab se */
-            max-width: 400px; /* Tablet/Desktop par zyada bada na ho */
-            box-sizing: border-box;
-            transform: rotateX(10deg);
+            background: rgba(255, 215, 0, 0.05); padding: 10px; border-radius: 20px; 
+            border: 3px solid var(--gold); position: relative;
+            width: 92vw; max-width: 380px; height: 92vw; max-height: 380px;
+            box-sizing: border-box; margin-top: 20px;
         }
 
         .grid { 
-            display: grid; 
-            grid-template-columns: repeat(8, 1fr); /* 8 barabar columns */
-            gap: 4px; 
+            display: grid; grid-template-columns: repeat(8, 1fr); 
+            gap: 4px; height: 100%; width: 100%;
         }
 
         .slot { 
-            aspect-ratio: 1/1; /* Square shape */
-            background: rgba(255,255,255,0.05); 
-            border-radius: 6px; 
-            display: flex; align-items: center; justify-content: center; 
+            position: relative; background: rgba(255,255,255,0.03); 
+            border-radius: 8px; overflow: visible; 
         }
 
         .fruit { 
-            font-size: 6.5vw; /* Icons screen ke hisaab se chote honge */
-            max-font-size: 32px;
-            cursor: pointer; transition: transform 0.2s; user-select: none;
+            position: absolute; width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 6.5vw; cursor: pointer; 
+            transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.2s;
+            user-select: none; z-index: 5;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
         }
-
+        
         @media (min-width: 500px) { .fruit { font-size: 32px; } }
 
-        /* VFX Popups */
-        .vfx-text {
+        /* Power Look */
+        .rocket { border: 2px solid var(--neon); border-radius: 50%; box-shadow: 0 0 15px var(--neon); }
+        .bomb { border: 2px solid var(--pink); border-radius: 50%; box-shadow: 0 0 20px var(--pink); animation: pulse 0.5s infinite alternate; }
+        
+        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
+
+        .vfx {
             position: fixed; pointer-events: none; color: var(--gold);
             font-family: 'Bebas Neue'; font-size: 30px; text-shadow: 0 0 10px #000;
-            animation: float 0.8s ease-out forwards; z-index: 1000;
+            animation: float 0.8s forwards; z-index: 1000;
         }
-        @keyframes float { 0% { opacity: 1; transform: translate(-50%, 0) scale(1); } 100% { opacity: 0; transform: translate(-50%, -80px) scale(1.5); } }
+        @keyframes float { 0% { opacity: 1; transform: translate(-50%, 0) scale(1); } 100% { opacity: 0; transform: translate(-50%, -100px) scale(2); } }
     </style>
 </head>
 <body>
 
     <div class="header">
         <div class="stat">Cash: <b id="coins">0</b></div>
-        <div style="font-family: 'Bebas Neue'; color: var(--gold); font-size: 20px;">MAFIA MISSION</div>
+        <div style="font-family: 'Bebas Neue'; color: var(--gold); font-size: 20px; letter-spacing: 2px;">MAFIA MISSION</div>
         <div class="stat">Moves: <b id="moves">30</b></div>
     </div>
-    
-    <div id="vfx-box"></div>
 
-    <div class="board-bg" id="board">
+    <div class="controls">
+        <button class="mute-btn" onclick="toggleMute()" id="muteIcon">🔊</button>
+    </div>
+
+    <div class="board-bg">
         <div class="grid" id="grid"></div>
     </div>
 
 <script>
     const gridEl = document.getElementById('grid'), coinsEl = document.getElementById('coins'), movesEl = document.getElementById('moves');
     const items = ['🔫', '🕶️', '💵', '💎', '🚬', '🚗'];
-    const quotes = ["JHAKAS!", "DHAMAKA!", "DON STYLE!", "MAFIA!"];
-    let squares = [], moves = 30, coins = 0, sX, sY;
+    const quotes = ["JHAKAS!", "DHAMAKA!", "DON STYLE!", "MAFIA!", "BOOM!"];
+    
+    // Sounds
+    const matchSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
+    const powerSound = new Audio('https://assets.mixkit.co/active_storage/sfx/1654/1654-preview.mp3');
+    const bgMusic = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3');
+    bgMusic.loop = true; bgMusic.volume = 0.2;
+
+    let squares = [], moves = 30, coins = 0, isMuted = false, sX, sY, isProcessing = false;
+
+    function toggleMute() {
+        isMuted = !isMuted;
+        bgMusic.muted = isMuted; matchSound.muted = isMuted; powerSound.muted = isMuted;
+        document.getElementById('muteIcon').innerText = isMuted ? "🔇" : "🔊";
+    }
 
     function init() {
         gridEl.innerHTML = ''; squares = [];
         for (let i = 0; i < 64; i++) {
+            const slot = document.createElement('div'); slot.className = 'slot';
             const f = document.createElement('div'); f.className = 'fruit';
             f.innerHTML = items[Math.floor(Math.random()*6)];
-            // Touch Swiping Logic
-            f.ontouchstart = (e) => { sX = e.touches[0].clientX; sY = e.touches[0].clientY; };
+            f.dataset.id = i;
+            
+            f.ontouchstart = (e) => { sX = e.touches[0].clientX; sY = e.touches[0].clientY; bgMusic.play(); };
             f.ontouchend = (e) => { 
                 let dX = e.changedTouches[0].clientX - sX, dY = e.changedTouches[0].clientY - sY;
                 if(Math.abs(dX) > 20 || Math.abs(dY) > 20) {
@@ -99,49 +118,99 @@
                     move(i, i + dir);
                 }
             };
-            const slot = document.createElement('div'); slot.className = 'slot';
+
             slot.appendChild(f); gridEl.appendChild(slot); squares.push(f);
         }
         check();
     }
 
     function move(id1, id2) {
-        if (id2 < 0 || id2 >= 64 || (Math.abs(id1 - id2) === 1 && Math.floor(id1/8) !== Math.floor(id2/8))) return;
-        let t = squares[id1].innerHTML; squares[id1].innerHTML = squares[id2].innerHTML; squares[id2].innerHTML = t;
-        if(!check()) {
-            setTimeout(() => { let t = squares[id1].innerHTML; squares[id1].innerHTML = squares[id2].innerHTML; squares[id2].innerHTML = t; }, 250);
+        if (isProcessing || id2 < 0 || id2 >= 64 || (Math.abs(id1 - id2) === 1 && Math.floor(id1/8) !== Math.floor(id2/8))) return;
+        
+        isProcessing = true;
+        let t = squares[id1].innerHTML;
+        let power1 = squares[id1].className, power2 = squares[id2].className;
+        
+        squares[id1].innerHTML = squares[id2].innerHTML; squares[id1].className = power2;
+        squares[id2].innerHTML = t; squares[id2].className = power1;
+
+        if(!check(id2)) {
+            setTimeout(() => { 
+                let t = squares[id1].innerHTML; 
+                squares[id1].innerHTML = squares[id2].innerHTML; squares[id1].className = power1;
+                squares[id2].innerHTML = t; squares[id2].className = power2;
+                isProcessing = false;
+            }, 300);
         } else {
             moves--; movesEl.innerText = moves;
+            matchSound.play();
+            setTimeout(() => { isProcessing = false; }, 400);
         }
     }
 
-    function check() {
+    function check(lastId) {
         let matches = new Set();
         for(let i=0; i<64; i++) {
             let r = Math.floor(i/8), c = i%8;
             if(c < 6 && squares[i].innerHTML === squares[i+1].innerHTML && squares[i].innerHTML === squares[i+2].innerHTML) { matches.add(i); matches.add(i+1); matches.add(i+2); }
             if(r < 6 && squares[i].innerHTML === squares[i+8].innerHTML && squares[i].innerHTML === squares[i+16].innerHTML) { matches.add(i); matches.add(i+8); matches.add(i+16); }
         }
+
         if(matches.size > 0) {
-            if(matches.size >= 4) showVFX();
-            matches.forEach(id => { squares[id].style.opacity = "0"; });
+            if(matches.size >= 4) {
+                showVFX(); powerSound.play();
+                if(lastId != null) {
+                    if(matches.size == 4) squares[lastId].className = 'fruit rocket';
+                    else if(matches.size >= 5) squares[lastId].className = 'fruit bomb';
+                }
+            }
+            matches.forEach(id => { 
+                if(!squares[id].classList.contains('rocket') && !squares[id].classList.contains('bomb')) {
+                    squares[id].style.transform = "scale(0)";
+                    squares[id].dataset.empty = "true";
+                }
+            });
             coins += matches.size * 10; coinsEl.innerText = coins;
-            setTimeout(fill, 300); return true;
+            setTimeout(dropAndFill, 400); return true;
         }
         return false;
     }
 
-    function showVFX() {
-        const v = document.createElement('div'); v.className = 'vfx-text';
-        v.innerText = quotes[Math.floor(Math.random()*quotes.length)];
-        v.style.left = "50%"; v.style.top = "50%";
-        document.body.appendChild(v);
-        setTimeout(() => v.remove(), 800);
+    function dropAndFill() {
+        for (let c = 0; c < 8; c++) {
+            let emptySlots = 0;
+            for (let r = 7; r >= 0; r--) {
+                let i = r * 8 + c;
+                if (squares[i].dataset.empty === "true") {
+                    emptySlots++;
+                } else if (emptySlots > 0) {
+                    let target = (r + emptySlots) * 8 + c;
+                    squares[target].innerHTML = squares[i].innerHTML;
+                    squares[target].className = squares[i].className;
+                    squares[target].dataset.empty = "false";
+                    squares[target].style.transform = "scale(1)";
+                    
+                    squares[i].dataset.empty = "true";
+                    squares[i].style.transform = "scale(0)";
+                }
+            }
+            for (let r = 0; r < emptySlots; r++) {
+                let i = r * 8 + c;
+                squares[i].innerHTML = items[Math.floor(Math.random()*6)];
+                squares[i].className = 'fruit';
+                squares[i].dataset.empty = "false";
+                squares[i].style.transform = "scale(1)";
+            }
+        }
+        setTimeout(check, 500);
     }
 
-    function fill() {
-        squares.forEach(s => { if(s.style.opacity === "0") { s.innerHTML = items[Math.floor(Math.random()*6)]; s.style.opacity = "1"; } });
-        setTimeout(check, 300);
+    function showVFX() {
+        const v = document.createElement('div'); v.className = 'vfx';
+        v.innerText = quotes[Math.floor(Math.random()*quotes.length)];
+        v.style.left = "50%"; v.style.top = "40%";
+        document.body.appendChild(v);
+        setTimeout(() => v.remove(), 800);
     }
 
     window.onload = init;
