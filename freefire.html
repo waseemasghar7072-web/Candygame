@@ -3,170 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Free Fire: Headshot Legend - Waseem Productions</title>
+    <title>Free Fire: Headshot - Waseem Productions</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
-        
         :root { --ff-yellow: #ffcc00; --ff-red: #ff3300; }
 
         body {
             margin: 0; padding: 0; overflow: hidden;
-            background: #111 url('https://w0.peakpx.com/wallpaper/473/951/HD-wallpaper-garena-free-fire-bermuda-map.jpg') no-repeat center center;
-            background-size: cover; font-family: 'Bebas Neue', cursive;
-            touch-action: none;
-        }
-
-        /* Overlay for Cinematic feel */
-        .overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, transparent 30%, rgba(0,0,0,0.6));
-            pointer-events: none;
+            background: #1a1a1a; /* Backup color */
+            background-image: url('https://wallpaperaccess.com/full/1500412.jpg');
+            background-size: cover; background-position: center;
+            font-family: 'Bebas Neue', cursive; touch-action: none;
         }
 
         .ui {
-            position: absolute; top: 20px; width: 100%;
+            position: absolute; top: 15px; width: 100%;
             display: flex; justify-content: space-around;
-            color: white; font-size: 28px; z-index: 10;
-            text-shadow: 2px 2px 5px #000;
+            color: white; font-size: 24px; z-index: 10;
         }
 
-        /* The Target */
         .target {
-            position: absolute; width: 80px; height: 120px;
-            background: url('https://pngimg.com/uploads/free_fire/free_fire_PNG47.png') no-repeat center;
-            background-size: contain; cursor: crosshair;
-            transition: transform 0.1s;
+            position: absolute; width: 70px; height: 100px;
+            background: url('https://www.freeiconspng.com/uploads/free-fire-character-png-17.png') no-repeat center;
+            background-size: contain; z-index: 5;
         }
 
-        .head-hitbox {
-            width: 30px; height: 30px; position: absolute;
-            top: 5px; left: 25px; border-radius: 50%;
+        .headshot {
+            width: 25px; height: 25px; position: absolute;
+            top: 2px; left: 22px; border-radius: 50%;
         }
 
-        /* VFX */
-        .muzzle-flash {
-            position: absolute; width: 50px; height: 50px;
-            background: radial-gradient(circle, yellow, orange, transparent);
-            border-radius: 50%; pointer-events: none;
-            animation: flash 0.1s forwards;
-        }
-
-        .booyah {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
-            font-size: 80px; color: var(--ff-yellow);
-            text-shadow: 0 0 20px var(--ff-red);
-            transition: 0.5s; z-index: 100;
-        }
-
-        @keyframes flash { from { opacity: 1; scale: 1; } to { opacity: 0; scale: 1.5; } }
-        
         #crosshair {
-            position: fixed; width: 40px; height: 40px;
+            position: fixed; width: 30px; height: 30px;
             border: 2px solid var(--ff-yellow); border-radius: 50%;
-            transform: translate(-50%, -50%); pointer-events: none;
-            z-index: 1000;
+            transform: translate(-50%, -50%); pointer-events: none; z-index: 1000;
         }
-        #crosshair::before, #crosshair::after {
-            content: ''; position: absolute; background: var(--ff-yellow);
+
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 100;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
-        #crosshair::before { width: 100%; height: 2px; top: 19px; }
-        #crosshair::after { width: 2px; height: 100%; left: 19px; }
+
+        .btn {
+            background: var(--ff-yellow); color: black; border: none;
+            padding: 15px 40px; border-radius: 10px; font-size: 30px;
+            font-family: 'Bebas Neue'; cursor: pointer;
+        }
     </style>
 </head>
 <body>
-    <div class="overlay"></div>
     <div id="crosshair"></div>
     <div class="ui">
         <div>Kills: <span id="kills">0</span></div>
-        <div style="color: var(--ff-yellow);">BOOYAH!</div>
+        <div style="color: var(--ff-yellow);">MISSION: TRAINING</div>
         <div>Time: <span id="timer">30</span>s</div>
     </div>
-    
-    <div id="booyah-text" class="booyah">BOOYAH!</div>
+
+    <div id="menu" class="overlay">
+        <h1 id="msg" style="color:white; font-size: 50px;">FREE FIRE RANGE</h1>
+        <button class="btn" onclick="startGame()">START MISSION ▶</button>
+    </div>
+
     <div id="game-area" style="width: 100vw; height: 100vh;"></div>
 
 <script>
-    let kills = 0, timeLeft = 30, gameActive = true;
+    let kills = 0, timeLeft = 30, gameActive = false;
     const gameArea = document.getElementById('game-area');
     const crosshair = document.getElementById('crosshair');
 
-    // Crosshair movement
-    window.addEventListener('mousemove', (e) => {
-        crosshair.style.left = e.clientX + 'px';
-        crosshair.style.top = e.clientY + 'px';
-    });
+    window.addEventListener('mousemove', (e) => { crosshair.style.left = e.clientX + 'px'; crosshair.style.top = e.clientY + 'px'; });
+    window.addEventListener('touchstart', (e) => { crosshair.style.left = e.touches[0].clientX + 'px'; crosshair.style.top = e.touches[0].clientY + 'px'; });
 
-    window.addEventListener('touchstart', (e) => {
-        crosshair.style.left = e.touches[0].clientX + 'px';
-        crosshair.style.top = e.touches[0].clientY + 'px';
-        createFlash(e.touches[0].clientX, e.touches[0].clientY);
-    });
-
-    function createFlash(x, y) {
-        const flash = document.createElement('div');
-        flash.className = 'muzzle-flash';
-        flash.style.left = (x - 25) + 'px';
-        flash.style.top = (y - 25) + 'px';
-        document.body.appendChild(flash);
-        setTimeout(() => flash.remove(), 100);
-    }
-
-    function spawnTarget() {
-        if (!gameActive) return;
-        const target = document.createElement('div');
-        target.className = 'target';
-        const x = Math.random() * (window.innerWidth - 100);
-        const y = Math.random() * (window.innerHeight - 200) + 50;
-        target.style.left = x + 'px';
-        target.style.top = y + 'px';
-
-        // Headshot Hitbox
-        const head = document.createElement('div');
-        head.className = 'head-hitbox';
-        head.onclick = (e) => { 
-            e.stopPropagation();
-            kills += 2; // Headshot bonus
-            updateScore();
-            target.remove();
-        };
-
-        target.onclick = () => {
-            kills++;
-            updateScore();
-            target.remove();
-        };
-
-        target.appendChild(head);
-        gameArea.appendChild(target);
-
-        // Auto remove target after 2 seconds
-        setTimeout(() => { if(target) target.remove(); }, 2000);
-    }
-
-    function updateScore() {
+    function startGame() {
+        kills = 0; timeLeft = 30; gameActive = true;
         document.getElementById('kills').innerText = kills;
+        document.getElementById('menu').style.display = 'none';
+        startTimer();
     }
+
+    function spawn() {
+        if (!gameActive) return;
+        const t = document.createElement('div');
+        t.className = 'target';
+        t.style.left = Math.random() * (window.innerWidth - 80) + 'px';
+        t.style.top = Math.random() * (window.innerHeight - 150) + 50 + 'px';
+
+        const head = document.createElement('div');
+        head.className = 'headshot';
+        head.onclick = (e) => { e.stopPropagation(); kills += 3; update(); t.remove(); };
+        
+        t.onclick = () => { kills++; update(); t.remove(); };
+        t.appendChild(head);
+        gameArea.appendChild(t);
+        setTimeout(() => { if(t) t.remove(); }, 1500);
+    }
+
+    function update() { document.getElementById('kills').innerText = kills; }
 
     function startTimer() {
-        const timerInterval = setInterval(() => {
+        const cd = setInterval(() => {
             timeLeft--;
             document.getElementById('timer').innerText = timeLeft;
             if (timeLeft <= 0) {
-                clearInterval(timerInterval);
+                clearInterval(cd);
                 gameActive = false;
-                document.getElementById('booyah-text').style.transform = 'translate(-50%, -50%) scale(1)';
+                document.getElementById('msg').innerText = "BOOYAH! KILLS: " + kills;
+                document.getElementById('menu').style.display = 'flex';
             }
         }, 1000);
     }
 
-    // Spawn loop
-    setInterval(() => {
-        if (gameActive) spawnTarget();
-    }, 1200);
-
-    window.onload = () => {
-        startTimer();
-    };
+    setInterval(() => { if(gameActive) spawn(); }, 1000);
 </script>
 </body>
 </html>
