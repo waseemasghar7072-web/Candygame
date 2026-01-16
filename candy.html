@@ -3,105 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Candy Mafia: Ultimate Edition</title>
+    <title>Candy Mafia: Grand Heist 3D</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Bebas+Neue&family=Montserrat:wght@600&display=swap');
-        :root { --gold: #FFD700; --neon-blue: #00FFFF; --neon-pink: #FF00FF; }
-        body { margin: 0; padding: 0; font-family: 'Orbitron', sans-serif; background: linear-gradient(135deg, #1a0a33, #4a148c, #880e4f); color: white; overflow: hidden; display: flex; flex-direction: column; align-items: center; height: 100vh; touch-action: none; }
-        .header { width: 92%; max-width: 420px; margin: 10px 0; padding: 10px; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(15px); display: grid; grid-template-columns: 1fr 1.5fr 1fr; align-items: center; border: 2px solid var(--gold); border-radius: 15px; text-align: center; }
-        .stat b { font-size: 18px; color: var(--gold); display: block; }
-        .stat span { font-size: 9px; text-transform: uppercase; color: #ccc; }
-        .level-info { font-family: 'Bebas Neue'; font-size: 26px; color: var(--neon-blue); letter-spacing: 2px; }
-        .progress-container { width: 90%; max-width: 380px; height: 8px; background: #222; border-radius: 10px; margin-bottom: 12px; border: 1px solid rgba(255,215,0,0.3); overflow: hidden; }
-        #progressBar { width: 0%; height: 100%; background: linear-gradient(to right, #00dbde, #fc00ff); transition: width 0.4s; }
-        .board-bg { background: rgba(0, 0, 0, 0.8); padding: 8px; border-radius: 20px; border: 3px solid var(--gold); width: 94vw; max-width: 380px; height: 94vw; max-height: 380px; box-sizing: border-box; position: relative; box-shadow: 0 0 30px var(--neon-pink); }
-        .grid { display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); gap: 5px; height: 100%; width: 100%; }
-        .slot { background: rgba(255,255,255,0.04); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
-        .fruit { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 8vw; cursor: pointer; transition: all 0.3s; }
-        @media (min-width: 400px) { .fruit { font-size: 32px; } }
-        .pop { transform: scale(0); opacity: 0; transition: 0.3s; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 100; display: none; justify-content: center; align-items: center; flex-direction: column; text-align: center; backdrop-filter: blur(10px); }
-        .win-box { border: 3px solid var(--gold); padding: 35px; border-radius: 25px; background: #0a0a0a; box-shadow: 0 0 50px var(--gold); width: 85%; max-width: 300px; }
-        .btn { background: var(--gold); border: none; padding: 15px 30px; font-weight: bold; border-radius: 30px; cursor: pointer; margin-top: 20px; font-family: 'Orbitron'; }
-        .firework { position: absolute; width: 6px; height: 6px; border-radius: 50%; pointer-events: none; z-index: 200; animation: explode 0.8s ease-out forwards; }
-        @keyframes explode { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(15); opacity: 0; } }
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Bebas+Neue&display=swap');
+        
+        :root { --gold: #FFD700; --neon-blue: #00FFFF; --neon-pink: #FF00FF; --ui-bg: rgba(10, 20, 40, 0.9); }
+
+        body { 
+            margin: 0; padding: 0; font-family: 'Orbitron', sans-serif; 
+            background: url('https://img.freepik.com/free-photo/treasure-cave-full-gold-coins-gems-generated-by-ai_188544-23577.jpg') no-repeat center center fixed;
+            background-size: cover; color: white; overflow: hidden; display: flex; flex-direction: column; align-items: center; height: 100vh; touch-action: none;
+        }
+
+        /* Top Bar - Image 3 Style */
+        .top-ui { width: 95%; max-width: 450px; display: flex; justify-content: space-between; margin-top: 15px; z-index: 10; }
+        .ui-box { background: var(--ui-bg); border: 2px solid #4a90e2; border-radius: 12px; padding: 8px 15px; text-align: center; box-shadow: 0 0 15px rgba(0,0,0,0.5); width: 80px; }
+        .ui-box span { font-size: 10px; color: #aaa; text-transform: uppercase; display: block; margin-bottom: 2px;}
+        .ui-box b { font-size: 18px; color: white; text-shadow: 0 0 8px var(--neon-blue); }
+        
+        .stage-box { background: linear-gradient(to bottom, #4a90e2, #2c3e50); border: 2px solid #fff; padding: 5px 30px; border-radius: 10px; font-family: 'Bebas Neue'; font-size: 28px; letter-spacing: 2px; box-shadow: 0 5px 15px rgba(0,0,0,0.4); }
+
+        .progress-bar { width: 90%; max-width: 400px; height: 12px; background: rgba(0,0,0,0.6); border-radius: 20px; margin: 15px 0; border: 1px solid #fff; overflow: hidden; }
+        #fill { width: 0%; height: 100%; background: linear-gradient(to right, #00f2ff, #ff00ea); transition: 0.4s; }
+
+        /* Grid - Circuit Effect */
+        .board-wrapper { position: relative; padding: 8px; background: rgba(0,0,0,0.5); border-radius: 15px; border: 3px solid #5a6fa1; box-shadow: 0 0 30px rgba(0,0,0,0.8); background-image: radial-gradient(circle, #2a3a5a 1px, transparent 1px); background-size: 20px 20px; }
+        .grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; width: 92vw; max-width: 380px; height: 92vw; max-height: 380px; }
+        .slot { background: rgba(255,255,255,0.05); border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); position: relative; }
+
+        .item { width: 90%; height: 90%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .item img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.6)); }
+
+        .footer-ui { background: var(--ui-bg); border: 2px solid #4a90e2; margin-top: 20px; padding: 10px 40px; border-radius: 15px; text-align: center; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .footer-ui span { font-size: 12px; color: var(--neon-blue); font-weight: bold; letter-spacing: 1px; }
+        .footer-ui b { font-size: 32px; display: block; font-family: 'Bebas Neue'; letter-spacing: 3px; }
+
+        /* Win Overlay with Chest */
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; display: none; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+        .win-card { border: 3px solid var(--gold); background: #111; padding: 30px; border-radius: 20px; text-align: center; }
+        .chest-img { width: 150px; margin-bottom: 20px; animation: bounce 1s infinite; }
+        @keyframes bounce { 0%, 100% {transform: translateY(0);} 50% {transform: translateY(-10px);} }
+        .btn { background: var(--gold); border: none; padding: 15px 40px; border-radius: 30px; font-weight: bold; margin-top: 20px; cursor: pointer; font-family: 'Orbitron'; box-shadow: 0 5px 15px rgba(255,215,0,0.4); }
+
+        .mute-btn { position: fixed; bottom: 15px; right: 15px; border:none; background:var(--gold); border-radius:50%; width:50px; height:50px; font-size:20px; z-index: 200; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div class="stat"><span>Target</span><b id="targetScore">500</b></div>
-        <div class="level-info">STAGE <span id="lvlNum">1</span></div>
-        <div class="stat"><span>Moves</span><b id="moves">10</b></div>
+    <div class="top-ui">
+        <div class="ui-box"><span>Target</span><b id="target">500</b></div>
+        <div class="stage-box">STAGE <span id="lvl">1</span></div>
+        <div class="ui-box"><span>Moves</span><b id="moves">15</b></div>
     </div>
 
-    <div class="progress-container"><div id="progressBar"></div></div>
-    <div class="board-bg"><div class="grid" id="grid"></div></div>
-    <div class="stat" style="margin-top: 15px;"><span>Current Loot</span><b id="coins" style="font-size: 35px; color: var(--neon-blue);">0</b></div>
+    <div class="progress-bar"><div id="fill"></div></div>
+
+    <div class="board-wrapper"><div class="grid" id="grid"></div></div>
+
+    <div class="footer-ui"><span>CURRENT LOOT</span><b id="coins">0</b></div>
+
+    <button class="mute-btn" onclick="toggleMusic()">🎵</button>
 
     <div id="winScreen" class="overlay">
-        <div class="win-box">
-            <h1 style="color:var(--gold); font-size: 30px;">STAGE CLEAR!</h1>
-            <p id="rankText" style="color:#00ff00;">RANK: STREET THUG</p>
-            <button class="btn" id="nextLevelBtn" onclick="nextLevel()">START NEXT STAGE</button>
-        </div>
-    </div>
-
-    <div id="failScreen" class="overlay">
-        <div class="win-box" style="box-shadow: 0 0 50px var(--neon-pink);">
-            <h1 style="color:var(--neon-pink);">BUSTED!</h1>
-            <button class="btn" onclick="location.reload()">RETRY HEIST</button>
+        <div class="win-card">
+            <img src="https://cdn-icons-png.flaticon.com/512/3554/3554562.png" class="chest-img" alt="Chest">
+            <h1 style="color:var(--gold); margin:0;">MISSION COMPLETE!</h1>
+            <p id="rank">RANK: STREET THUG</p>
+            <button class="btn" onclick="nextLevel()">COLLECT LOOT</button>
         </div>
     </div>
 
 <script>
-    const gridEl = document.getElementById('grid'), coinsEl = document.getElementById('coins'), movesEl = document.getElementById('moves'), lvlNumEl = document.getElementById('lvlNum'), targetEl = document.getElementById('targetScore'), bar = document.getElementById('progressBar');
-    
-    // COLORFUL NEON GLASSES SVG
-    const neonGlasses = `<svg viewBox="0 0 512 512" style="width:85%; filter: drop-shadow(0 0 5px #00FFFF);"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FF00FF"/><stop offset="100%" stop-color="#00FFFF"/></linearGradient></defs><path fill="url(#g)" d="M477 168c23 20 35 48 35 77s-13 61-38 81l-41 32c-21 17-46 26-73 26h-7c-22 0-44-6-63-18a75 75 0 0 0-75 0c-19 12-41 18-63 18h-7c-27 0-52-9-73-26l-41-32C7 306-7 276-7 245s12-57 35-77l44-37c17-15 39-23 61-23h4c20 0 40 7 57 19 12 8 24 15 37 20 13-5 26-12 37-20 17-12 37-19 57-19h4c22 0 44 8 61 23l44 37z"/></svg>`;
-    
-    const items = ['💎', '🚗', '💵', neonGlasses, '🔫', '💰'];
-    
-    const stages = [
-        { t: 500, m: 10, r: "STREET THUG" },
-        { t: 1500, m: 15, r: "MUSCLE" },
-        { t: 3000, m: 15, r: "HITMAN" },
-        { t: 5000, m: 18, r: "ENFORCER" },
-        { t: 8000, m: 18, r: "LIEUTENANT" },
-        { t: 12000, m: 20, r: "UNDERBOSS" },
-        { t: 18000, m: 20, r: "CAPO" },
-        { t: 25000, m: 22, r: "CONSIGLIERE" },
-        { t: 35000, m: 25, r: "MAFIA DON" },
-        { t: 50000, m: 30, r: "GODFATHER" }
+    const gridEl = document.getElementById('grid'), coinsEl = document.getElementById('coins'), movesEl = document.getElementById('moves');
+    const assets = [
+        'https://cdn-icons-png.flaticon.com/512/3258/3258522.png', // Diamond
+        'https://cdn-icons-png.flaticon.com/512/2953/2953363.png', // Gold Bag
+        'https://cdn-icons-png.flaticon.com/512/2311/2311893.png', // Cash
+        'https://cdn-icons-png.flaticon.com/512/744/744465.png',   // Car
+        'https://cdn-icons-png.flaticon.com/512/2883/2883492.png', // Gun
+        'https://cdn-icons-png.flaticon.com/512/5218/5218552.png'  // Coin
     ];
 
-    let currentLvl = 0, squares = [], moves = 10, coins = 0, isProcessing = false, sX, sY;
-    const sfxMatch = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
-    const sfxWin = new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3');
+    const bgMusic = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3');
+    const matchSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
+    bgMusic.loop = true; bgMusic.volume = 0.3;
 
-    function unlockAudio() {
-        sfxMatch.play().then(() => { sfxMatch.pause(); sfxMatch.currentTime = 0; });
-        sfxWin.play().then(() => { sfxWin.pause(); sfxWin.currentTime = 0; });
-        window.removeEventListener('touchstart', unlockAudio);
+    let squares = [], moves = 15, coins = 0, currentLvl = 0, isProcessing = false, sX, sY;
+    const stages = [
+        { t: 500, m: 15, r: "STREET THUG" },
+        { t: 1500, m: 20, r: "MUSCLE" },
+        { t: 3500, m: 20, r: "HITMAN" },
+        { t: 6000, m: 22, r: "ENFORCER" },
+        { t: 10000, m: 25, r: "MAFIA BOSS" }
+    ];
+
+    function toggleMusic() {
+        if(bgMusic.paused) bgMusic.play();
+        else bgMusic.pause();
     }
-    window.addEventListener('touchstart', unlockAudio);
 
     function init() {
         gridEl.innerHTML = ''; squares = [];
-        isProcessing = false;
         const config = stages[currentLvl];
-        moves = config.m; coins = 0;
+        moves = config.m; coins = 0; isProcessing = false;
         movesEl.innerText = moves; coinsEl.innerText = coins;
-        targetEl.innerText = config.t; lvlNumEl.innerText = currentLvl + 1;
-        bar.style.width = '0%';
-        document.getElementById('nextLevelBtn').innerText = "START STAGE " + (currentLvl + 2);
+        document.getElementById('target').innerText = config.t;
+        document.getElementById('lvl').innerText = currentLvl + 1;
+        document.getElementById('fill').style.width = '0%';
 
         for (let i = 0; i < 64; i++) {
             const slot = document.createElement('div'); slot.className = 'slot';
-            const f = document.createElement('div'); f.className = 'fruit';
-            f.innerHTML = items[Math.floor(Math.random()*items.length)];
-            f.ontouchstart = (e) => { sX = e.touches[0].clientX; sY = e.touches[0].clientY; };
-            f.ontouchend = (e) => { 
+            const item = document.createElement('div'); item.className = 'item';
+            const img = document.createElement('img');
+            img.src = assets[Math.floor(Math.random()*assets.length)];
+            
+            item.appendChild(img);
+            item.ontouchstart = (e) => { 
+                sX = e.touches[0].clientX; sY = e.touches[0].clientY;
+                if(bgMusic.paused) bgMusic.play().catch(()=>{}); 
+            };
+            item.ontouchend = (e) => { 
                 if(isProcessing || moves <= 0) return;
                 let dX = e.changedTouches[0].clientX - sX, dY = e.changedTouches[0].clientY - sY;
                 if(Math.abs(dX) > 20 || Math.abs(dY) > 20) {
@@ -109,7 +130,7 @@
                     handleMove(i, i + dir);
                 }
             };
-            slot.appendChild(f); gridEl.appendChild(slot); squares.push(f);
+            slot.appendChild(item); gridEl.appendChild(slot); squares.push(img);
         }
         setTimeout(checkMatches, 500);
     }
@@ -117,30 +138,28 @@
     async function handleMove(id1, id2) {
         if (id2 < 0 || id2 >= 64 || (Math.abs(id1-id2)===1 && Math.floor(id1/8)!==Math.floor(id2/8))) return;
         isProcessing = true;
-        swap(id1, id2);
+        let t = squares[id1].src;
+        squares[id1].src = squares[id2].src; squares[id2].src = t;
         await new Promise(r => setTimeout(r, 300));
+
         if(!checkMatches()) {
-            swap(id1, id2); await new Promise(r => setTimeout(r, 300));
+            squares[id2].src = squares[id1].src; squares[id1].src = t;
             isProcessing = false;
         } else {
             moves--; movesEl.innerText = moves;
-            sfxMatch.currentTime = 0; sfxMatch.play();
-            if(moves === 0 && coins < stages[currentLvl].t) document.getElementById('failScreen').style.display='flex';
+            matchSound.currentTime = 0; matchSound.play();
         }
-    }
-
-    function swap(i1, i2) {
-        let h = squares[i1].innerHTML; squares[i1].innerHTML = squares[i2].innerHTML; squares[i2].innerHTML = h;
     }
 
     function checkMatches() {
         let matches = new Set();
-        for(let r=0; r<8; r++) { for(let c=0; c<6; c++) { let i=r*8+c; if(squares[i].innerHTML===squares[i+1].innerHTML && squares[i].innerHTML===squares[i+2].innerHTML) { matches.add(i); matches.add(i+1); matches.add(i+2); }}}
-        for(let c=0; c<8; c++) { for(let r=0; r<6; r++) { let i=r*8+c; if(squares[i].innerHTML===squares[i+8].innerHTML && squares[i].innerHTML===squares[i+16].innerHTML) { matches.add(i); matches.add(i+8); matches.add(i+16); }}}
+        for(let r=0; r<8; r++) { for(let c=0; c<6; c++) { let i=r*8+c; if(squares[i].src === squares[i+1].src && squares[i].src === squares[i+2].src) { matches.add(i); matches.add(i+1); matches.add(i+2); }}}
+        for(let c=0; c<8; c++) { for(let r=0; r<6; r++) { let i=r*8+c; if(squares[i].src === squares[i+8].src && squares[i].src === squares[i+16].src) { matches.add(i); matches.add(i+8); matches.add(i+16); }}}
+
         if(matches.size > 0) {
-            matches.forEach(id => squares[id].classList.add('pop'));
+            matches.forEach(id => squares[id].style.transform = 'scale(0)');
             coins += matches.size * 10; coinsEl.innerText = coins;
-            bar.style.width = Math.min((coins/stages[currentLvl].t)*100, 100) + '%';
+            document.getElementById('fill').style.width = Math.min((coins/stages[currentLvl].t)*100, 100) + '%';
             setTimeout(fill, 400); 
             if(coins >= stages[currentLvl].t) triggerWin();
             return true;
@@ -150,46 +169,23 @@
 
     function fill() {
         for (let i = 0; i < 64; i++) {
-            if (squares[i].classList.contains('pop')) {
-                squares[i].innerHTML = items[Math.floor(Math.random()*items.length)];
-                squares[i].classList.remove('pop');
+            if (squares[i].style.transform === 'scale(0)') {
+                squares[i].src = assets[Math.floor(Math.random()*assets.length)];
+                squares[i].style.transform = 'scale(1)';
             }
         }
         setTimeout(checkMatches, 500);
     }
 
     function triggerWin() {
-        isProcessing = true;
-        sfxWin.play();
-        createFireworks();
-        setTimeout(() => {
-            document.getElementById('rankText').innerText = "RANK: " + stages[currentLvl].r;
-            document.getElementById('winScreen').style.display = 'flex';
-        }, 1500);
+        document.getElementById('rank').innerText = "RANK: " + stages[currentLvl].r;
+        document.getElementById('winScreen').style.display = 'flex';
     }
 
     function nextLevel() {
-        currentLvl++;
-        if(currentLvl >= 10) { alert("GODFATHER! You won the game!"); location.reload(); }
-        else {
-            document.getElementById('winScreen').style.display = 'none';
-            init();
-        }
+        currentLvl++; document.getElementById('winScreen').style.display = 'none'; init();
     }
 
-    function createFireworks() {
-        for(let i=0; i<20; i++) {
-            setTimeout(() => {
-                const f = document.createElement('div');
-                f.className = 'firework';
-                f.style.left = Math.random() * 100 + 'vw';
-                f.style.top = Math.random() * 100 + 'vh';
-                f.style.backgroundColor = ['#FFD700', '#FF00FF', '#00FFFF'][Math.floor(Math.random()*3)];
-                document.body.appendChild(f);
-                setTimeout(() => f.remove(), 1000);
-            }, i * 80);
-        }
-    }
     window.onload = init;
 </script>
 </body>
