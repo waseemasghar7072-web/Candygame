@@ -3,178 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Candy Mafia: Colorful Edition</title>
+    <title>Candy Mafia: 10 Stages Edition</title>
     <style>
-        /* Modern Fonts */
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Bebas+Neue&family=Montserrat:wght@800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Bebas+Neue&family=Montserrat:wght@600&display=swap');
         
         :root { 
-            --gold: #FFD700; 
-            --pink: #FF00FF;
-            --blue: #00FFFF;
+            --gold: #FFD700; --neon-blue: #00FFFF; --neon-pink: #FF00FF;
         }
 
         body { 
             margin: 0; padding: 0; font-family: 'Orbitron', sans-serif; 
-            /* COLORFUL Background: Casino Night Vibe */
-            background: linear-gradient(135deg, #2b1055, #7597de);
+            background: linear-gradient(135deg, #1a0a33, #2e0854);
             color: white; overflow: hidden; display: flex; flex-direction: column; align-items: center; 
             height: 100vh; touch-action: none;
         }
 
-        /* Glass Header */
+        /* Header with Level & Target */
         .header { 
-            width: 92%; max-width: 420px; margin: 15px 0; padding: 10px 15px;
-            background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px);
-            display: flex; justify-content: space-between; align-items: center; 
-            border: 2px solid rgba(255,215,0,0.3); border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            width: 92%; max-width: 420px; margin: 10px 0; padding: 10px;
+            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(10px);
+            display: grid; grid-template-columns: 1fr 1.5fr 1fr; align-items: center;
+            border: 2px solid var(--gold); border-radius: 15px; text-align: center;
         }
 
-        .stat { text-align: center; }
-        .stat b { font-size: 22px; color: var(--gold); display: block; text-shadow: 0 0 10px var(--gold); }
-        .stat span { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; font-weight: bold;}
+        .stat b { font-size: 18px; color: var(--gold); display: block; }
+        .stat span { font-size: 9px; text-transform: uppercase; color: #bbb; }
+        .level-info { font-family: 'Bebas Neue'; font-size: 24px; color: var(--neon-blue); letter-spacing: 1px; }
 
-        .game-title { 
-            font-family: 'Bebas Neue'; color: white; font-size: 32px; 
-            letter-spacing: 2px;
-            text-shadow: 2px 2px 0px var(--pink), -2px -2px 0px var(--blue);
-        }
+        /* Progress Bar */
+        .progress-container { width: 90%; max-width: 380px; height: 10px; background: #333; border-radius: 5px; margin-bottom: 10px; border: 1px solid var(--gold); overflow: hidden; }
+        #progressBar { width: 0%; height: 100%; background: linear-gradient(to right, var(--neon-pink), var(--gold)); transition: width 0.3s; }
 
-        /* Colorful Board Container */
         .board-bg { 
-            background: rgba(20, 0, 40, 0.6); padding: 8px; border-radius: 20px; 
-            border: 3px solid var(--gold);
-            width: 94vw; max-width: 390px; 
-            height: 94vw; max-height: 390px;
-            box-sizing: border-box; position: relative;
-            /* Colorful Glow */
-            box-shadow: 0 0 30px var(--pink), inset 0 0 20px rgba(0,0,255,0.3);
+            background: rgba(0, 0, 0, 0.7); padding: 8px; border-radius: 20px; border: 3px solid var(--gold);
+            width: 94vw; max-width: 380px; height: 94vw; max-height: 380px;
+            box-sizing: border-box; position: relative; box-shadow: 0 0 20px var(--neon-pink);
         }
 
-        .grid { 
-            display: grid; grid-template-columns: repeat(8, 1fr); 
-            grid-template-rows: repeat(8, 1fr);
-            gap: 4px; height: 100%; width: 100%;
-        }
+        .grid { display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); gap: 4px; height: 100%; width: 100%; }
+        .slot { background: rgba(255,255,255,0.05); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
 
-        .slot { 
-            background: rgba(255,255,255,0.05); 
-            border-radius: 8px; position: relative; 
-            display: flex; align-items: center; justify-content: center;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
+        .fruit { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 8vw; cursor: pointer; transition: all 0.3s; }
+        @media (min-width: 400px) { .fruit { font-size: 32px; } }
 
-        /* Smooth Icons */
-        .fruit { 
-            width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
-            font-size: 8vw; cursor: pointer; user-select: none; z-index: 5;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5));
-        }
-        @media (min-width: 400px) { .fruit { font-size: 34px; } }
-        .pop { transform: scale(0) rotate(180deg); opacity: 0; }
+        /* Power & Pop */
+        .rocket { border: 2px solid var(--neon-blue); border-radius: 8px; box-shadow: 0 0 10px var(--neon-blue); }
+        .bomb { border: 2px solid var(--neon-pink); border-radius: 50%; box-shadow: 0 0 15px var(--neon-pink); animation: pulse 0.5s infinite alternate; }
+        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
+        .pop { transform: scale(0); opacity: 0; transition: 0.3s; }
 
-        /* --- GAME OVER SCREEN --- */
-        .game-over-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 100;
-            display: none; /* Hidden by default */
-            justify-content: center; align-items: center; flex-direction: column;
-            backdrop-filter: blur(5px);
-        }
-        .go-box {
-            background: linear-gradient(45deg, var(--bule), var(--pink));
-            background: rgba(40, 10, 60, 0.9);
-            border: 4px solid var(--gold);
-            padding: 30px; border-radius: 20px; text-align: center;
-            box-shadow: 0 0 50px var(--gold);
-            animation: popIn 0.5s ease-out;
-        }
-        @keyframes popIn { from {transform: scale(0.5); opacity:0;} to {transform: scale(1); opacity:1;} }
-        .go-box h2 { font-family: 'Bebas Neue'; font-size: 50px; margin: 0; color: var(--gold); }
-        .go-box p { font-family: 'Montserrat', sans-serif; font-size: 18px; margin: 10px 0; }
-        .go-btn {
-            background: linear-gradient(to right, var(--pink), var(--gold));
-            border: none; padding: 10px 30px; color: black; font-weight: bold;
-            font-family: 'Orbitron'; font-size: 18px; border-radius: 30px;
-            cursor: pointer; margin-top: 20px; box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
-        }
-        .go-btn:active { transform: scale(0.95); }
-
-        /* Mute Button */
-        .mute-btn { 
-            position: fixed; bottom: 20px; right: 20px;
-            background: var(--gold); border: none; 
-            border-radius: 50%; width: 50px; height: 50px; 
-            font-size: 24px; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            z-index: 50;
-        }
+        /* Overlays */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; display: none; justify-content: center; align-items: center; flex-direction: column; text-align: center; }
+        .win-box { border: 3px solid var(--gold); padding: 30px; border-radius: 20px; background: #111; box-shadow: 0 0 40px var(--neon-blue); width: 80%; max-width: 300px; }
+        .btn { background: var(--gold); border: none; padding: 12px 25px; font-weight: bold; border-radius: 25px; cursor: pointer; margin-top: 15px; font-family: 'Orbitron'; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="stat"><span>Cash</span><b id="coins">0</b></div>
-        <div class="game-title">MAFIA BOSS</div>
-        <div class="stat"><span>Moves</span><b id="moves">20</b></div>
+        <div class="stat"><span>Target</span><b id="targetScore">500</b></div>
+        <div class="level-info">STAGE <span id="lvlNum">1</span></div>
+        <div class="stat"><span>Moves</span><b id="moves">10</b></div>
     </div>
 
-    <div class="board-bg">
-        <div class="grid" id="grid"></div>
-    </div>
+    <div class="progress-container"><div id="progressBar"></div></div>
 
-    <div id="gameOver" class="game-over-overlay">
-        <div class="go-box">
-            <h2>GAME OVER</h2>
-            <p>YOUR LOOT: <b style="color: var(--gold);">$<span id="finalScore">0</span></b></p>
-            <p>BEST HEIST: <b style="color: var(--pink);">$<span id="bestScore">0</span></b></p>
-            <button class="go-btn" onclick="restartGame()">PLAY AGAIN</button>
+    <div class="board-bg"><div class="grid" id="grid"></div></div>
+
+    <div class="stat" style="margin-top: 10px;"><span>Current Loot</span><b id="coins" style="font-size: 30px;">0</b></div>
+
+    <div id="winScreen" class="overlay">
+        <div class="win-box">
+            <h1 style="color:var(--gold); margin:0;">MISSION CLEAR!</h1>
+            <p id="rankText" style="color:var(--neon-blue); font-weight:bold;">NEW RANK: STREET THUG</p>
+            <button class="btn" onclick="nextLevel()">NEXT STAGE</button>
         </div>
     </div>
 
-    <button class="mute-btn" onclick="toggleMute()" id="muteIcon">🔊</button>
+    <div id="failScreen" class="overlay">
+        <div class="win-box" style="box-shadow: 0 0 40px var(--neon-pink);">
+            <h1 style="color:var(--neon-pink); margin:0;">FAILED!</h1>
+            <p>Target nahi mila boss...</p>
+            <button class="btn" onclick="location.reload()">TRY AGAIN</button>
+        </div>
+    </div>
 
 <script>
-    const gridEl = document.getElementById('grid'), coinsEl = document.getElementById('coins'), movesEl = document.getElementById('moves');
-    const gameOverScreen = document.getElementById('gameOver');
-    const items = ['💎', '🚗', '💵', '🕶️', '🔫', '💰'];
+    const gridEl = document.getElementById('grid'), coinsEl = document.getElementById('coins'), movesEl = document.getElementById('moves'), lvlNumEl = document.getElementById('lvlNum'), targetEl = document.getElementById('targetScore'), bar = document.getElementById('progressBar');
     
-    // MUSIC & SFX (Using reliable placeholder sounds)
-    const matchSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3'); matchSound.volume = 0.5;
-    const gameOverSFX = new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3');
-    // Colorful Vibe BG Music
-    const bgMusic = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3'); 
-    bgMusic.loop = true; bgMusic.volume = 0.3;
+    const neonGlasses = `<svg viewBox="0 0 512 512" style="width:85%;"><defs><linearGradient id="g"><stop offset="0%" stop-color="#FF00FF"/><stop offset="100%" stop-color="#00FFFF"/></linearGradient></defs><path fill="url(#g)" d="M477 168c23 20 35 48 35 77s-13 61-38 81l-41 32c-21 17-46 26-73 26h-7c-22 0-44-6-63-18a75 75 0 0 0-75 0c-19 12-41 18-63 18h-7c-27 0-52-9-73-26l-41-32C7 306-7 276-7 245s12-57 35-77l44-37c17-15 39-23 61-23h4c20 0 40 7 57 19 12 8 24 15 37 20 13-5 26-12 37-20 17-12 37-19 57-19h4c22 0 44 8 61 23l44 37z"/></svg>`;
+    const items = ['💎', '🚗', '💵', neonGlasses, '🔫', '💰'];
+    
+    // Level Config: Target, Moves, Rank
+    const stages = [
+        { t: 500, m: 10, r: "STREET THUG" },
+        { t: 1200, m: 15, r: "MUSCLE" },
+        { t: 2500, m: 15, r: "HITMAN" },
+        { t: 4000, m: 20, r: "ENFORCER" },
+        { t: 6000, m: 20, r: "LIEUTENANT" },
+        { t: 8500, m: 22, r: "UNDERBOSS" },
+        { t: 12000, m: 22, r: "CAPO" },
+        { t: 16000, m: 25, r: "CONSIGLIERE" },
+        { t: 22000, m: 25, r: "MAFIA DON" },
+        { t: 35000, m: 30, r: "GODFATHER" }
+    ];
 
-    let squares = [], moves = 20, coins = 0, isMuted = false, sX, sY, isProcessing = false;
-    // HIGH SCORE LOAD
-    let highScore = localStorage.getItem('mafiaHighScore') || 0;
-
-    function toggleMute() {
-        isMuted = !isMuted;
-        bgMusic.muted = isMuted; matchSound.muted = isMuted; gameOverSFX.muted = isMuted;
-        document.getElementById('muteIcon').innerText = isMuted ? "🔇" : "🔊";
-        if(!isMuted && moves > 0) bgMusic.play().catch(()=>{});
-    }
+    let currentLvl = 0, squares = [], moves = 10, coins = 0, isProcessing = false, sX, sY;
+    const matchSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
 
     function init() {
         gridEl.innerHTML = ''; squares = [];
+        const config = stages[currentLvl];
+        moves = config.m; coins = 0;
+        movesEl.innerText = moves; coinsEl.innerText = coins;
+        targetEl.innerText = config.t; lvlNumEl.innerText = currentLvl + 1;
+        bar.style.width = '0%';
+
         for (let i = 0; i < 64; i++) {
             const slot = document.createElement('div'); slot.className = 'slot';
             const f = document.createElement('div'); f.className = 'fruit';
             f.innerHTML = items[Math.floor(Math.random()*items.length)];
-            
-            f.ontouchstart = (e) => { 
-                if(!isProcessing && moves > 0) {
-                    sX = e.touches[0].clientX; sY = e.touches[0].clientY; 
-                    if(bgMusic.paused && !isMuted) bgMusic.play().catch(() => {});
-                }
-            };
+            f.ontouchstart = (e) => { sX = e.touches[0].clientX; sY = e.touches[0].clientY; };
             f.ontouchend = (e) => { 
                 if(isProcessing || moves <= 0) return;
                 let dX = e.changedTouches[0].clientX - sX, dY = e.changedTouches[0].clientY - sY;
-                if(Math.abs(dX) > 25 || Math.abs(dY) > 25) {
+                if(Math.abs(dX) > 20 || Math.abs(dY) > 20) {
                     let dir = Math.abs(dX) > Math.abs(dY) ? (dX > 0 ? 1 : -1) : (dY > 0 ? 8 : -8);
                     handleMove(i, i + dir);
                 }
@@ -187,72 +140,88 @@
     async function handleMove(id1, id2) {
         if (id2 < 0 || id2 >= 64 || (Math.abs(id1-id2)===1 && Math.floor(id1/8)!==Math.floor(id2/8))) return;
         isProcessing = true;
-        swapIcons(id1, id2);
-        await new Promise(r => setTimeout(r, 350));
+        swap(id1, id2);
+        await new Promise(r => setTimeout(r, 300));
 
-        if(!checkMatches()) {
-            swapIcons(id1, id2); // Swap back
-            await new Promise(r => setTimeout(r, 350));
+        if(!checkMatches(id2)) {
+            swap(id1, id2); await new Promise(r => setTimeout(r, 300));
             isProcessing = false;
         } else {
-            // Move successful
             moves--; movesEl.innerText = moves;
-            if(!isMuted) matchSound.play().catch(()=>{});
-            if(moves === 0) setTimeout(endGame, 1500);
+            matchSound.play().catch(()=>{});
+            updateProgress();
+            if(moves === 0 && coins < stages[currentLvl].t) document.getElementById('failScreen').style.display='flex';
         }
     }
 
-    function swapIcons(id1, id2) {
-        let temp = squares[id1].innerHTML;
-        squares[id1].innerHTML = squares[id2].innerHTML;
-        squares[id2].innerHTML = temp;
+    function swap(i1, i2) {
+        let h = squares[i1].innerHTML, c = squares[i1].className;
+        squares[i1].innerHTML = squares[i2].innerHTML; squares[i1].className = squares[i2].className;
+        squares[i2].innerHTML = h; squares[i2].className = c;
     }
 
-    function checkMatches() {
+    function checkMatches(lastId = null) {
         let matches = new Set();
-        // Rows & Columns Check
         for(let r=0; r<8; r++) { for(let c=0; c<6; c++) { let i=r*8+c; if(squares[i].innerHTML===squares[i+1].innerHTML && squares[i].innerHTML===squares[i+2].innerHTML) { matches.add(i); matches.add(i+1); matches.add(i+2); }}}
         for(let c=0; c<8; c++) { for(let r=0; r<6; r++) { let i=r*8+c; if(squares[i].innerHTML===squares[i+8].innerHTML && squares[i].innerHTML===squares[i+16].innerHTML) { matches.add(i); matches.add(i+8); matches.add(i+16); }}}
 
         if(matches.size > 0) {
-            matches.forEach(id => squares[id].classList.add('pop'));
+            if(lastId !== null) {
+                if(matches.size === 4) squares[lastId].classList.add('rocket');
+                else if(matches.size >= 5) squares[lastId].classList.add('bomb');
+            }
+            matches.forEach(id => {
+                if(squares[id].classList.contains('rocket')) triggerRocket(id, matches);
+                if(squares[id].classList.contains('bomb')) triggerBomb(id, matches);
+                if(!squares[id].classList.contains('rocket') && !squares[id].classList.contains('bomb')) squares[id].classList.add('pop');
+            });
             coins += matches.size * 10; coinsEl.innerText = coins;
-            setTimeout(fillBoard, 400);
+            updateProgress();
+            setTimeout(fill, 400); 
+            checkWin();
             return true;
         }
-        isProcessing = false;
-        return false;
+        isProcessing = false; return false;
     }
 
-    function fillBoard() {
+    function triggerRocket(id, set) { let r = Math.floor(id/8); for(let i=r*8; i<(r+1)*8; i++) { set.add(i); squares[i].classList.add('pop'); }}
+    function triggerBomb(id, set) { let r = Math.floor(id/8), c = id%8; for(let i=r-1; i<=r+1; i++) { for(let j=c-1; j<=c+1; j++) { if(i>=0 && i<8 && j>=0 && j<8) { let idx=i*8+j; set.add(idx); squares[idx].classList.add('pop'); }}}}
+
+    function fill() {
         for (let i = 0; i < 64; i++) {
             if (squares[i].classList.contains('pop')) {
                 squares[i].innerHTML = items[Math.floor(Math.random()*items.length)];
-                squares[i].classList.remove('pop');
+                squares[i].className = 'fruit';
                 squares[i].style.transform = 'scale(0)';
-                setTimeout(() => { squares[i].style.transform = 'scale(1)'; }, i*5);
+                setTimeout(() => squares[i].style.transform = 'scale(1)', i*5);
             }
         }
         setTimeout(checkMatches, 500);
     }
 
-    function endGame() {
-        bgMusic.pause();
-        if(!isMuted) gameOverSFX.play().catch(()=>{});
-        
-        // HIGH SCORE LOGIC
-        if(coins > highScore) {
-            highScore = coins;
-            localStorage.setItem('mafiaHighScore', highScore);
-        }
-        
-        document.getElementById('finalScore').innerText = coins;
-        document.getElementById('bestScore').innerText = highScore;
-        gameOverScreen.style.display = 'flex';
+    function updateProgress() {
+        let p = (coins / stages[currentLvl].t) * 100;
+        bar.style.width = Math.min(p, 100) + '%';
     }
 
-    function restartGame() {
-        location.reload();
+    function checkWin() {
+        if(coins >= stages[currentLvl].t && !isProcessing) {
+            isProcessing = true;
+            setTimeout(() => {
+                document.getElementById('rankText').innerText = "NEW RANK: " + stages[currentLvl].r;
+                document.getElementById('winScreen').style.display = 'flex';
+            }, 800);
+        }
+    }
+
+    function nextLevel() {
+        currentLvl++;
+        if(currentLvl >= 10) { alert("MAFIA LEGEND! Aapne saare stages clear kar liye!"); location.reload(); }
+        else {
+            document.getElementById('winScreen').style.display = 'none';
+            isProcessing = false;
+            init();
+        }
     }
 
     window.onload = init;
