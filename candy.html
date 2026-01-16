@@ -3,59 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Candy Mafia: 10 Stages Edition</title>
+    <title>Candy Mafia: Fireworks Edition</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Bebas+Neue&family=Montserrat:wght@600&display=swap');
         
-        :root { 
-            --gold: #FFD700; --neon-blue: #00FFFF; --neon-pink: #FF00FF;
-        }
+        :root { --gold: #FFD700; --neon-blue: #00FFFF; --neon-pink: #FF00FF; }
 
         body { 
             margin: 0; padding: 0; font-family: 'Orbitron', sans-serif; 
-            background: linear-gradient(135deg, #1a0a33, #2e0854);
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
             color: white; overflow: hidden; display: flex; flex-direction: column; align-items: center; 
             height: 100vh; touch-action: none;
         }
 
-        /* Header with Level & Target */
+        /* Header */
         .header { 
             width: 92%; max-width: 420px; margin: 10px 0; padding: 10px;
-            background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(15px);
             display: grid; grid-template-columns: 1fr 1.5fr 1fr; align-items: center;
             border: 2px solid var(--gold); border-radius: 15px; text-align: center;
         }
 
         .stat b { font-size: 18px; color: var(--gold); display: block; }
-        .stat span { font-size: 9px; text-transform: uppercase; color: #bbb; }
-        .level-info { font-family: 'Bebas Neue'; font-size: 24px; color: var(--neon-blue); letter-spacing: 1px; }
+        .stat span { font-size: 9px; text-transform: uppercase; color: #ccc; }
+        .level-info { font-family: 'Bebas Neue'; font-size: 26px; color: var(--neon-blue); letter-spacing: 2px; }
 
-        /* Progress Bar */
-        .progress-container { width: 90%; max-width: 380px; height: 10px; background: #333; border-radius: 5px; margin-bottom: 10px; border: 1px solid var(--gold); overflow: hidden; }
-        #progressBar { width: 0%; height: 100%; background: linear-gradient(to right, var(--neon-pink), var(--gold)); transition: width 0.3s; }
+        .progress-container { width: 90%; max-width: 380px; height: 8px; background: #222; border-radius: 10px; margin-bottom: 12px; border: 1px solid rgba(255,215,0,0.3); overflow: hidden; }
+        #progressBar { width: 0%; height: 100%; background: linear-gradient(to right, #00dbde, #fc00ff); transition: width 0.4s; }
 
         .board-bg { 
-            background: rgba(0, 0, 0, 0.7); padding: 8px; border-radius: 20px; border: 3px solid var(--gold);
+            background: rgba(0, 0, 0, 0.8); padding: 8px; border-radius: 20px; border: 3px solid var(--gold);
             width: 94vw; max-width: 380px; height: 94vw; max-height: 380px;
-            box-sizing: border-box; position: relative; box-shadow: 0 0 20px var(--neon-pink);
+            box-sizing: border-box; position: relative;
         }
 
-        .grid { display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); gap: 4px; height: 100%; width: 100%; }
-        .slot { background: rgba(255,255,255,0.05); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+        .grid { display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); gap: 5px; height: 100%; width: 100%; }
+        .slot { background: rgba(255,255,255,0.04); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
 
         .fruit { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 8vw; cursor: pointer; transition: all 0.3s; }
         @media (min-width: 400px) { .fruit { font-size: 32px; } }
 
-        /* Power & Pop */
-        .rocket { border: 2px solid var(--neon-blue); border-radius: 8px; box-shadow: 0 0 10px var(--neon-blue); }
-        .bomb { border: 2px solid var(--neon-pink); border-radius: 50%; box-shadow: 0 0 15px var(--neon-pink); animation: pulse 0.5s infinite alternate; }
-        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
         .pop { transform: scale(0); opacity: 0; transition: 0.3s; }
 
         /* Overlays */
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; display: none; justify-content: center; align-items: center; flex-direction: column; text-align: center; }
-        .win-box { border: 3px solid var(--gold); padding: 30px; border-radius: 20px; background: #111; box-shadow: 0 0 40px var(--neon-blue); width: 80%; max-width: 300px; }
-        .btn { background: var(--gold); border: none; padding: 12px 25px; font-weight: bold; border-radius: 25px; cursor: pointer; margin-top: 15px; font-family: 'Orbitron'; }
+        .win-box { border: 3px solid var(--gold); padding: 35px; border-radius: 25px; background: #0a0a0a; box-shadow: 0 0 50px var(--gold); width: 85%; max-width: 300px; }
+        .btn { background: var(--gold); border: none; padding: 15px 30px; font-weight: bold; border-radius: 30px; cursor: pointer; margin-top: 20px; font-family: 'Orbitron'; }
+
+        /* FIREWORKS CSS */
+        .firework { position: absolute; width: 5px; height: 5px; border-radius: 50%; pointer-events: none; z-index: 200; }
+        @keyframes explode {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(20); opacity: 0; }
+        }
     </style>
 </head>
 <body>
@@ -67,24 +67,21 @@
     </div>
 
     <div class="progress-container"><div id="progressBar"></div></div>
-
     <div class="board-bg"><div class="grid" id="grid"></div></div>
-
-    <div class="stat" style="margin-top: 10px;"><span>Current Loot</span><b id="coins" style="font-size: 30px;">0</b></div>
+    <div class="stat" style="margin-top: 15px;"><span>Current Loot</span><b id="coins" style="font-size: 35px; color: var(--neon-blue);">0</b></div>
 
     <div id="winScreen" class="overlay">
         <div class="win-box">
-            <h1 style="color:var(--gold); margin:0;">MISSION CLEAR!</h1>
-            <p id="rankText" style="color:var(--neon-blue); font-weight:bold;">NEW RANK: STREET THUG</p>
-            <button class="btn" onclick="nextLevel()">NEXT STAGE</button>
+            <h1 style="color:var(--gold); font-size: 30px;">STAGE CLEAR!</h1>
+            <p id="rankText" style="color:#00ff00;">RANK: STREET THUG</p>
+            <button class="btn" onclick="nextLevel()">START STAGE 2</button>
         </div>
     </div>
 
     <div id="failScreen" class="overlay">
-        <div class="win-box" style="box-shadow: 0 0 40px var(--neon-pink);">
-            <h1 style="color:var(--neon-pink); margin:0;">FAILED!</h1>
-            <p>Target nahi mila boss...</p>
-            <button class="btn" onclick="location.reload()">TRY AGAIN</button>
+        <div class="win-box" style="box-shadow: 0 0 50px var(--neon-pink);">
+            <h1 style="color:var(--neon-pink);">BUSTED!</h1>
+            <button class="btn" onclick="location.reload()">RETRY HEIST</button>
         </div>
     </div>
 
@@ -94,30 +91,26 @@
     const neonGlasses = `<svg viewBox="0 0 512 512" style="width:85%;"><defs><linearGradient id="g"><stop offset="0%" stop-color="#FF00FF"/><stop offset="100%" stop-color="#00FFFF"/></linearGradient></defs><path fill="url(#g)" d="M477 168c23 20 35 48 35 77s-13 61-38 81l-41 32c-21 17-46 26-73 26h-7c-22 0-44-6-63-18a75 75 0 0 0-75 0c-19 12-41 18-63 18h-7c-27 0-52-9-73-26l-41-32C7 306-7 276-7 245s12-57 35-77l44-37c17-15 39-23 61-23h4c20 0 40 7 57 19 12 8 24 15 37 20 13-5 26-12 37-20 17-12 37-19 57-19h4c22 0 44 8 61 23l44 37z"/></svg>`;
     const items = ['💎', '🚗', '💵', neonGlasses, '🔫', '💰'];
     
-    // Level Config: Target, Moves, Rank
     const stages = [
         { t: 500, m: 10, r: "STREET THUG" },
-        { t: 1200, m: 15, r: "MUSCLE" },
-        { t: 2500, m: 15, r: "HITMAN" },
-        { t: 4000, m: 20, r: "ENFORCER" },
-        { t: 6000, m: 20, r: "LIEUTENANT" },
-        { t: 8500, m: 22, r: "UNDERBOSS" },
-        { t: 12000, m: 22, r: "CAPO" },
-        { t: 16000, m: 25, r: "CONSIGLIERE" },
-        { t: 22000, m: 25, r: "MAFIA DON" },
-        { t: 35000, m: 30, r: "GODFATHER" }
+        { t: 1500, m: 15, r: "MUSCLE" },
+        { t: 3000, m: 15, r: "HITMAN" },
+        { t: 5000, m: 18, r: "ENFORCER" },
+        { t: 10000, m: 20, r: "MAFIA BOSS" }
     ];
 
     let currentLvl = 0, squares = [], moves = 10, coins = 0, isProcessing = false, sX, sY;
-    const matchSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
+    const sfxMatch = new Audio('https://pixabay.com/static/audio/2022/03/15/audio_bd659a2249.mp3');
 
     function init() {
         gridEl.innerHTML = ''; squares = [];
+        isProcessing = false; // Reset lock
         const config = stages[currentLvl];
         moves = config.m; coins = 0;
         movesEl.innerText = moves; coinsEl.innerText = coins;
         targetEl.innerText = config.t; lvlNumEl.innerText = currentLvl + 1;
         bar.style.width = '0%';
+        document.querySelector('.btn').innerText = "START STAGE " + (currentLvl + 2);
 
         for (let i = 0; i < 64; i++) {
             const slot = document.createElement('div'); slot.className = 'slot';
@@ -142,85 +135,74 @@
         isProcessing = true;
         swap(id1, id2);
         await new Promise(r => setTimeout(r, 300));
-
-        if(!checkMatches(id2)) {
+        if(!checkMatches()) {
             swap(id1, id2); await new Promise(r => setTimeout(r, 300));
             isProcessing = false;
         } else {
             moves--; movesEl.innerText = moves;
-            matchSound.play().catch(()=>{});
-            updateProgress();
+            sfxMatch.play().catch(()=>{});
             if(moves === 0 && coins < stages[currentLvl].t) document.getElementById('failScreen').style.display='flex';
         }
     }
 
     function swap(i1, i2) {
-        let h = squares[i1].innerHTML, c = squares[i1].className;
-        squares[i1].innerHTML = squares[i2].innerHTML; squares[i1].className = squares[i2].className;
-        squares[i2].innerHTML = h; squares[i2].className = c;
+        let h = squares[i1].innerHTML; squares[i1].innerHTML = squares[i2].innerHTML; squares[i2].innerHTML = h;
     }
 
-    function checkMatches(lastId = null) {
+    function checkMatches() {
         let matches = new Set();
         for(let r=0; r<8; r++) { for(let c=0; c<6; c++) { let i=r*8+c; if(squares[i].innerHTML===squares[i+1].innerHTML && squares[i].innerHTML===squares[i+2].innerHTML) { matches.add(i); matches.add(i+1); matches.add(i+2); }}}
         for(let c=0; c<8; c++) { for(let r=0; r<6; r++) { let i=r*8+c; if(squares[i].innerHTML===squares[i+8].innerHTML && squares[i].innerHTML===squares[i+16].innerHTML) { matches.add(i); matches.add(i+8); matches.add(i+16); }}}
-
         if(matches.size > 0) {
-            if(lastId !== null) {
-                if(matches.size === 4) squares[lastId].classList.add('rocket');
-                else if(matches.size >= 5) squares[lastId].classList.add('bomb');
-            }
-            matches.forEach(id => {
-                if(squares[id].classList.contains('rocket')) triggerRocket(id, matches);
-                if(squares[id].classList.contains('bomb')) triggerBomb(id, matches);
-                if(!squares[id].classList.contains('rocket') && !squares[id].classList.contains('bomb')) squares[id].classList.add('pop');
-            });
+            matches.forEach(id => squares[id].classList.add('pop'));
             coins += matches.size * 10; coinsEl.innerText = coins;
             updateProgress();
             setTimeout(fill, 400); 
-            checkWin();
+            if(coins >= stages[currentLvl].t) triggerWin();
             return true;
         }
         isProcessing = false; return false;
     }
 
-    function triggerRocket(id, set) { let r = Math.floor(id/8); for(let i=r*8; i<(r+1)*8; i++) { set.add(i); squares[i].classList.add('pop'); }}
-    function triggerBomb(id, set) { let r = Math.floor(id/8), c = id%8; for(let i=r-1; i<=r+1; i++) { for(let j=c-1; j<=c+1; j++) { if(i>=0 && i<8 && j>=0 && j<8) { let idx=i*8+j; set.add(idx); squares[idx].classList.add('pop'); }}}}
-
     function fill() {
         for (let i = 0; i < 64; i++) {
             if (squares[i].classList.contains('pop')) {
                 squares[i].innerHTML = items[Math.floor(Math.random()*items.length)];
-                squares[i].className = 'fruit';
-                squares[i].style.transform = 'scale(0)';
-                setTimeout(() => squares[i].style.transform = 'scale(1)', i*5);
+                squares[i].classList.remove('pop');
             }
         }
         setTimeout(checkMatches, 500);
     }
 
-    function updateProgress() {
-        let p = (coins / stages[currentLvl].t) * 100;
-        bar.style.width = Math.min(p, 100) + '%';
-    }
+    function updateProgress() { bar.style.width = Math.min((coins/stages[currentLvl].t)*100, 100) + '%'; }
 
-    function checkWin() {
-        if(coins >= stages[currentLvl].t && !isProcessing) {
-            isProcessing = true;
-            setTimeout(() => {
-                document.getElementById('rankText').innerText = "NEW RANK: " + stages[currentLvl].r;
-                document.getElementById('winScreen').style.display = 'flex';
-            }, 800);
-        }
+    function triggerWin() {
+        isProcessing = true;
+        createFireworks();
+        setTimeout(() => {
+            document.getElementById('rankText').innerText = "RANK: " + stages[currentLvl].r;
+            document.getElementById('winScreen').style.display = 'flex';
+        }, 1500);
     }
 
     function nextLevel() {
         currentLvl++;
-        if(currentLvl >= 10) { alert("MAFIA LEGEND! Aapne saare stages clear kar liye!"); location.reload(); }
-        else {
-            document.getElementById('winScreen').style.display = 'none';
-            isProcessing = false;
-            init();
+        document.getElementById('winScreen').style.display = 'none';
+        init(); // Fresh start for Stage 2
+    }
+
+    function createFireworks() {
+        for(let i=0; i<15; i++) {
+            setTimeout(() => {
+                const f = document.createElement('div');
+                f.className = 'firework';
+                f.style.left = Math.random() * 100 + 'vw';
+                f.style.top = Math.random() * 100 + 'vh';
+                f.style.backgroundColor = ['#FFD700', '#FF00FF', '#00FFFF'][Math.floor(Math.random()*3)];
+                f.style.animation = 'explode 1s ease-out forwards';
+                document.body.appendChild(f);
+                setTimeout(() => f.remove(), 1000);
+            }, i * 100);
         }
     }
 
