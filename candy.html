@@ -3,101 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Candy Mafia: Executive Edition - Waseem Productions</title>
+    <title>Candy Mafia: Ultimate Edition</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Bebas+Neue&display=swap');
-        :root { --gold: #ffd700; --neon: #00f2ff; --pink: #ff0055; --glow: rgba(255, 215, 0, 0.3); }
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Bebas+Neue&display=swap');
+        
+        :root { 
+            --gold: #ffcc00; 
+            --neon: #00f2ff;
+            --pink: #ff0055;
+            --cell-size: clamp(38px, 10.5vw, 48px);
+        }
 
         body { 
-            margin: 0; padding: 0; font-family: 'Fredoka One', cursive; 
-            background: radial-gradient(circle at center, #222, #000); color: white; 
-            overflow: hidden; display: flex; flex-direction: column; align-items: center; 
-            touch-action: none;
+            margin: 0; padding: 0; font-family: 'Orbitron', sans-serif; 
+            background: #000;
+            background-image: radial-gradient(circle, #2a2a2a 0%, #000 100%);
+            color: white; overflow: hidden; display: flex; flex-direction: column; align-items: center; 
+            height: 100vh; touch-action: none;
         }
 
-        /* Header Visuals */
         .header { 
-            width: 100%; padding: 15px 0; background: rgba(0,0,0,0.9);
-            display: flex; justify-content: space-around; align-items: center; 
-            border-bottom: 3px solid var(--gold); box-shadow: 0 5px 30px var(--glow);
+            width: 90%; margin: 15px 0; padding: 12px;
+            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px);
+            display: flex; justify-content: space-between; align-items: center; 
+            border: 1px solid rgba(255,204,0,0.2); border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
             z-index: 10;
         }
-        .stat b { font-size: 20px; color: var(--gold); text-shadow: 0 0 5px var(--gold); }
 
-        /* Board Styling */
+        .stat b { font-size: 20px; color: var(--gold); text-shadow: 0 0 10px var(--gold); }
+        .game-title { font-family: 'Bebas Neue'; color: var(--gold); font-size: 26px; letter-spacing: 2px; }
+
+        /* Board styling */
         .board-bg { 
-            background: rgba(0,0,0,0.6); padding: 12px; border-radius: 25px; 
-            border: 4px solid var(--gold); position: relative;
-            width: 94vw; max-width: 380px; height: 94vw; max-height: 380px;
-            box-sizing: border-box; margin-top: 30px;
-            box-shadow: 0 0 50px rgba(0,0,0,1), inset 0 0 20px var(--glow);
+            background: rgba(0,0,0,0.85); padding: 10px; border-radius: 25px; 
+            border: 3px solid var(--gold);
+            width: calc(var(--cell-size) * 8 + 50px); 
+            height: calc(var(--cell-size) * 8 + 50px);
+            position: relative; box-shadow: 0 0 40px rgba(255, 204, 0, 0.15);
         }
 
         .grid { 
-            display: grid; grid-template-columns: repeat(8, 1fr); 
-            gap: 6px; height: 100%; width: 100%;
+            display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr);
+            gap: 5px; height: 100%; width: 100%;
         }
 
-        .slot { 
-            position: relative; background: rgba(255,255,255,0.02); 
-            border-radius: 10px; border: 1px solid rgba(255,255,255,0.05);
-        }
+        .slot { background: rgba(255,255,255,0.03); border-radius: 10px; position: relative; }
 
+        /* Base Fruit Style with Smooth Transition */
         .fruit { 
             position: absolute; width: 100%; height: 100%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 7.5vw; cursor: pointer; 
-            /* EKDOM SLOW GRAVITY (1.2s) */
-            transition: top 1.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s, opacity 0.4s;
-            user-select: none; z-index: 5;
-            filter: drop-shadow(0 5px 8px rgba(0,0,0,0.8));
+            font-size: calc(var(--cell-size) * 0.7); cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); /* Smooth movement */
+            z-index: 5; user-select: none;
         }
-        
-        @media (min-width: 500px) { .fruit { font-size: 36px; } }
 
-        /* Enhanced Power VFX */
-        .rocket { border: 2px solid var(--neon); border-radius: 50%; box-shadow: 0 0 20px var(--neon), inset 0 0 10px var(--neon); }
-        .bomb { border: 2px solid var(--pink); border-radius: 50%; box-shadow: 0 0 25px var(--pink); animation: pulse 0.7s infinite alternate; }
+        /* --- SPECIAL COMBOS & ANIMATIONS --- */
         
-        @keyframes pulse { from { transform: scale(1); filter: brightness(1); } to { transform: scale(1.15); filter: brightness(1.6); } }
-
-        .vfx {
-            position: fixed; pointer-events: none; color: var(--gold);
-            font-family: 'Bebas Neue'; font-size: 40px; text-shadow: 0 0 20px #000;
-            animation: cinematicFloat 1.2s forwards; z-index: 1000;
+        /* Rocket Styling (Match 4) */
+        .fruit.rocket {
+            border: 3px solid var(--neon);
+            box-shadow: 0 0 15px var(--neon), inset 0 0 10px var(--neon);
+            border-radius: 12px;
         }
-        @keyframes cinematicFloat { 0% { opacity: 0; transform: translate(-50%, 20px) scale(0.5); } 20% { opacity: 1; transform: translate(-50%, 0) scale(1.2); } 100% { opacity: 0; transform: translate(-50%, -150px) scale(2); } }
-        
-        .mute-btn { position: absolute; top: 80px; right: 20px; background: var(--gold); border: none; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; font-size: 24px; z-index: 100; box-shadow: 0 5px 15px rgba(0,0,0,0.5); transition: 0.2s; }
-        .mute-btn:active { transform: scale(0.9); }
+        .fruit.rocket::after { content: '🚀'; position: absolute; font-size: 14px; bottom: 2px; right: 2px; }
+
+        /* Bomb Styling (Match 5) */
+        .fruit.bomb {
+            border: 3px solid var(--pink);
+            box-shadow: 0 0 15px var(--pink), inset 0 0 10px var(--pink);
+            border-radius: 50%;
+            animation: pulse 0.8s infinite alternate;
+        }
+        .fruit.bomb::after { content: '💣'; position: absolute; font-size: 14px; bottom: 2px; right: 2px; }
+
+        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); filter: brightness(1.2); } }
+
+        /* States */
+        .fruit.moving { z-index: 10; transform: scale(1.2); transition: all 0.1s; }
+        .fruit.pop { animation: popOut 0.4s forwards; }
+        .fruit.blast { animation: blastOut 0.3s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+        @keyframes popOut { to { transform: scale(0) rotate(45deg); opacity: 0; } }
+        @keyframes blastOut { 
+            0% { transform: scale(1); filter: brightness(2); } 
+            50% { transform: scale(1.5); opacity: 0.8; } 
+            100% { transform: scale(0); opacity: 0; } 
+        }
+
+        .mute-btn { 
+            margin-top: 20px; background: var(--gold); border: none; 
+            width: 50px; height: 50px; border-radius: 50%;
+            font-size: 24px; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="stat">Cash: <b id="coins">0</b></div>
-        <div style="font-family: 'Bebas Neue'; color: var(--gold); font-size: 28px; letter-spacing: 3px; text-shadow: 0 0 15px var(--gold);">MAFIA BOSS</div>
-        <div class="stat">Moves: <b id="moves">30</b></div>
+        <div class="stat"><span>Cash</span><br><b id="coins">0</b></div>
+        <div class="game-title">MAFIA BOSS</div>
+        <div class="stat"><span>Moves</span><br><b id="moves">30</b></div>
     </div>
-
-    <button class="mute-btn" onclick="toggleMute()" id="muteIcon">🔊</button>
 
     <div class="board-bg">
         <div class="grid" id="grid"></div>
     </div>
 
+    <button class="mute-btn" onclick="toggleMute()" id="muteIcon">🔊</button>
+
 <script>
     const gridEl = document.getElementById('grid'), coinsEl = document.getElementById('coins'), movesEl = document.getElementById('moves');
-    const items = ['🔫', '🕶️', '💵', '💎', '🚬', '🚗'];
-    const quotes = ["AMAZING!", "UNSTOPPABLE!", "LEGENDARY!", "DON STYLE!", "POWERFUL!"];
+    const items = ['💎', '🚗', '💵', '🕶️', '🔫', '🚬'];
     
-    // Naya Cinematic Background Music
-    const matchSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
-    const powerSound = new Audio('https://assets.mixkit.co/active_storage/sfx/1654/1654-preview.mp3');
-    const bgMusic = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3');
-    bgMusic.loop = true; bgMusic.volume = 0.3;
+    // SFX setup (using placeholders, replace with your preferred links if needed)
+    const matchSound = new Audio('https://cdn.pixabay.com/audio/2022/03/15/audio_783332402a.mp3'); matchSound.volume = 0.6;
+    const powerSound = new Audio('https://cdn.pixabay.com/audio/2022/03/10/audio_c352705035.mp3'); powerSound.volume = 0.8;
+    const bgMusic = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3');
+    bgMusic.loop = true; bgMusic.volume = 0.2;
 
-    let squares = [], moves = 30, coins = 0, isMuted = false, sX, sY, isProcessing = false, comboCount = 0;
+    let squares = [], moves = 30, coins = 0, isMuted = false, sX, sY, isProcessing = false;
+    let width = 8;
 
     function toggleMute() {
         isMuted = !isMuted;
@@ -110,162 +137,238 @@
         for (let i = 0; i < 64; i++) {
             const slot = document.createElement('div'); slot.className = 'slot';
             const f = document.createElement('div'); f.className = 'fruit';
-            f.innerHTML = items[Math.floor(Math.random()*6)];
-            f.dataset.id = i;
+            f.innerHTML = items[Math.floor(Math.random()*items.length)];
+            f.setAttribute('data-id', i);
             
+            // Touch Logic
             f.ontouchstart = (e) => { 
-                if(!isProcessing) {
-                    sX = e.touches[0].clientX; sY = e.touches[0].clientY; 
-                    if(bgMusic.paused) bgMusic.play().catch(() => {});
-                }
+                if(isProcessing || moves <=0) return;
+                sX = e.touches[0].clientX; sY = e.touches[0].clientY; 
+                f.classList.add('moving');
+                if(bgMusic.paused) bgMusic.play().catch(()=>{});
             };
             f.ontouchend = (e) => { 
-                if(isProcessing) return;
+                f.classList.remove('moving');
+                if(isProcessing || moves <=0) return;
                 let dX = e.changedTouches[0].clientX - sX, dY = e.changedTouches[0].clientY - sY;
-                if(Math.abs(dX) > 25 || Math.abs(dY) > 25) {
-                    let dir = Math.abs(dX) > Math.abs(dY) ? (dX > 0 ? 1 : -1) : (dY > 0 ? 8 : -8);
-                    move(i, i + dir);
+                if(Math.abs(dX) > 20 || Math.abs(dY) > 20) {
+                    let dir = Math.abs(dX) > Math.abs(dY) ? (dX > 0 ? 1 : -1) : (dY > 0 ? width : -width);
+                    handleMove(i, i + dir);
                 }
             };
-
             slot.appendChild(f); gridEl.appendChild(slot); squares.push(f);
         }
-        setTimeout(check, 500);
+        // Initial check without triggering specials, just clear initial matches
+        setTimeout(() => find Matches(null), 500);
     }
 
-    function move(id1, id2) {
-        if (isProcessing || id2 < 0 || id2 >= 64 || (Math.abs(id1 - id2) === 1 && Math.floor(id1/8) !== Math.floor(id2/8))) return;
+    async function handleMove(id1, id2) {
+        let validMove = false;
+        // Check if move is within bounds and adjacent
+        if (id2 >= 0 && id2 < 64) {
+             if (Math.abs(id1 - id2) === 1) {
+                // Horizontal move: must be in same row
+                if (Math.floor(id1 / width) === Math.floor(id2 / width)) validMove = true;
+            } else if (Math.abs(id1 - id2) === width) {
+                // Vertical move
+                validMove = true;
+            }
+        }
         
-        isProcessing = true;
-        comboCount = 0; // Reset combo on new move
-        let t = squares[id1].innerHTML;
-        let c1 = squares[id1].className, c2 = squares[id2].className;
-        
-        squares[id1].innerHTML = squares[id2].innerHTML; squares[id1].className = c2;
-        squares[id2].innerHTML = t; squares[id2].className = c1;
+        if(!validMove) return;
 
-        if(!check(id2)) {
-            setTimeout(() => { 
-                let t = squares[id1].innerHTML; 
-                squares[id1].innerHTML = squares[id2].innerHTML; squares[id1].className = c1;
-                squares[id2].innerHTML = t; squares[id2].className = c2;
-                isProcessing = false;
-            }, 400);
+        isProcessing = true;
+        
+        // Swap IDs in DOM to reflect position for logic
+        squares[id1].setAttribute('data-id', id2);
+        squares[id2].setAttribute('data-id', id1);
+        // Swap Elements in Array
+        [squares[id1], squares[id2]] = [squares[id2], squares[id1]];
+        // Visually Swap
+        swapUI(squares[id1], squares[id2]);
+
+        await new Promise(r => setTimeout(r, 350));
+
+        let matched = findMatches(id2); // Check matches resulting from the move (using new ID)
+
+        if(!matched) {
+            // Swap back if no match
+            squares[id1].setAttribute('data-id', id1);
+            squares[id2].setAttribute('data-id', id2);
+            [squares[id1], squares[id2]] = [squares[id2], squares[id1]];
+            swapUI(squares[id1], squares[id2]);
+            await new Promise(r => setTimeout(r, 350));
+            isProcessing = false;
         } else {
             moves--; movesEl.innerText = moves;
-            if(!isMuted) matchSound.play().catch(() => {});
-            setTimeout(() => { isProcessing = false; }, 1200);
+            if(!isMuted) matchSound.play();
         }
     }
 
-    function check(lastId) {
+    function swapUI(el1, el2) {
+        const slot1 = el1.parentNode;
+        const slot2 = el2.parentNode;
+        slot1.appendChild(el2);
+        slot2.appendChild(el1);
+    }
+
+    function findMatches(lastMovedId) {
         let matches = new Set();
-        for(let r=0; r<8; r++) {
-            for(let c=0; c<6; c++) {
-                let i = r*8+c;
-                if(squares[i].innerHTML === squares[i+1].innerHTML && squares[i].innerHTML === squares[i+2].innerHTML) {
-                    matches.add(i); matches.add(i+1); matches.add(i+2);
+        let specialCreated = false;
+
+        // Helper to check content without inner HTML text (like rocket emoji)
+        const getContent = (el) => el.childNodes[0].textContent;
+
+        // --- PRIORITY 1: Check for 5-in-a-row (BOMB) ---
+        // Horizontal 5
+        for(let r=0; r<width; r++) {
+            for(let c=0; c<=width-5; c++) {
+                let i = r*width+c;
+                if(getContent(squares[i]) === getContent(squares[i+1]) && getContent(squares[i]) === getContent(squares[i+2]) && getContent(squares[i]) === getContent(squares[i+3]) && getContent(squares[i]) === getContent(squares[i+4])) {
+                    let combo = [i, i+1, i+2, i+3, i+4];
+                    combo.forEach(idx => matches.add(idx));
+                    createSpecial(combo, 'bomb', lastMovedId); specialCreated = true;
                 }
             }
         }
-        for(let c=0; c<8; c++) {
-            for(let r=0; r<6; r++) {
-                let i = r*8+c;
-                if(squares[i].innerHTML === squares[i+8].innerHTML && squares[i].innerHTML === squares[i+16].innerHTML) {
-                    matches.add(i); matches.add(i+8); matches.add(i+16);
+        // Vertical 5
+        if(!specialCreated) {
+            for(let c=0; c<width; c++) {
+                for(let r=0; r<=width-5; r++) {
+                    let i = r*width+c;
+                    if(getContent(squares[i]) === getContent(squares[i+width]) && getContent(squares[i]) === getContent(squares[i+width*2]) && getContent(squares[i]) === getContent(squares[i+width*3]) && getContent(squares[i]) === getContent(squares[i+width*4])) {
+                        let combo = [i, i+width, i+width*2, i+width*3, i+width*4];
+                        combo.forEach(idx => matches.add(idx));
+                        createSpecial(combo, 'bomb', lastMovedId); specialCreated = true;
+                    }
+                }
+            }
+        }
+
+        // --- PRIORITY 2: Check for 4-in-a-row (ROCKET) ---
+        if(!specialCreated) {
+            // Horizontal 4
+            for(let r=0; r<width; r++) {
+                for(let c=0; c<=width-4; c++) {
+                    let i = r*width+c;
+                     if(getContent(squares[i]) === getContent(squares[i+1]) && getContent(squares[i]) === getContent(squares[i+2]) && getContent(squares[i]) === getContent(squares[i+3])) {
+                        let combo = [i, i+1, i+2, i+3];
+                        combo.forEach(idx => matches.add(idx));
+                        createSpecial(combo, 'rocket', lastMovedId); specialCreated = true;
+                    }
+                }
+            }
+            // Vertical 4
+            if(!specialCreated) {
+                 for(let c=0; c<width; c++) {
+                    for(let r=0; r<=width-4; r++) {
+                        let i = r*width+c;
+                        if(getContent(squares[i]) === getContent(squares[i+width]) && getContent(squares[i]) === getContent(squares[i+width*2]) && getContent(squares[i]) === getContent(squares[i+width*3])) {
+                            let combo = [i, i+width, i+width*2, i+width*3];
+                            combo.forEach(idx => matches.add(idx));
+                            createSpecial(combo, 'rocket', lastMovedId); specialCreated = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        // --- PRIORITY 3: Standard 3-matches ---
+        if(!specialCreated) {
+             for(let r=0; r<width; r++) {
+                for(let c=0; c<width-2; c++) {
+                    let i = r*width+c;
+                    if(getContent(squares[i]) === getContent(squares[i+1]) && getContent(squares[i]) === getContent(squares[i+2])) {
+                        matches.add(i); matches.add(i+1); matches.add(i+2);
+                    }
+                }
+            }
+            for(let c=0; c<width; c++) {
+                for(let r=0; r<width-2; r++) {
+                    let i = r*width+c;
+                    if(getContent(squares[i]) === getContent(squares[i+width]) && getContent(squares[i]) === getContent(squares[i+width*2])) {
+                        matches.add(i); matches.add(i+width); matches.add(i+width*2);
+                    }
                 }
             }
         }
 
         if(matches.size > 0) {
-            comboCount++;
-            let triggeredPower = false;
-            
-            matches.forEach(id => {
-                if(squares[id].classList.contains('rocket')) { clearRow(Math.floor(id/8)); triggeredPower = true; }
-                if(squares[id].classList.contains('bomb')) { clearArea(id); triggeredPower = true; }
-            });
-
-            if(lastId != null && matches.has(lastId)) {
-                if(matches.size == 4) { squares[lastId].className = 'fruit rocket'; triggeredPower = true; }
-                else if(matches.size >= 5) { squares[lastId].className = 'fruit bomb'; triggeredPower = true; }
-            }
-
-            if(triggeredPower || comboCount > 1) {
-                showVFX(comboCount > 2 ? quotes[comboCount % quotes.length] : null); 
-                if(!isMuted) powerSound.play().catch(() => {});
-            }
-
-            matches.forEach(id => { 
-                if(squares[id].className === 'fruit') {
-                    squares[id].style.transform = "scale(0)";
-                    squares[id].dataset.empty = "true";
-                }
-            });
-
-            coins += matches.size * 10 * comboCount; coinsEl.innerText = coins;
-            setTimeout(dropAndFill, 600); return true;
+            processMatches(matches);
+            return true;
         }
+        isProcessing = false;
         return false;
     }
 
-    function clearRow(row) {
-        for(let i = row*8; i < (row*8)+8; i++) {
-            squares[i].style.transform = "scale(0)";
-            squares[i].dataset.empty = "true";
+    function createSpecial(comboIndices, type, lastMovedId) {
+        // Find where to spawn the special candy
+        let targetIndex = comboIndices[0];
+        if(lastMovedId !== null && comboIndices.includes(parseInt(lastMovedId))) {
+            targetIndex = parseInt(lastMovedId);
+        }
+        
+        // Remove target from match set so it doesn't get cleared immediately
+        squares[targetIndex].classList.add(type);
+        if(!isMuted) powerSound.play();
+    }
+
+    function processMatches(matchesSet) {
+        let scoreMultiplier = 1;
+        matchesSet.forEach(idx => {
+            // If clearing a special candy, trigger its effect
+            if(squares[idx].classList.contains('rocket')) {
+                triggerRocket(idx, matchesSet); scoreMultiplier++;
+            } else if (squares[idx].classList.contains('bomb')) {
+                triggerBomb(idx, matchesSet); scoreMultiplier+=2;
+            }
+            
+            // Don't clear newly created specials in this turn
+            if(!squares[idx].classList.contains('rocket') && !squares[idx].classList.contains('bomb')) {
+                 squares[idx].classList.add('pop');
+            }
+        });
+        
+        coins += matchesSet.size * 10 * scoreMultiplier; coinsEl.innerText = coins;
+        setTimeout(refillBoard, 450);
+    }
+
+    function triggerRocket(idx, matchesSet) {
+        let row = Math.floor(idx / width);
+        // Simple row clear for now
+        for(let i=row*width; i<(row+1)*width; i++) {
+            matchesSet.add(i); squares[i].classList.add('blast');
         }
     }
 
-    function clearArea(id) {
-        let r = Math.floor(id/8), c = id%8;
+    function triggerBomb(idx, matchesSet) {
+         let r = Math.floor(idx/width), c = idx%width;
         for(let i=r-1; i<=r+1; i++) {
             for(let j=c-1; j<=c+1; j++) {
-                if(i>=0 && i<8 && j>=0 && j<8) {
-                    let idx = i*8+j;
-                    squares[idx].style.transform = "scale(0)";
-                    squares[idx].dataset.empty = "true";
+                if(i>=0 && i<width && j>=0 && j<width) {
+                    let target = i*width+j;
+                    matchesSet.add(target); squares[target].classList.add('blast');
                 }
             }
         }
     }
 
-    function dropAndFill() {
-        for (let c = 0; c < 8; c++) {
-            let emptySlots = 0;
-            for (let r = 7; r >= 0; r--) {
-                let i = r * 8 + c;
-                if (squares[i].dataset.empty === "true") {
-                    emptySlots++;
-                } else if (emptySlots > 0) {
-                    let target = (r + emptySlots) * 8 + c;
-                    squares[target].innerHTML = squares[i].innerHTML;
-                    squares[target].className = squares[i].className;
-                    squares[target].dataset.empty = "false";
-                    squares[target].style.transform = "scale(1)";
-                    
-                    squares[i].dataset.empty = "true";
-                    squares[i].style.transform = "scale(0)";
-                }
-            }
-            for (let r = 0; r < emptySlots; r++) {
-                let i = r * 8 + c;
-                squares[i].innerHTML = items[Math.floor(Math.random()*6)];
-                squares[i].className = 'fruit';
-                squares[i].dataset.empty = "false";
-                squares[i].style.transform = "scale(1)";
-                squares[i].style.top = "-400px"; // Start from top for falling effect
-                setTimeout(() => { squares[i].style.top = "0"; }, 50);
+    function refillBoard() {
+        for (let i = 0; i < 64; i++) {
+            if (squares[i].classList.contains('pop') || squares[i].classList.contains('blast')) {
+                squares[i].innerHTML = items[Math.floor(Math.random()*items.length)];
+                squares[i].className = 'fruit'; // Reset classes
+                // Bounce entry animation
+                squares[i].style.transform = "translateY(-30px) scale(0.5)";
+                squares[i].style.opacity = "0";
+                setTimeout(() => {
+                    squares[i].style.transform = "translateY(0) scale(1)";
+                    squares[i].style.opacity = "1";
+                }, (i%8) * 50); 
             }
         }
-        setTimeout(check, 1300); // Wait for slow fall
-    }
-
-    function showVFX(customText) {
-        const v = document.createElement('div'); v.className = 'vfx';
-        v.innerText = customText || quotes[Math.floor(Math.random()*quotes.length)];
-        v.style.left = "50%"; v.style.top = "45%";
-        document.body.appendChild(v);
-        setTimeout(() => v.remove(), 1200);
+        // Chain reaction check
+        setTimeout(() => findMatches(null), 700);
     }
 
     window.onload = init;
