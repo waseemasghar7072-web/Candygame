@@ -3,133 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Candy Mafia: Ultimate Edition</title>
+    <title>Candy Mafia: Colorful Edition</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Bebas+Neue&display=swap');
+        /* Modern Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Bebas+Neue&family=Montserrat:wght@800&display=swap');
         
         :root { 
-            --gold: #ffcc00; 
-            --neon: #00f2ff;
-            --pink: #ff0055;
-            --cell-size: clamp(38px, 10.5vw, 48px);
+            --gold: #FFD700; 
+            --pink: #FF00FF;
+            --blue: #00FFFF;
         }
 
         body { 
             margin: 0; padding: 0; font-family: 'Orbitron', sans-serif; 
-            background: #000;
-            background-image: radial-gradient(circle, #2a2a2a 0%, #000 100%);
+            /* COLORFUL Background: Casino Night Vibe */
+            background: linear-gradient(135deg, #2b1055, #7597de);
             color: white; overflow: hidden; display: flex; flex-direction: column; align-items: center; 
             height: 100vh; touch-action: none;
         }
 
+        /* Glass Header */
         .header { 
-            width: 90%; margin: 15px 0; padding: 12px;
-            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px);
+            width: 92%; max-width: 420px; margin: 15px 0; padding: 10px 15px;
+            background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(10px);
             display: flex; justify-content: space-between; align-items: center; 
-            border: 1px solid rgba(255,204,0,0.2); border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            z-index: 10;
+            border: 2px solid rgba(255,215,0,0.3); border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
         }
 
-        .stat b { font-size: 20px; color: var(--gold); text-shadow: 0 0 10px var(--gold); }
-        .game-title { font-family: 'Bebas Neue'; color: var(--gold); font-size: 26px; letter-spacing: 2px; }
+        .stat { text-align: center; }
+        .stat b { font-size: 22px; color: var(--gold); display: block; text-shadow: 0 0 10px var(--gold); }
+        .stat span { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; font-weight: bold;}
 
-        /* Board styling */
+        .game-title { 
+            font-family: 'Bebas Neue'; color: white; font-size: 32px; 
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 0px var(--pink), -2px -2px 0px var(--blue);
+        }
+
+        /* Colorful Board Container */
         .board-bg { 
-            background: rgba(0,0,0,0.85); padding: 10px; border-radius: 25px; 
+            background: rgba(20, 0, 40, 0.6); padding: 8px; border-radius: 20px; 
             border: 3px solid var(--gold);
-            width: calc(var(--cell-size) * 8 + 50px); 
-            height: calc(var(--cell-size) * 8 + 50px);
-            position: relative; box-shadow: 0 0 40px rgba(255, 204, 0, 0.15);
+            width: 94vw; max-width: 390px; 
+            height: 94vw; max-height: 390px;
+            box-sizing: border-box; position: relative;
+            /* Colorful Glow */
+            box-shadow: 0 0 30px var(--pink), inset 0 0 20px rgba(0,0,255,0.3);
         }
 
         .grid { 
-            display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr);
-            gap: 5px; height: 100%; width: 100%;
+            display: grid; grid-template-columns: repeat(8, 1fr); 
+            grid-template-rows: repeat(8, 1fr);
+            gap: 4px; height: 100%; width: 100%;
         }
 
-        .slot { background: rgba(255,255,255,0.03); border-radius: 10px; position: relative; }
-
-        /* Base Fruit Style with Smooth Transition */
-        .fruit { 
-            position: absolute; width: 100%; height: 100%;
+        .slot { 
+            background: rgba(255,255,255,0.05); 
+            border-radius: 8px; position: relative; 
             display: flex; align-items: center; justify-content: center;
-            font-size: calc(var(--cell-size) * 0.7); cursor: pointer; 
-            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); /* Smooth movement */
-            z-index: 5; user-select: none;
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* --- SPECIAL COMBOS & ANIMATIONS --- */
-        
-        /* Rocket Styling (Match 4) */
-        .fruit.rocket {
-            border: 3px solid var(--neon);
-            box-shadow: 0 0 15px var(--neon), inset 0 0 10px var(--neon);
-            border-radius: 12px;
+        /* Smooth Icons */
+        .fruit { 
+            width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+            font-size: 8vw; cursor: pointer; user-select: none; z-index: 5;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5));
         }
-        .fruit.rocket::after { content: '🚀'; position: absolute; font-size: 14px; bottom: 2px; right: 2px; }
+        @media (min-width: 400px) { .fruit { font-size: 34px; } }
+        .pop { transform: scale(0) rotate(180deg); opacity: 0; }
 
-        /* Bomb Styling (Match 5) */
-        .fruit.bomb {
-            border: 3px solid var(--pink);
-            box-shadow: 0 0 15px var(--pink), inset 0 0 10px var(--pink);
-            border-radius: 50%;
-            animation: pulse 0.8s infinite alternate;
+        /* --- GAME OVER SCREEN --- */
+        .game-over-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 100;
+            display: none; /* Hidden by default */
+            justify-content: center; align-items: center; flex-direction: column;
+            backdrop-filter: blur(5px);
         }
-        .fruit.bomb::after { content: '💣'; position: absolute; font-size: 14px; bottom: 2px; right: 2px; }
-
-        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); filter: brightness(1.2); } }
-
-        /* States */
-        .fruit.moving { z-index: 10; transform: scale(1.2); transition: all 0.1s; }
-        .fruit.pop { animation: popOut 0.4s forwards; }
-        .fruit.blast { animation: blastOut 0.3s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-
-        @keyframes popOut { to { transform: scale(0) rotate(45deg); opacity: 0; } }
-        @keyframes blastOut { 
-            0% { transform: scale(1); filter: brightness(2); } 
-            50% { transform: scale(1.5); opacity: 0.8; } 
-            100% { transform: scale(0); opacity: 0; } 
+        .go-box {
+            background: linear-gradient(45deg, var(--bule), var(--pink));
+            background: rgba(40, 10, 60, 0.9);
+            border: 4px solid var(--gold);
+            padding: 30px; border-radius: 20px; text-align: center;
+            box-shadow: 0 0 50px var(--gold);
+            animation: popIn 0.5s ease-out;
         }
+        @keyframes popIn { from {transform: scale(0.5); opacity:0;} to {transform: scale(1); opacity:1;} }
+        .go-box h2 { font-family: 'Bebas Neue'; font-size: 50px; margin: 0; color: var(--gold); }
+        .go-box p { font-family: 'Montserrat', sans-serif; font-size: 18px; margin: 10px 0; }
+        .go-btn {
+            background: linear-gradient(to right, var(--pink), var(--gold));
+            border: none; padding: 10px 30px; color: black; font-weight: bold;
+            font-family: 'Orbitron'; font-size: 18px; border-radius: 30px;
+            cursor: pointer; margin-top: 20px; box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+        }
+        .go-btn:active { transform: scale(0.95); }
 
+        /* Mute Button */
         .mute-btn { 
-            margin-top: 20px; background: var(--gold); border: none; 
-            width: 50px; height: 50px; border-radius: 50%;
+            position: fixed; bottom: 20px; right: 20px;
+            background: var(--gold); border: none; 
+            border-radius: 50%; width: 50px; height: 50px; 
             font-size: 24px; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            z-index: 50;
         }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="stat"><span>Cash</span><br><b id="coins">0</b></div>
+        <div class="stat"><span>Cash</span><b id="coins">0</b></div>
         <div class="game-title">MAFIA BOSS</div>
-        <div class="stat"><span>Moves</span><br><b id="moves">30</b></div>
+        <div class="stat"><span>Moves</span><b id="moves">20</b></div>
     </div>
 
     <div class="board-bg">
         <div class="grid" id="grid"></div>
     </div>
 
+    <div id="gameOver" class="game-over-overlay">
+        <div class="go-box">
+            <h2>GAME OVER</h2>
+            <p>YOUR LOOT: <b style="color: var(--gold);">$<span id="finalScore">0</span></b></p>
+            <p>BEST HEIST: <b style="color: var(--pink);">$<span id="bestScore">0</span></b></p>
+            <button class="go-btn" onclick="restartGame()">PLAY AGAIN</button>
+        </div>
+    </div>
+
     <button class="mute-btn" onclick="toggleMute()" id="muteIcon">🔊</button>
 
 <script>
     const gridEl = document.getElementById('grid'), coinsEl = document.getElementById('coins'), movesEl = document.getElementById('moves');
-    const items = ['💎', '🚗', '💵', '🕶️', '🔫', '🚬'];
+    const gameOverScreen = document.getElementById('gameOver');
+    const items = ['💎', '🚗', '💵', '🕶️', '🔫', '💰'];
     
-    // SFX setup (using placeholders, replace with your preferred links if needed)
-    const matchSound = new Audio('https://cdn.pixabay.com/audio/2022/03/15/audio_783332402a.mp3'); matchSound.volume = 0.6;
-    const powerSound = new Audio('https://cdn.pixabay.com/audio/2022/03/10/audio_c352705035.mp3'); powerSound.volume = 0.8;
-    const bgMusic = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3');
-    bgMusic.loop = true; bgMusic.volume = 0.2;
+    // MUSIC & SFX (Using reliable placeholder sounds)
+    const matchSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3'); matchSound.volume = 0.5;
+    const gameOverSFX = new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3');
+    // Colorful Vibe BG Music
+    const bgMusic = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3'); 
+    bgMusic.loop = true; bgMusic.volume = 0.3;
 
-    let squares = [], moves = 30, coins = 0, isMuted = false, sX, sY, isProcessing = false;
-    let width = 8;
+    let squares = [], moves = 20, coins = 0, isMuted = false, sX, sY, isProcessing = false;
+    // HIGH SCORE LOAD
+    let highScore = localStorage.getItem('mafiaHighScore') || 0;
 
     function toggleMute() {
         isMuted = !isMuted;
-        bgMusic.muted = isMuted; matchSound.muted = isMuted; powerSound.muted = isMuted;
+        bgMusic.muted = isMuted; matchSound.muted = isMuted; gameOverSFX.muted = isMuted;
         document.getElementById('muteIcon').innerText = isMuted ? "🔇" : "🔊";
+        if(!isMuted && moves > 0) bgMusic.play().catch(()=>{});
     }
 
     function init() {
@@ -138,237 +164,95 @@
             const slot = document.createElement('div'); slot.className = 'slot';
             const f = document.createElement('div'); f.className = 'fruit';
             f.innerHTML = items[Math.floor(Math.random()*items.length)];
-            f.setAttribute('data-id', i);
             
-            // Touch Logic
             f.ontouchstart = (e) => { 
-                if(isProcessing || moves <=0) return;
-                sX = e.touches[0].clientX; sY = e.touches[0].clientY; 
-                f.classList.add('moving');
-                if(bgMusic.paused) bgMusic.play().catch(()=>{});
+                if(!isProcessing && moves > 0) {
+                    sX = e.touches[0].clientX; sY = e.touches[0].clientY; 
+                    if(bgMusic.paused && !isMuted) bgMusic.play().catch(() => {});
+                }
             };
             f.ontouchend = (e) => { 
-                f.classList.remove('moving');
-                if(isProcessing || moves <=0) return;
+                if(isProcessing || moves <= 0) return;
                 let dX = e.changedTouches[0].clientX - sX, dY = e.changedTouches[0].clientY - sY;
-                if(Math.abs(dX) > 20 || Math.abs(dY) > 20) {
-                    let dir = Math.abs(dX) > Math.abs(dY) ? (dX > 0 ? 1 : -1) : (dY > 0 ? width : -width);
+                if(Math.abs(dX) > 25 || Math.abs(dY) > 25) {
+                    let dir = Math.abs(dX) > Math.abs(dY) ? (dX > 0 ? 1 : -1) : (dY > 0 ? 8 : -8);
                     handleMove(i, i + dir);
                 }
             };
             slot.appendChild(f); gridEl.appendChild(slot); squares.push(f);
         }
-        // Initial check without triggering specials, just clear initial matches
-        setTimeout(() => find Matches(null), 500);
+        setTimeout(checkMatches, 500);
     }
 
     async function handleMove(id1, id2) {
-        let validMove = false;
-        // Check if move is within bounds and adjacent
-        if (id2 >= 0 && id2 < 64) {
-             if (Math.abs(id1 - id2) === 1) {
-                // Horizontal move: must be in same row
-                if (Math.floor(id1 / width) === Math.floor(id2 / width)) validMove = true;
-            } else if (Math.abs(id1 - id2) === width) {
-                // Vertical move
-                validMove = true;
-            }
-        }
-        
-        if(!validMove) return;
-
+        if (id2 < 0 || id2 >= 64 || (Math.abs(id1-id2)===1 && Math.floor(id1/8)!==Math.floor(id2/8))) return;
         isProcessing = true;
-        
-        // Swap IDs in DOM to reflect position for logic
-        squares[id1].setAttribute('data-id', id2);
-        squares[id2].setAttribute('data-id', id1);
-        // Swap Elements in Array
-        [squares[id1], squares[id2]] = [squares[id2], squares[id1]];
-        // Visually Swap
-        swapUI(squares[id1], squares[id2]);
-
+        swapIcons(id1, id2);
         await new Promise(r => setTimeout(r, 350));
 
-        let matched = findMatches(id2); // Check matches resulting from the move (using new ID)
-
-        if(!matched) {
-            // Swap back if no match
-            squares[id1].setAttribute('data-id', id1);
-            squares[id2].setAttribute('data-id', id2);
-            [squares[id1], squares[id2]] = [squares[id2], squares[id1]];
-            swapUI(squares[id1], squares[id2]);
+        if(!checkMatches()) {
+            swapIcons(id1, id2); // Swap back
             await new Promise(r => setTimeout(r, 350));
             isProcessing = false;
         } else {
+            // Move successful
             moves--; movesEl.innerText = moves;
-            if(!isMuted) matchSound.play();
+            if(!isMuted) matchSound.play().catch(()=>{});
+            if(moves === 0) setTimeout(endGame, 1500);
         }
     }
 
-    function swapUI(el1, el2) {
-        const slot1 = el1.parentNode;
-        const slot2 = el2.parentNode;
-        slot1.appendChild(el2);
-        slot2.appendChild(el1);
+    function swapIcons(id1, id2) {
+        let temp = squares[id1].innerHTML;
+        squares[id1].innerHTML = squares[id2].innerHTML;
+        squares[id2].innerHTML = temp;
     }
 
-    function findMatches(lastMovedId) {
+    function checkMatches() {
         let matches = new Set();
-        let specialCreated = false;
-
-        // Helper to check content without inner HTML text (like rocket emoji)
-        const getContent = (el) => el.childNodes[0].textContent;
-
-        // --- PRIORITY 1: Check for 5-in-a-row (BOMB) ---
-        // Horizontal 5
-        for(let r=0; r<width; r++) {
-            for(let c=0; c<=width-5; c++) {
-                let i = r*width+c;
-                if(getContent(squares[i]) === getContent(squares[i+1]) && getContent(squares[i]) === getContent(squares[i+2]) && getContent(squares[i]) === getContent(squares[i+3]) && getContent(squares[i]) === getContent(squares[i+4])) {
-                    let combo = [i, i+1, i+2, i+3, i+4];
-                    combo.forEach(idx => matches.add(idx));
-                    createSpecial(combo, 'bomb', lastMovedId); specialCreated = true;
-                }
-            }
-        }
-        // Vertical 5
-        if(!specialCreated) {
-            for(let c=0; c<width; c++) {
-                for(let r=0; r<=width-5; r++) {
-                    let i = r*width+c;
-                    if(getContent(squares[i]) === getContent(squares[i+width]) && getContent(squares[i]) === getContent(squares[i+width*2]) && getContent(squares[i]) === getContent(squares[i+width*3]) && getContent(squares[i]) === getContent(squares[i+width*4])) {
-                        let combo = [i, i+width, i+width*2, i+width*3, i+width*4];
-                        combo.forEach(idx => matches.add(idx));
-                        createSpecial(combo, 'bomb', lastMovedId); specialCreated = true;
-                    }
-                }
-            }
-        }
-
-        // --- PRIORITY 2: Check for 4-in-a-row (ROCKET) ---
-        if(!specialCreated) {
-            // Horizontal 4
-            for(let r=0; r<width; r++) {
-                for(let c=0; c<=width-4; c++) {
-                    let i = r*width+c;
-                     if(getContent(squares[i]) === getContent(squares[i+1]) && getContent(squares[i]) === getContent(squares[i+2]) && getContent(squares[i]) === getContent(squares[i+3])) {
-                        let combo = [i, i+1, i+2, i+3];
-                        combo.forEach(idx => matches.add(idx));
-                        createSpecial(combo, 'rocket', lastMovedId); specialCreated = true;
-                    }
-                }
-            }
-            // Vertical 4
-            if(!specialCreated) {
-                 for(let c=0; c<width; c++) {
-                    for(let r=0; r<=width-4; r++) {
-                        let i = r*width+c;
-                        if(getContent(squares[i]) === getContent(squares[i+width]) && getContent(squares[i]) === getContent(squares[i+width*2]) && getContent(squares[i]) === getContent(squares[i+width*3])) {
-                            let combo = [i, i+width, i+width*2, i+width*3];
-                            combo.forEach(idx => matches.add(idx));
-                            createSpecial(combo, 'rocket', lastMovedId); specialCreated = true;
-                        }
-                    }
-                }
-            }
-        }
-
-        // --- PRIORITY 3: Standard 3-matches ---
-        if(!specialCreated) {
-             for(let r=0; r<width; r++) {
-                for(let c=0; c<width-2; c++) {
-                    let i = r*width+c;
-                    if(getContent(squares[i]) === getContent(squares[i+1]) && getContent(squares[i]) === getContent(squares[i+2])) {
-                        matches.add(i); matches.add(i+1); matches.add(i+2);
-                    }
-                }
-            }
-            for(let c=0; c<width; c++) {
-                for(let r=0; r<width-2; r++) {
-                    let i = r*width+c;
-                    if(getContent(squares[i]) === getContent(squares[i+width]) && getContent(squares[i]) === getContent(squares[i+width*2])) {
-                        matches.add(i); matches.add(i+width); matches.add(i+width*2);
-                    }
-                }
-            }
-        }
+        // Rows & Columns Check
+        for(let r=0; r<8; r++) { for(let c=0; c<6; c++) { let i=r*8+c; if(squares[i].innerHTML===squares[i+1].innerHTML && squares[i].innerHTML===squares[i+2].innerHTML) { matches.add(i); matches.add(i+1); matches.add(i+2); }}}
+        for(let c=0; c<8; c++) { for(let r=0; r<6; r++) { let i=r*8+c; if(squares[i].innerHTML===squares[i+8].innerHTML && squares[i].innerHTML===squares[i+16].innerHTML) { matches.add(i); matches.add(i+8); matches.add(i+16); }}}
 
         if(matches.size > 0) {
-            processMatches(matches);
+            matches.forEach(id => squares[id].classList.add('pop'));
+            coins += matches.size * 10; coinsEl.innerText = coins;
+            setTimeout(fillBoard, 400);
             return true;
         }
         isProcessing = false;
         return false;
     }
 
-    function createSpecial(comboIndices, type, lastMovedId) {
-        // Find where to spawn the special candy
-        let targetIndex = comboIndices[0];
-        if(lastMovedId !== null && comboIndices.includes(parseInt(lastMovedId))) {
-            targetIndex = parseInt(lastMovedId);
-        }
-        
-        // Remove target from match set so it doesn't get cleared immediately
-        squares[targetIndex].classList.add(type);
-        if(!isMuted) powerSound.play();
-    }
-
-    function processMatches(matchesSet) {
-        let scoreMultiplier = 1;
-        matchesSet.forEach(idx => {
-            // If clearing a special candy, trigger its effect
-            if(squares[idx].classList.contains('rocket')) {
-                triggerRocket(idx, matchesSet); scoreMultiplier++;
-            } else if (squares[idx].classList.contains('bomb')) {
-                triggerBomb(idx, matchesSet); scoreMultiplier+=2;
-            }
-            
-            // Don't clear newly created specials in this turn
-            if(!squares[idx].classList.contains('rocket') && !squares[idx].classList.contains('bomb')) {
-                 squares[idx].classList.add('pop');
-            }
-        });
-        
-        coins += matchesSet.size * 10 * scoreMultiplier; coinsEl.innerText = coins;
-        setTimeout(refillBoard, 450);
-    }
-
-    function triggerRocket(idx, matchesSet) {
-        let row = Math.floor(idx / width);
-        // Simple row clear for now
-        for(let i=row*width; i<(row+1)*width; i++) {
-            matchesSet.add(i); squares[i].classList.add('blast');
-        }
-    }
-
-    function triggerBomb(idx, matchesSet) {
-         let r = Math.floor(idx/width), c = idx%width;
-        for(let i=r-1; i<=r+1; i++) {
-            for(let j=c-1; j<=c+1; j++) {
-                if(i>=0 && i<width && j>=0 && j<width) {
-                    let target = i*width+j;
-                    matchesSet.add(target); squares[target].classList.add('blast');
-                }
-            }
-        }
-    }
-
-    function refillBoard() {
+    function fillBoard() {
         for (let i = 0; i < 64; i++) {
-            if (squares[i].classList.contains('pop') || squares[i].classList.contains('blast')) {
+            if (squares[i].classList.contains('pop')) {
                 squares[i].innerHTML = items[Math.floor(Math.random()*items.length)];
-                squares[i].className = 'fruit'; // Reset classes
-                // Bounce entry animation
-                squares[i].style.transform = "translateY(-30px) scale(0.5)";
-                squares[i].style.opacity = "0";
-                setTimeout(() => {
-                    squares[i].style.transform = "translateY(0) scale(1)";
-                    squares[i].style.opacity = "1";
-                }, (i%8) * 50); 
+                squares[i].classList.remove('pop');
+                squares[i].style.transform = 'scale(0)';
+                setTimeout(() => { squares[i].style.transform = 'scale(1)'; }, i*5);
             }
         }
-        // Chain reaction check
-        setTimeout(() => findMatches(null), 700);
+        setTimeout(checkMatches, 500);
+    }
+
+    function endGame() {
+        bgMusic.pause();
+        if(!isMuted) gameOverSFX.play().catch(()=>{});
+        
+        // HIGH SCORE LOGIC
+        if(coins > highScore) {
+            highScore = coins;
+            localStorage.setItem('mafiaHighScore', highScore);
+        }
+        
+        document.getElementById('finalScore').innerText = coins;
+        document.getElementById('bestScore').innerText = highScore;
+        gameOverScreen.style.display = 'flex';
+    }
+
+    function restartGame() {
+        location.reload();
     }
 
     window.onload = init;
