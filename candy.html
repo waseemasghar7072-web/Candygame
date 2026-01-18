@@ -1,191 +1,204 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Candy Mafia: Grand Heist 3D</title>
+    <title>Jewel Realm: Smooth Edition</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Bebas+Neue&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&family=Montserrat:wght@700&display=swap');
         
-        :root { --gold: #FFD700; --neon-blue: #00FFFF; --neon-pink: #FF00FF; --ui-bg: rgba(10, 20, 40, 0.9); }
-
+        :root { 
+            /* NEW COLOR PALETTE */
+            --accent: #00ff88; /* Neon Emerald for UI */
+            --bg-inner: #2a003b; /* Deep velvet purple */
+            --bg-outer: #0a0012; /* Dark indigo */
+            --glass: rgba(42, 0, 59, 0.85);
+            --text-light: #ffffff;
+        }
+        
         body { 
-            margin: 0; padding: 0; font-family: 'Orbitron', sans-serif; 
-            background: url('https://img.freepik.com/free-photo/treasure-cave-full-gold-coins-gems-generated-by-ai_188544-23577.jpg') no-repeat center center fixed;
-            background-size: cover; color: white; overflow: hidden; display: flex; flex-direction: column; align-items: center; height: 100vh; touch-action: none;
+            margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; 
+            /* NEW BACKGROUND GRADIENT */
+            background: radial-gradient(circle at center, var(--bg-inner) 0%, var(--bg-outer) 100%);
+            color: var(--text-light); overflow: hidden; height: 100vh; display: flex; flex-direction: column; align-items: center; touch-action: none;
         }
 
-        /* Top Bar - Image 3 Style */
-        .top-ui { width: 95%; max-width: 450px; display: flex; justify-content: space-between; margin-top: 15px; z-index: 10; }
-        .ui-box { background: var(--ui-bg); border: 2px solid #4a90e2; border-radius: 12px; padding: 8px 15px; text-align: center; box-shadow: 0 0 15px rgba(0,0,0,0.5); width: 80px; }
-        .ui-box span { font-size: 10px; color: #aaa; text-transform: uppercase; display: block; margin-bottom: 2px;}
-        .ui-box b { font-size: 18px; color: white; text-shadow: 0 0 8px var(--neon-blue); }
-        
-        .stage-box { background: linear-gradient(to bottom, #4a90e2, #2c3e50); border: 2px solid #fff; padding: 5px 30px; border-radius: 10px; font-family: 'Bebas Neue'; font-size: 28px; letter-spacing: 2px; box-shadow: 0 5px 15px rgba(0,0,0,0.4); }
+        #fx-canvas { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
 
-        .progress-bar { width: 90%; max-width: 400px; height: 12px; background: rgba(0,0,0,0.6); border-radius: 20px; margin: 15px 0; border: 1px solid #fff; overflow: hidden; }
-        #fill { width: 0%; height: 100%; background: linear-gradient(to right, #00f2ff, #ff00ea); transition: 0.4s; }
+        /* --- UI Updated to match new colors --- */
+        .hud { 
+            width: 92%; max-width: 450px; margin-top: 15px; display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 10px; 
+            padding: 12px; background: var(--glass); backdrop-filter: blur(20px); border-radius: 25px; 
+            border: 2px solid var(--accent); box-shadow: 0 15px 50px rgba(0,0,0,0.8); z-index: 10; 
+        }
+        .stat-box { text-align: center; }
+        .stat-box span { font-size: 8px; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; font-weight: 900; }
+        .stat-box b { font-size: 19px; display: block; text-shadow: 0 0 10px var(--accent); }
+        .stage-box { background: linear-gradient(135deg, var(--accent), #009955); border-radius: 18px; padding: 5px; color: #000; border: 2px solid #fff; box-shadow: 0 0 20px var(--accent); }
 
-        /* Grid - Circuit Effect */
-        .board-wrapper { position: relative; padding: 8px; background: rgba(0,0,0,0.5); border-radius: 15px; border: 3px solid #5a6fa1; box-shadow: 0 0 30px rgba(0,0,0,0.8); background-image: radial-gradient(circle, #2a3a5a 1px, transparent 1px); background-size: 20px 20px; }
-        .grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; width: 92vw; max-width: 380px; height: 92vw; max-height: 380px; }
-        .slot { background: rgba(255,255,255,0.05); border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); position: relative; }
+        /* --- PROFESSIONAL BOARD --- */
+        .board-container { 
+            position: relative; margin-top: 25px; padding: 12px; background: rgba(0,0,0,0.4); border-radius: 30px; 
+            border: 3px solid var(--accent); box-shadow: 0 0 60px rgba(0,0,0,0.8); z-index: 10; 
+        }
+        .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; width: 92vw; max-width: 380px; height: 92vw; max-height: 380px; }
+        .slot { background: rgba(255,255,255,0.03); border-radius: 15px; display: flex; align-items: center; justify-content: center; position: relative; border: 1px solid rgba(255,255,255,0.05); overflow: hidden; }
 
-        .item { width: 90%; height: 90%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .item img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.6)); }
+        /* --- LOCKED CANDY STRUCTURE (Same 3D Shape, New Colors) --- */
+        .candy { 
+            width: 90%; height: 90%; cursor: pointer; 
+            filter: drop-shadow(0 8px 8px rgba(0,0,0,0.8)); 
+            transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 5; 
+        }
+        .candy svg { width: 100%; height: 100%; overflow: visible; }
 
-        .footer-ui { background: var(--ui-bg); border: 2px solid #4a90e2; margin-top: 20px; padding: 10px 40px; border-radius: 15px; text-align: center; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-        .footer-ui span { font-size: 12px; color: var(--neon-blue); font-weight: bold; letter-spacing: 1px; }
-        .footer-ui b { font-size: 32px; display: block; font-family: 'Bebas Neue'; letter-spacing: 3px; }
+        /* --- SMOOTH FALLING ANIMATION KEPT --- */
+        .fall-anim { animation: smoothDrop 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+        @keyframes smoothDrop { 
+            0% { transform: translateY(-300px); opacity: 0; } 
+            100% { transform: translateY(0); opacity: 1; } 
+        }
 
-        /* Win Overlay with Chest */
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; display: none; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
-        .win-card { border: 3px solid var(--gold); background: #111; padding: 30px; border-radius: 20px; text-align: center; }
-        .chest-img { width: 150px; margin-bottom: 20px; animation: bounce 1s infinite; }
-        @keyframes bounce { 0%, 100% {transform: translateY(0);} 50% {transform: translateY(-10px);} }
-        .btn { background: var(--gold); border: none; padding: 15px 40px; border-radius: 30px; font-weight: bold; margin-top: 20px; cursor: pointer; font-family: 'Orbitron'; box-shadow: 0 5px 15px rgba(255,215,0,0.4); }
+        .pop { animation: jewelPop 0.3s forwards; }
+        @keyframes jewelPop { 
+            0% { transform: scale(1); filter: brightness(1); } 
+            100% { transform: scale(0); opacity: 0; filter: brightness(3); } 
+        }
 
-        .mute-btn { position: fixed; bottom: 15px; right: 15px; border:none; background:var(--gold); border-radius:50%; width:50px; height:50px; font-size:20px; z-index: 200; }
+        .footer { margin-top: 20px; text-align: center; z-index: 10; }
+        .footer span { color: var(--accent); font-size: 10px; letter-spacing: 4px; font-weight: 900; }
+        .footer b { font-size: 45px; color: white; text-shadow: 0 0 20px var(--accent); font-family: 'Playfair Display', serif; }
     </style>
 </head>
-<body>
+<body id="gameBody">
 
-    <div class="top-ui">
-        <div class="ui-box"><span>Target</span><b id="target">500</b></div>
-        <div class="stage-box">STAGE <span id="lvl">1</span></div>
-        <div class="ui-box"><span>Moves</span><b id="moves">15</b></div>
+    <canvas id="fx-canvas"></canvas>
+
+    <div class="hud">
+        <div class="stat-box"><span>Target</span><b id="targetScore">1000</b></div>
+        <div class="stage-box">STAGE <b id="lvlNum">1</b></div>
+        <div class="stat-box"><span>Moves</span><b id="moves">20</b></div>
     </div>
 
-    <div class="progress-bar"><div id="fill"></div></div>
+    <div class="board-container" id="boardWrapper">
+        <div class="grid" id="grid"></div>
+    </div>
 
-    <div class="board-wrapper"><div class="grid" id="grid"></div></div>
-
-    <div class="footer-ui"><span>CURRENT LOOT</span><b id="coins">0</b></div>
-
-    <button class="mute-btn" onclick="toggleMusic()">🎵</button>
-
-    <div id="winScreen" class="overlay">
-        <div class="win-card">
-            <img src="https://cdn-icons-png.flaticon.com/512/3554/3554562.png" class="chest-img" alt="Chest">
-            <h1 style="color:var(--gold); margin:0;">MISSION COMPLETE!</h1>
-            <p id="rank">RANK: STREET THUG</p>
-            <button class="btn" onclick="nextLevel()">COLLECT LOOT</button>
-        </div>
+    <div class="footer">
+        <span>JEWEL SCORE</span><br>
+        <b id="loot">0</b>
     </div>
 
 <script>
-    const gridEl = document.getElementById('grid'), coinsEl = document.getElementById('coins'), movesEl = document.getElementById('moves');
-    const assets = [
-        'https://cdn-icons-png.flaticon.com/512/3258/3258522.png', // Diamond
-        'https://cdn-icons-png.flaticon.com/512/2953/2953363.png', // Gold Bag
-        'https://cdn-icons-png.flaticon.com/512/2311/2311893.png', // Cash
-        'https://cdn-icons-png.flaticon.com/512/744/744465.png',   // Car
-        'https://cdn-icons-png.flaticon.com/512/2883/2883492.png', // Gun
-        'https://cdn-icons-png.flaticon.com/512/5218/5218552.png'  // Coin
-    ];
+    const canvas = document.getElementById('fx-canvas'), ctx = canvas.getContext('2d');
+    const gridEl = document.getElementById('grid'), lootEl = document.getElementById('loot'), movesEl = document.getElementById('moves');
 
-    const bgMusic = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3');
-    const matchSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
-    bgMusic.loop = true; bgMusic.volume = 0.3;
+    // --- CINEMATIC CANVAS FX (Updated particles) ---
+    let particles = [];
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.addEventListener('resize', resize); resize();
 
-    let squares = [], moves = 15, coins = 0, currentLvl = 0, isProcessing = false, sX, sY;
-    const stages = [
-        { t: 500, m: 15, r: "STREET THUG" },
-        { t: 1500, m: 20, r: "MUSCLE" },
-        { t: 3500, m: 20, r: "HITMAN" },
-        { t: 6000, m: 22, r: "ENFORCER" },
-        { t: 10000, m: 25, r: "MAFIA BOSS" }
-    ];
-
-    function toggleMusic() {
-        if(bgMusic.paused) bgMusic.play();
-        else bgMusic.pause();
+    class Particle {
+        constructor(x, y) { this.x = x; this.y = y; this.size = Math.random()*3+1; this.speedX = Math.random()*2-1; this.speedY = Math.random()*2-1; this.life = 1; }
+        update() { this.x += this.speedX; this.y += this.speedY; this.life -= 0.01; }
+        draw() { ctx.fillStyle = '#00ff88'; ctx.globalAlpha = this.life; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill(); }
     }
+
+    function animate() {
+        ctx.clearRect(0,0,canvas.width, canvas.height);
+        if(Math.random() < 0.1) particles.push(new Particle(Math.random()*canvas.width, Math.random()*canvas.height));
+        particles.forEach((p, i) => { p.update(); p.draw(); if(p.life <= 0) particles.splice(i, 1); });
+        requestAnimationFrame(animate);
+    }
+    animate();
+
+    // --- LOCKED STRUCTURE, NEW COLORS ---
+    // The SVG structure is identical to the chocolate version, only colors change.
+    const jewelSVG = (base, dark, light) => `
+    <svg viewBox="0 0 100 100">
+        <defs>
+            <radialGradient id="grad${base.replace('#','')}" cx="35%" cy="35%" r="65%">
+                <stop offset="0%" stop-color="${light}"/><stop offset="100%" stop-color="${base}"/>
+            </radialGradient>
+        </defs>
+        <rect x="15" y="15" width="70" height="70" rx="20" fill="url(#grad${base.replace('#','')})" stroke="${dark}" stroke-width="4"/>
+        <path d="M25 30 Q50 20 75 30" fill="none" stroke="#ffd700" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+        <circle cx="35" cy="35" r="10" fill="white" fill-opacity="0.3"/>
+    </svg>`;
+
+    // NEW COLOR DEFINITIONS (Vibrant Jewels)
+    const ASSETS = [
+        {svg: jewelSVG('#ff0055', '#990033', '#ff6699'), type: 0}, // Ruby Red
+        {svg: jewelSVG('#0088ff', '#004499', '#66bbff'), type: 1}, // Sapphire Blue
+        {svg: jewelSVG('#00cc44', '#006622', '#66ff88'), type: 2}, // Emerald Green
+        {svg: jewelSVG('#9900ff', '#440099', '#cc66ff'), type: 3}, // Amethyst Purple
+        {svg: jewelSVG('#ffaa00', '#cc5500', '#ffdd66'), type: 4}  // Topaz Orange
+    ];
+
+    let squares = [], score=0, moves=20, isProcessing=false, sX, sY;
 
     function init() {
-        gridEl.innerHTML = ''; squares = [];
-        const config = stages[currentLvl];
-        moves = config.m; coins = 0; isProcessing = false;
-        movesEl.innerText = moves; coinsEl.innerText = coins;
-        document.getElementById('target').innerText = config.t;
-        document.getElementById('lvl').innerText = currentLvl + 1;
-        document.getElementById('fill').style.width = '0%';
-
-        for (let i = 0; i < 64; i++) {
+        gridEl.innerHTML = ''; squares = []; score=0; moves=20;
+        lootEl.innerText = score; movesEl.innerText = moves;
+        for(let i=0; i<49; i++) {
             const slot = document.createElement('div'); slot.className = 'slot';
-            const item = document.createElement('div'); item.className = 'item';
-            const img = document.createElement('img');
-            img.src = assets[Math.floor(Math.random()*assets.length)];
-            
-            item.appendChild(img);
-            item.ontouchstart = (e) => { 
-                sX = e.touches[0].clientX; sY = e.touches[0].clientY;
-                if(bgMusic.paused) bgMusic.play().catch(()=>{}); 
-            };
-            item.ontouchend = (e) => { 
-                if(isProcessing || moves <= 0) return;
-                let dX = e.changedTouches[0].clientX - sX, dY = e.changedTouches[0].clientY - sY;
-                if(Math.abs(dX) > 20 || Math.abs(dY) > 20) {
-                    let dir = Math.abs(dX) > Math.abs(dY) ? (dX > 0 ? 1 : -1) : (dY > 0 ? 8 : -8);
-                    handleMove(i, i + dir);
-                }
-            };
-            slot.appendChild(item); gridEl.appendChild(slot); squares.push(img);
+            const candy = document.createElement('div'); candy.className = 'candy fall-anim';
+            let t = Math.floor(Math.random()*ASSETS.length);
+            candy.innerHTML = ASSETS[t].svg; candy.dataset.type = t;
+            candy.ontouchstart = (e) => { sX = e.touches[0].clientX; sY = e.touches[0].clientY; };
+            candy.ontouchend = (e) => handleSwipe(e, i);
+            slot.appendChild(candy); gridEl.appendChild(slot); squares.push(candy);
         }
-        setTimeout(checkMatches, 500);
+        setTimeout(checkMatches, 600);
     }
 
-    async function handleMove(id1, id2) {
-        if (id2 < 0 || id2 >= 64 || (Math.abs(id1-id2)===1 && Math.floor(id1/8)!==Math.floor(id2/8))) return;
-        isProcessing = true;
-        let t = squares[id1].src;
-        squares[id1].src = squares[id2].src; squares[id2].src = t;
-        await new Promise(r => setTimeout(r, 300));
-
-        if(!checkMatches()) {
-            squares[id2].src = squares[id1].src; squares[id1].src = t;
-            isProcessing = false;
-        } else {
-            moves--; movesEl.innerText = moves;
-            matchSound.currentTime = 0; matchSound.play();
+    function handleSwipe(e, i) {
+        if(isProcessing || moves <= 0) return;
+        let dX = e.changedTouches[0].clientX - sX, dY = e.changedTouches[0].clientY - sY;
+        if(Math.abs(dX) > 25 || Math.abs(dY) > 25) {
+            let dir = Math.abs(dX) > Math.abs(dY) ? (dX > 0 ? 1 : -1) : (dY > 0 ? 7 : -7);
+            swap(i, i + dir);
         }
+    }
+
+    async function swap(id1, id2) {
+        if (id2 < 0 || id2 >= 49 || (Math.abs(id1-id2)===1 && Math.floor(id1/7)!==Math.floor(id2/7))) return;
+        isProcessing = true;
+        let h1 = squares[id1].innerHTML, h2 = squares[id2].innerHTML;
+        let t1 = squares[id1].dataset.type, t2 = squares[id2].dataset.type;
+        squares[id1].innerHTML = h2; squares[id1].dataset.type = t2;
+        squares[id2].innerHTML = h1; squares[id2].dataset.type = t1;
+        await new Promise(r => setTimeout(r, 200));
+        if(!checkMatches()) {
+            squares[id1].innerHTML = h1; squares[id1].dataset.type = t1;
+            squares[id2].innerHTML = h2; squares[id2].dataset.type = t2;
+            isProcessing = false;
+        } else { moves--; movesEl.innerText = moves; }
     }
 
     function checkMatches() {
         let matches = new Set();
-        for(let r=0; r<8; r++) { for(let c=0; c<6; c++) { let i=r*8+c; if(squares[i].src === squares[i+1].src && squares[i].src === squares[i+2].src) { matches.add(i); matches.add(i+1); matches.add(i+2); }}}
-        for(let c=0; c<8; c++) { for(let r=0; r<6; r++) { let i=r*8+c; if(squares[i].src === squares[i+8].src && squares[i].src === squares[i+16].src) { matches.add(i); matches.add(i+8); matches.add(i+16); }}}
+        for(let r=0; r<7; r++) for(let c=0; c<5; c++) { let i=r*7+c; if(squares[i].dataset.type === squares[i+1].dataset.type && squares[i].dataset.type === squares[i+2].dataset.type) { matches.add(i); matches.add(i+1); matches.add(i+2); }}
+        for(let c=0; c<7; c++) for(let r=0; r<5; r++) { let i=r*7+c; if(squares[i].dataset.type === squares[i+7].dataset.type && squares[i].dataset.type === squares[i+14].dataset.type) { matches.add(i); matches.add(i+7); matches.add(i+14); }}
 
         if(matches.size > 0) {
-            matches.forEach(id => squares[id].style.transform = 'scale(0)');
-            coins += matches.size * 10; coinsEl.innerText = coins;
-            document.getElementById('fill').style.width = Math.min((coins/stages[currentLvl].t)*100, 100) + '%';
-            setTimeout(fill, 400); 
-            if(coins >= stages[currentLvl].t) triggerWin();
-            return true;
+            matches.forEach(id => { squares[id].classList.add('pop'); });
+            score += matches.size * 25; lootEl.innerText = score;
+            setTimeout(refill, 300); return true;
         }
         isProcessing = false; return false;
     }
 
-    function fill() {
-        for (let i = 0; i < 64; i++) {
-            if (squares[i].style.transform === 'scale(0)') {
-                squares[i].src = assets[Math.floor(Math.random()*assets.length)];
-                squares[i].style.transform = 'scale(1)';
+    function refill() {
+        squares.forEach(s => { 
+            if(s.classList.contains('pop')) { 
+                let t = Math.floor(Math.random()*ASSETS.length); 
+                s.innerHTML = ASSETS[t].svg; s.dataset.type = t; 
+                s.classList.remove('pop'); s.classList.add('fall-anim'); 
             }
-        }
-        setTimeout(checkMatches, 500);
+        });
+        setTimeout(() => { squares.forEach(s => s.classList.remove('fall-anim')); checkMatches(); }, 500);
     }
-
-    function triggerWin() {
-        document.getElementById('rank').innerText = "RANK: " + stages[currentLvl].r;
-        document.getElementById('winScreen').style.display = 'flex';
-    }
-
-    function nextLevel() {
-        currentLvl++; document.getElementById('winScreen').style.display = 'none'; init();
-    }
-
     window.onload = init;
 </script>
 </body>
