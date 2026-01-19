@@ -3,29 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jewel Realm: Smooth Edition</title>
+    <title>Jewel Realm: 20 Stages</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&family=Montserrat:wght@700&display=swap');
         
         :root { 
-            /* NEW COLOR PALETTE */
-            --accent: #00ff88; /* Neon Emerald for UI */
-            --bg-inner: #2a003b; /* Deep velvet purple */
-            --bg-outer: #0a0012; /* Dark indigo */
-            --glass: rgba(42, 0, 59, 0.85);
-            --text-light: #ffffff;
+            --accent: #00ff88; --bg-inner: #2a003b; --bg-outer: #0a0012; 
+            --glass: rgba(42, 0, 59, 0.85); --gold: #ffd700;
         }
         
         body { 
             margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; 
-            /* NEW BACKGROUND GRADIENT */
             background: radial-gradient(circle at center, var(--bg-inner) 0%, var(--bg-outer) 100%);
-            color: var(--text-light); overflow: hidden; height: 100vh; display: flex; flex-direction: column; align-items: center; touch-action: none;
+            color: #fff; overflow: hidden; height: 100vh; display: flex; flex-direction: column; align-items: center; touch-action: none;
         }
 
-        #fx-canvas { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+        #fx-canvas { position: absolute; inset: 0; pointer-events: none; z-index: 20; }
 
-        /* --- UI Updated to match new colors --- */
+        /* --- PREMIUM HUD --- */
         .hud { 
             width: 92%; max-width: 450px; margin-top: 15px; display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 10px; 
             padding: 12px; background: var(--glass); backdrop-filter: blur(20px); border-radius: 25px; 
@@ -36,38 +31,47 @@
         .stat-box b { font-size: 19px; display: block; text-shadow: 0 0 10px var(--accent); }
         .stage-box { background: linear-gradient(135deg, var(--accent), #009955); border-radius: 18px; padding: 5px; color: #000; border: 2px solid #fff; box-shadow: 0 0 20px var(--accent); }
 
-        /* --- PROFESSIONAL BOARD --- */
+        /* --- BOARD --- */
         .board-container { 
-            position: relative; margin-top: 25px; padding: 12px; background: rgba(0,0,0,0.4); border-radius: 30px; 
+            position: relative; margin-top: 20px; padding: 12px; background: rgba(0,0,0,0.4); border-radius: 30px; 
             border: 3px solid var(--accent); box-shadow: 0 0 60px rgba(0,0,0,0.8); z-index: 10; 
         }
         .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; width: 92vw; max-width: 380px; height: 92vw; max-height: 380px; }
-        .slot { background: rgba(255,255,255,0.03); border-radius: 15px; display: flex; align-items: center; justify-content: center; position: relative; border: 1px solid rgba(255,255,255,0.05); overflow: hidden; }
+        .slot { background: rgba(255,255,255,0.03); border-radius: 15px; display: flex; align-items: center; justify-content: center; position: relative; }
 
-        /* --- LOCKED CANDY STRUCTURE (Same 3D Shape, New Colors) --- */
+        /* --- LOCKED CANDY DESIGN --- */
         .candy { 
             width: 90%; height: 90%; cursor: pointer; 
             filter: drop-shadow(0 8px 8px rgba(0,0,0,0.8)); 
             transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 5; 
         }
-        .candy svg { width: 100%; height: 100%; overflow: visible; }
+        .candy svg { width: 100%; height: 100%; }
 
-        /* --- SMOOTH FALLING ANIMATION KEPT --- */
         .fall-anim { animation: smoothDrop 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
-        @keyframes smoothDrop { 
-            0% { transform: translateY(-300px); opacity: 0; } 
-            100% { transform: translateY(0); opacity: 1; } 
-        }
-
+        @keyframes smoothDrop { 0% { transform: translateY(-300px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
         .pop { animation: jewelPop 0.3s forwards; }
-        @keyframes jewelPop { 
-            0% { transform: scale(1); filter: brightness(1); } 
-            100% { transform: scale(0); opacity: 0; filter: brightness(3); } 
+        @keyframes jewelPop { 0% { transform: scale(1); } 100% { transform: scale(0); opacity: 0; } }
+
+        /* --- CELEBRATION SCREEN --- */
+        .overlay { 
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95); 
+            display: none; flex-direction: column; align-items: center; justify-content: center; 
+            z-index: 1000; backdrop-filter: blur(15px); 
+        }
+        .win-card { 
+            border: 4px solid var(--gold); background: var(--bg-inner); padding: 50px; 
+            border-radius: 35px; text-align: center; box-shadow: 0 0 100px var(--gold); 
+            animation: cardPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes cardPop { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .btn { 
+            background: linear-gradient(to right, var(--gold), #b8860b); border: none; 
+            padding: 18px 50px; border-radius: 40px; font-weight: 900; color: #000; 
+            cursor: pointer; margin-top: 30px; font-family: 'Montserrat'; font-size: 20px;
         }
 
-        .footer { margin-top: 20px; text-align: center; z-index: 10; }
-        .footer span { color: var(--accent); font-size: 10px; letter-spacing: 4px; font-weight: 900; }
-        .footer b { font-size: 45px; color: white; text-shadow: 0 0 20px var(--accent); font-family: 'Playfair Display', serif; }
+        .footer { margin-top: 15px; text-align: center; z-index: 10; }
+        .footer b { font-size: 40px; color: white; text-shadow: 0 0 20px var(--accent); font-family: 'Playfair Display', serif; }
     </style>
 </head>
 <body id="gameBody">
@@ -75,9 +79,9 @@
     <canvas id="fx-canvas"></canvas>
 
     <div class="hud">
-        <div class="stat-box"><span>Target</span><b id="targetScore">1000</b></div>
-        <div class="stage-box">STAGE <b id="lvlNum">1</b></div>
-        <div class="stat-box"><span>Moves</span><b id="moves">20</b></div>
+        <div class="stat-box"><span>Target</span><b id="targetTxt">500</b></div>
+        <div class="stage-box">STAGE <b id="lvlTxt">1</b></div>
+        <div class="stat-box"><span>Moves</span><b id="movesTxt">10</b></div>
     </div>
 
     <div class="board-container" id="boardWrapper">
@@ -85,61 +89,92 @@
     </div>
 
     <div class="footer">
-        <span>JEWEL SCORE</span><br>
+        <span style="font-size: 10px; color: var(--accent); letter-spacing: 4px; font-weight: 900;">REWARD LOOT</span><br>
         <b id="loot">0</b>
+    </div>
+
+    <div id="winScreen" class="overlay">
+        <div class="win-card">
+            <h1 style="color:var(--gold); font-size: 48px; margin:0;">FANTASTIC!</h1>
+            <p style="color:var(--accent); font-size: 22px; letter-spacing: 3px;">STAGE COMPLETE</p>
+            <button class="btn" onclick="nextLevel()">NEXT STAGE</button>
+        </div>
     </div>
 
 <script>
     const canvas = document.getElementById('fx-canvas'), ctx = canvas.getContext('2d');
-    const gridEl = document.getElementById('grid'), lootEl = document.getElementById('loot'), movesEl = document.getElementById('moves');
+    const gridEl = document.getElementById('grid'), lootEl = document.getElementById('loot'), movesEl = document.getElementById('movesTxt');
+    const lvlEl = document.getElementById('lvlTxt'), targetEl = document.getElementById('targetTxt');
 
-    // --- CINEMATIC CANVAS FX (Updated particles) ---
+    // --- SOUND ENGINE ---
+    const sfxMatch = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
+
+    // --- CELEBRATION FX (Fireworks) ---
     let particles = [];
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.addEventListener('resize', resize); resize();
 
     class Particle {
-        constructor(x, y) { this.x = x; this.y = y; this.size = Math.random()*3+1; this.speedX = Math.random()*2-1; this.speedY = Math.random()*2-1; this.life = 1; }
+        constructor(x, y, color) {
+            this.x = x; this.y = y; this.color = color;
+            this.size = Math.random() * 5 + 2;
+            this.speedX = Math.random() * 10 - 5;
+            this.speedY = Math.random() * 10 - 5;
+            this.life = 1;
+        }
         update() { this.x += this.speedX; this.y += this.speedY; this.life -= 0.01; }
-        draw() { ctx.fillStyle = '#00ff88'; ctx.globalAlpha = this.life; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill(); }
+        draw() {
+            ctx.fillStyle = this.color; ctx.globalAlpha = this.life;
+            ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
+        }
+    }
+
+    function createFirework() {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * (canvas.height/2);
+        const color = `hsl(${Math.random()*360}, 100%, 50%)`;
+        for(let i=0; i<30; i++) particles.push(new Particle(x, y, color));
     }
 
     function animate() {
         ctx.clearRect(0,0,canvas.width, canvas.height);
-        if(Math.random() < 0.1) particles.push(new Particle(Math.random()*canvas.width, Math.random()*canvas.height));
-        particles.forEach((p, i) => { p.update(); p.draw(); if(p.life <= 0) particles.splice(i, 1); });
+        particles.forEach((p, i) => {
+            p.update(); p.draw();
+            if(p.life <= 0) particles.splice(i, 1);
+        });
         requestAnimationFrame(animate);
     }
     animate();
 
-    // --- LOCKED STRUCTURE, NEW COLORS ---
-    // The SVG structure is identical to the chocolate version, only colors change.
-    const jewelSVG = (base, dark, light) => `
-    <svg viewBox="0 0 100 100">
-        <defs>
-            <radialGradient id="grad${base.replace('#','')}" cx="35%" cy="35%" r="65%">
-                <stop offset="0%" stop-color="${light}"/><stop offset="100%" stop-color="${base}"/>
-            </radialGradient>
-        </defs>
-        <rect x="15" y="15" width="70" height="70" rx="20" fill="url(#grad${base.replace('#','')})" stroke="${dark}" stroke-width="4"/>
-        <path d="M25 30 Q50 20 75 30" fill="none" stroke="#ffd700" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
-        <circle cx="35" cy="35" r="10" fill="white" fill-opacity="0.3"/>
-    </svg>`;
-
-    // NEW COLOR DEFINITIONS (Vibrant Jewels)
-    const ASSETS = [
-        {svg: jewelSVG('#ff0055', '#990033', '#ff6699'), type: 0}, // Ruby Red
-        {svg: jewelSVG('#0088ff', '#004499', '#66bbff'), type: 1}, // Sapphire Blue
-        {svg: jewelSVG('#00cc44', '#006622', '#66ff88'), type: 2}, // Emerald Green
-        {svg: jewelSVG('#9900ff', '#440099', '#cc66ff'), type: 3}, // Amethyst Purple
-        {svg: jewelSVG('#ffaa00', '#cc5500', '#ffdd66'), type: 4}  // Topaz Orange
+    // --- 20 STAGES CONFIG ---
+    const STAGES = [
+        { t: 500, m: 10 }, { t: 800, m: 12 }, { t: 1200, m: 15 }, { t: 1800, m: 15 }, { t: 2500, m: 18 },
+        { t: 3500, m: 20 }, { t: 5000, m: 20 }, { t: 7000, m: 22 }, { t: 9000, m: 22 }, { t: 12000, m: 25 },
+        { t: 15000, m: 25 }, { t: 18000, m: 28 }, { t: 22000, m: 28 }, { t: 26000, m: 30 }, { t: 30000, m: 30 },
+        { t: 35000, m: 35 }, { t: 40000, m: 35 }, { t: 50000, m: 40 }, { t: 65000, m: 40 }, { t: 80000, m: 45 }
     ];
 
-    let squares = [], score=0, moves=20, isProcessing=false, sX, sY;
+    // --- LOCKED CANDY ASSETS ---
+    const jewelSVG = (base, dark, light) => `<svg viewBox="0 0 100 100"><defs><radialGradient id="grad${base.replace('#','')}" cx="35%" cy="35%" r="65%"><stop offset="0%" stop-color="${light}"/><stop offset="100%" stop-color="${base}"/></radialGradient></defs><rect x="15" y="15" width="70" height="70" rx="20" fill="url(#grad${base.replace('#','')})" stroke="${dark}" stroke-width="4"/><path d="M25 30 Q50 20 75 30" fill="none" stroke="#ffd700" stroke-width="3" stroke-linecap="round" opacity="0.7"/><circle cx="35" cy="35" r="10" fill="white" fill-opacity="0.3"/></svg>`;
+
+    const ASSETS = [
+        {svg: jewelSVG('#ff0055', '#990033', '#ff6699'), type: 0},
+        {svg: jewelSVG('#0088ff', '#004499', '#66bbff'), type: 1},
+        {svg: jewelSVG('#00cc44', '#006622', '#66ff88'), type: 2},
+        {svg: jewelSVG('#9900ff', '#440099', '#cc66ff'), type: 3},
+        {svg: jewelSVG('#ffaa00', '#cc5500', '#ffdd66'), type: 4}
+    ];
+
+    let squares = [], score=0, moves=0, currentLvl=0, isProcessing=false, sX, sY;
 
     function init() {
-        gridEl.innerHTML = ''; squares = []; score=0; moves=20;
+        gridEl.innerHTML = ''; squares = [];
+        const cfg = STAGES[currentLvl];
+        score = 0; moves = cfg.m;
         lootEl.innerText = score; movesEl.innerText = moves;
+        targetEl.innerText = cfg.t; lvlEl.innerText = currentLvl + 1;
+        isProcessing = false;
+
         for(let i=0; i<49; i++) {
             const slot = document.createElement('div'); slot.className = 'slot';
             const candy = document.createElement('div'); candy.className = 'candy fall-anim';
@@ -182,23 +217,33 @@
         for(let c=0; c<7; c++) for(let r=0; r<5; r++) { let i=r*7+c; if(squares[i].dataset.type === squares[i+7].dataset.type && squares[i].dataset.type === squares[i+14].dataset.type) { matches.add(i); matches.add(i+7); matches.add(i+14); }}
 
         if(matches.size > 0) {
+            sfxMatch.currentTime = 0; sfxMatch.play(); // SOUND ON MATCH
             matches.forEach(id => { squares[id].classList.add('pop'); });
             score += matches.size * 25; lootEl.innerText = score;
+            if(score >= STAGES[currentLvl].t) triggerWin();
             setTimeout(refill, 300); return true;
         }
-        isProcessing = false; return false;
+        isProcessing = false; 
+        if(moves <= 0 && score < STAGES[currentLvl].t) { alert("HEIST FAILED! Out of moves."); location.reload(); }
+        return false;
+    }
+
+    function triggerWin() {
+        isProcessing = true;
+        for(let i=0; i<5; i++) setTimeout(createFirework, i*200); // KHUSHI KA MAHOL
+        setTimeout(() => { document.getElementById('winScreen').style.display = 'flex'; }, 800);
     }
 
     function refill() {
-        squares.forEach(s => { 
-            if(s.classList.contains('pop')) { 
-                let t = Math.floor(Math.random()*ASSETS.length); 
-                s.innerHTML = ASSETS[t].svg; s.dataset.type = t; 
-                s.classList.remove('pop'); s.classList.add('fall-anim'); 
-            }
-        });
+        squares.forEach(s => { if(s.classList.contains('pop')) { let t = Math.floor(Math.random()*ASSETS.length); s.innerHTML = ASSETS[t].svg; s.dataset.type = t; s.classList.remove('pop'); s.classList.add('fall-anim'); }});
         setTimeout(() => { squares.forEach(s => s.classList.remove('fall-anim')); checkMatches(); }, 500);
     }
+
+    function nextLevel() { 
+        currentLvl++; if(currentLvl >= 20) currentLvl = 0; 
+        document.getElementById('winScreen').style.display = 'none'; init(); 
+    }
+
     window.onload = init;
 </script>
 </body>
