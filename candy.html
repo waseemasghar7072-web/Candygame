@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jewel Realm: Neon Containers</title>
+    <title>Jewel Realm: Speaker Fix</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&family=Montserrat:wght@700&display=swap');
         
@@ -20,15 +20,24 @@
 
         #fx-canvas { position: absolute; inset: 0; pointer-events: none; z-index: 20; }
 
+        /* --- PREMIUM HUD WITH SPEAKER --- */
         .hud { 
-            width: 92%; max-width: 450px; margin-top: 15px; display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 10px; 
-            padding: 12px; background: var(--glass); backdrop-filter: blur(20px); border-radius: 25px; 
-            border: 2px solid var(--accent); box-shadow: 0 15px 50px rgba(0,0,0,0.8); z-index: 10; 
+            width: 92%; max-width: 450px; margin-top: 15px; display: grid; grid-template-columns: 0.8fr 1.2fr 0.8fr 0.5fr; gap: 8px; 
+            padding: 10px; background: var(--glass); backdrop-filter: blur(20px); border-radius: 20px; 
+            border: 2px solid var(--accent); box-shadow: 0 15px 50px rgba(0,0,0,0.8); z-index: 100; 
         }
         .stat-box { text-align: center; }
-        .stat-box span { font-size: 8px; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; font-weight: 900; }
-        .stat-box b { font-size: 19px; display: block; text-shadow: 0 0 10px var(--accent); }
-        .stage-box { background: linear-gradient(135deg, var(--accent), #009955); border-radius: 18px; padding: 5px; color: #000; border: 2px solid #fff; box-shadow: 0 0 20px var(--accent); }
+        .stat-box span { font-size: 7px; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; font-weight: 900; }
+        .stat-box b { font-size: 16px; display: block; text-shadow: 0 0 10px var(--accent); }
+        .stage-box { background: linear-gradient(135deg, var(--accent), #009955); border-radius: 12px; padding: 4px; color: #000; border: 2px solid #fff; box-shadow: 0 0 15px var(--accent); }
+        
+        /* SPEAKER BUTTON STYLE */
+        .speaker-btn {
+            background: rgba(255,255,255,0.1); border: 1px solid var(--accent); border-radius: 10px;
+            display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px;
+            transition: 0.3s;
+        }
+        .speaker-btn.off { border-color: #ff0055; filter: grayscale(1); opacity: 0.5; }
 
         .board-container { 
             position: relative; margin-top: 20px; padding: 12px; background: rgba(0,0,0,0.4); border-radius: 30px; 
@@ -36,12 +45,10 @@
         }
         .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; width: 92vw; max-width: 380px; height: 92vw; max-height: 380px; }
         
-        /* --- FIXED NEON SLOT --- */
         .slot { 
             background: rgba(255,255,255,0.02); border-radius: 15px; 
             display: flex; align-items: center; justify-content: center; position: relative;
-            /* Static Neon Light Circle behind candy */
-            background-image: radial-gradient(circle, transparent 60%, rgba(0, 255, 136, 0.2) 65%, var(--accent) 70%, transparent 75%);
+            background-image: radial-gradient(circle, transparent 60%, rgba(0, 255, 136, 0.1) 65%, var(--accent) 70%, transparent 75%);
             background-size: 110% 110%; background-position: center;
         }
 
@@ -57,11 +64,7 @@
         .pop { animation: jewelPop 0.3s forwards; }
         @keyframes jewelPop { 0% { transform: scale(1); } 100% { transform: scale(0); opacity: 0; } }
 
-        .overlay { 
-            position: fixed; inset: 0; background: rgba(0,0,0,0.95); 
-            display: none; flex-direction: column; align-items: center; justify-content: center; 
-            z-index: 1000; backdrop-filter: blur(15px); 
-        }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(15px); }
         .win-card { border: 4px solid var(--gold); background: var(--bg-inner); padding: 50px; border-radius: 35px; text-align: center; box-shadow: 0 0 100px var(--gold); }
         .btn { background: linear-gradient(to right, var(--gold), #b8860b); border: none; padding: 18px 50px; border-radius: 40px; font-weight: 900; color: #000; cursor: pointer; margin-top: 30px; font-family: 'Montserrat'; font-size: 20px; }
 
@@ -69,14 +72,15 @@
         .footer b { font-size: 40px; color: white; text-shadow: 0 0 20px var(--accent); font-family: 'Playfair Display', serif; }
     </style>
 </head>
-<body id="gameBody">
+<body>
 
     <canvas id="fx-canvas"></canvas>
 
     <div class="hud">
         <div class="stat-box"><span>Target</span><b id="targetTxt">500</b></div>
-        <div class="stage-box">STAGE <b id="lvlTxt">1</b></div>
+        <div class="stat-box stage-box">STAGE <b id="lvlTxt">1</b></div>
         <div class="stat-box"><span>Moves</span><b id="movesTxt">10</b></div>
+        <div class="speaker-btn" id="speakerBtn" onclick="toggleSound()">🔊</div>
     </div>
 
     <div class="board-container" id="boardWrapper">
@@ -99,15 +103,29 @@
     const canvas = document.getElementById('fx-canvas'), ctx = canvas.getContext('2d');
     const gridEl = document.getElementById('grid'), lootEl = document.getElementById('loot'), movesEl = document.getElementById('movesTxt');
     const lvlEl = document.getElementById('lvlTxt'), targetEl = document.getElementById('targetTxt');
+    const speakerBtn = document.getElementById('speakerBtn');
 
+    // --- SOUND ENGINE FIX ---
     const sfxMatch = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
-    let audioUnlocked = false;
-    function unlockAudio() {
-        if (!audioUnlocked) {
-            sfxMatch.play().then(() => { sfxMatch.pause(); sfxMatch.currentTime = 0; audioUnlocked = true; }).catch(e => {});
+    let soundEnabled = false;
+
+    function toggleSound() {
+        soundEnabled = !soundEnabled;
+        if (soundEnabled) {
+            speakerBtn.innerText = "🔊";
+            speakerBtn.classList.remove('off');
+            // Unlock audio context
+            sfxMatch.play().then(() => {
+                sfxMatch.pause();
+                sfxMatch.currentTime = 0;
+            }).catch(e => console.log("Audio waiting for interaction"));
+        } else {
+            speakerBtn.innerText = "🔇";
+            speakerBtn.classList.add('off');
         }
     }
 
+    // Celebration FX
     let particles = [];
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.addEventListener('resize', resize); resize();
@@ -147,7 +165,7 @@
     const ASSETS = [
         {svg: jewelSVG('#ff0055', '#990033', '#ff6699'), type: 0},
         {svg: jewelSVG('#0088ff', '#004499', '#66bbff'), type: 1},
-        {svg: jewelSVG('#00cc44', '#006622', '#66ff88'), type: 2},
+        {svg: jewelSVG('#ff00ff', '#880088', '#ff88ff'), type: 2}, // Pink Jewel
         {svg: jewelSVG('#9900ff', '#440099', '#cc66ff'), type: 3},
         {svg: jewelSVG('#ffaa00', '#cc5500', '#ffdd66'), type: 4}
     ];
@@ -167,11 +185,8 @@
             const candy = document.createElement('div'); candy.className = 'candy fall-anim';
             let t = Math.floor(Math.random()*ASSETS.length);
             candy.innerHTML = ASSETS[t].svg; candy.dataset.type = t;
-            
-            candy.ontouchstart = (e) => { unlockAudio(); sX = e.touches[0].clientX; sY = e.touches[0].clientY; };
+            candy.ontouchstart = (e) => { sX = e.touches[0].clientX; sY = e.touches[0].clientY; };
             candy.ontouchend = (e) => handleSwipe(e, i);
-            candy.onclick = unlockAudio;
-            
             slot.appendChild(candy); gridEl.appendChild(slot); squares.push(candy);
         }
         setTimeout(checkMatches, 600);
@@ -191,11 +206,8 @@
         isProcessing = true;
         let h1 = squares[id1].innerHTML, h2 = squares[id2].innerHTML;
         let t1 = squares[id1].dataset.type, t2 = squares[id2].dataset.type;
-        
-        // ONLY SWAP THE CANDY CONTENT
         squares[id1].innerHTML = h2; squares[id1].dataset.type = t2;
         squares[id2].innerHTML = h1; squares[id2].dataset.type = t1;
-        
         await new Promise(r => setTimeout(r, 200));
         if(!checkMatches()) {
             squares[id1].innerHTML = h1; squares[id1].dataset.type = t1;
@@ -210,7 +222,9 @@
         for(let c=0; c<7; c++) for(let r=0; r<5; r++) { let i=r*7+c; if(squares[i].dataset.type === squares[i+7].dataset.type && squares[i].dataset.type === squares[i+14].dataset.type) { matches.add(i); matches.add(i+7); matches.add(i+14); }}
 
         if(matches.size > 0) {
-            if (audioUnlocked) { sfxMatch.currentTime = 0; sfxMatch.play().catch(()=>{}); }
+            // SOUND TRIGGER
+            if (soundEnabled) { sfxMatch.currentTime = 0; sfxMatch.play().catch(()=>{}); }
+            
             matches.forEach(id => { squares[id].classList.add('pop'); });
             score += matches.size * 25; lootEl.innerText = score;
             if(score >= STAGES[currentLvl].t) triggerWin();
@@ -230,11 +244,7 @@
         setTimeout(() => { squares.forEach(s => s.classList.remove('fall-anim')); checkMatches(); }, 500);
     }
 
-    function nextLevel() { 
-        currentLvl++; if(currentLvl >= 20) currentLvl = 0; 
-        document.getElementById('winScreen').style.display = 'none'; init(); 
-    }
-
+    function nextLevel() { currentLvl++; if(currentLvl >= 20) currentLvl = 0; document.getElementById('winScreen').style.display = 'none'; init(); }
     window.onload = init;
 </script>
 </body>
