@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jewel Realm: Speaker Fix</title>
+    <title>Jewel Realm: Smooth Hard</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&family=Montserrat:wght@700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&family=Montserrat:wght@700;900&display=swap');
         
         :root { 
-            --accent: #00ff88; --bg-inner: #2a003b; --bg-outer: #0a0012; 
-            --glass: rgba(42, 0, 59, 0.85); --gold: #ffd700;
+            --accent: #00ff88; --bg-inner: #1a002b; --bg-outer: #050008; 
+            --glass: rgba(45, 0, 70, 0.85); --gold: #ffd700; --fail-red: #ff0055;
         }
         
         body { 
@@ -18,73 +18,74 @@
             color: #fff; overflow: hidden; height: 100vh; display: flex; flex-direction: column; align-items: center; touch-action: none;
         }
 
-        #fx-canvas { position: absolute; inset: 0; pointer-events: none; z-index: 20; }
+        #fx-canvas { position: absolute; inset: 0; pointer-events: none; z-index: 200; }
 
-        /* --- PREMIUM HUD WITH SPEAKER --- */
         .hud { 
-            width: 92%; max-width: 450px; margin-top: 15px; display: grid; grid-template-columns: 0.8fr 1.2fr 0.8fr 0.5fr; gap: 8px; 
-            padding: 10px; background: var(--glass); backdrop-filter: blur(20px); border-radius: 20px; 
+            width: 92%; max-width: 450px; margin-top: 15px; display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 10px; 
+            padding: 12px; background: var(--glass); backdrop-filter: blur(25px); border-radius: 20px; 
             border: 2px solid var(--accent); box-shadow: 0 15px 50px rgba(0,0,0,0.8); z-index: 100; 
         }
         .stat-box { text-align: center; }
-        .stat-box span { font-size: 7px; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; font-weight: 900; }
-        .stat-box b { font-size: 16px; display: block; text-shadow: 0 0 10px var(--accent); }
-        .stage-box { background: linear-gradient(135deg, var(--accent), #009955); border-radius: 12px; padding: 4px; color: #000; border: 2px solid #fff; box-shadow: 0 0 15px var(--accent); }
-        
-        /* SPEAKER BUTTON STYLE */
-        .speaker-btn {
-            background: rgba(255,255,255,0.1); border: 1px solid var(--accent); border-radius: 10px;
-            display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px;
-            transition: 0.3s;
-        }
-        .speaker-btn.off { border-color: #ff0055; filter: grayscale(1); opacity: 0.5; }
+        .stat-box span { font-size: 8px; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; font-weight: 900; }
+        .stat-box b { font-size: 19px; display: block; text-shadow: 0 0 15px var(--accent); }
+        .stage-box { background: linear-gradient(135deg, var(--gold), #b8860b); border-radius: 14px; padding: 5px; color: #000; border: 2.5px solid #fff; box-shadow: 0 0 25px var(--gold); }
 
         .board-container { 
-            position: relative; margin-top: 20px; padding: 12px; background: rgba(0,0,0,0.4); border-radius: 30px; 
-            border: 3px solid var(--accent); box-shadow: 0 0 60px rgba(0,0,0,0.8); z-index: 10; 
+            position: relative; margin-top: 15px; padding: 12px; background: rgba(0,0,0,0.5); border-radius: 30px; 
+            border: 3.5px solid var(--accent); box-shadow: 0 0 80px rgba(0,0,0,1); z-index: 10; 
         }
         .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; width: 92vw; max-width: 380px; height: 92vw; max-height: 380px; }
         
+        /* FIXED NEON SLOTS */
         .slot { 
             background: rgba(255,255,255,0.02); border-radius: 15px; 
             display: flex; align-items: center; justify-content: center; position: relative;
-            background-image: radial-gradient(circle, transparent 60%, rgba(0, 255, 136, 0.1) 65%, var(--accent) 70%, transparent 75%);
+            background-image: radial-gradient(circle, transparent 60%, rgba(0, 255, 136, 0.15) 65%, var(--accent) 70%, transparent 75%);
             background-size: 110% 110%; background-position: center;
         }
 
-        .candy { 
-            width: 85%; height: 85%; cursor: pointer; 
-            filter: drop-shadow(0 8px 8px rgba(0,0,0,0.8)); 
-            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 5; 
-        }
+        .candy { width: 85%; height: 85%; cursor: pointer; filter: drop-shadow(0 8px 8px rgba(0,0,0,0.8)); transition: transform 0.2s; z-index: 5; }
         .candy svg { width: 100%; height: 100%; }
 
-        .fall-anim { animation: smoothDrop 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
-        @keyframes smoothDrop { 0% { transform: translateY(-300px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
-        .pop { animation: jewelPop 0.3s forwards; }
-        @keyframes jewelPop { 0% { transform: scale(1); } 100% { transform: scale(0); opacity: 0; } }
+        /* --- SMOOTH PHYSICS ANIMATION --- */
+        .fall-anim { animation: smoothDrop 0.9s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        @keyframes smoothDrop { 0% { transform: translateY(-350px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+        .pop { animation: jewelPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes jewelPop { 0% { transform: scale(1); } 50% { transform: scale(1.3) brightness(2); } 100% { transform: scale(0); opacity: 0; } }
 
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(15px); }
-        .win-card { border: 4px solid var(--gold); background: var(--bg-inner); padding: 50px; border-radius: 35px; text-align: center; box-shadow: 0 0 100px var(--gold); }
+        .toolbar { margin-top: 15px; display: flex; gap: 20px; z-index: 100; }
+        .tool-btn { 
+            width: 60px; height: 60px; background: var(--glass); border: 2px solid var(--gold); border-radius: 15px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer;
+            transition: 0.2s; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+        .tool-btn.active { background: var(--gold); color: #000; box-shadow: 0 0 20px var(--gold); }
+
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.96); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(20px); }
+        .card { border: 4px solid var(--gold); background: var(--bg-inner); padding: 50px; border-radius: 35px; text-align: center; box-shadow: 0 0 100px var(--gold); animation: popUp 0.4s ease-out; }
+        @keyframes popUp { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .btn { background: linear-gradient(to right, var(--gold), #b8860b); border: none; padding: 18px 50px; border-radius: 40px; font-weight: 900; color: #000; cursor: pointer; margin-top: 30px; font-family: 'Montserrat'; font-size: 20px; }
 
-        .footer { margin-top: 15px; text-align: center; z-index: 10; }
-        .footer b { font-size: 40px; color: white; text-shadow: 0 0 20px var(--accent); font-family: 'Playfair Display', serif; }
+        .footer { margin-top: 10px; text-align: center; z-index: 10; }
+        .footer b { font-size: 42px; color: white; text-shadow: 0 0 25px var(--accent); font-family: 'Playfair Display', serif; }
     </style>
 </head>
-<body>
+<body onclick="initAudio()">
 
     <canvas id="fx-canvas"></canvas>
 
     <div class="hud">
         <div class="stat-box"><span>Target</span><b id="targetTxt">500</b></div>
-        <div class="stat-box stage-box">STAGE <b id="lvlTxt">1</b></div>
+        <div class="stage-box">STAGE <b id="lvlTxt">1</b></div>
         <div class="stat-box"><span>Moves</span><b id="movesTxt">10</b></div>
-        <div class="speaker-btn" id="speakerBtn" onclick="toggleSound()">🔊</div>
     </div>
 
     <div class="board-container" id="boardWrapper">
         <div class="grid" id="grid"></div>
+    </div>
+
+    <div class="toolbar">
+        <div class="tool-btn" id="hammerBtn" onclick="activateHammer()"><span>🔨</span><label style="font-size:8px; font-weight:900;">HAMMER</label></div>
     </div>
 
     <div class="footer">
@@ -92,58 +93,42 @@
         <b id="loot">0</b>
     </div>
 
-    <div id="winScreen" class="overlay">
-        <div class="win-card">
-            <h1 style="color:var(--gold); font-size: 48px; margin:0;">FANTASTIC!</h1>
-            <button class="btn" onclick="nextLevel()">NEXT STAGE</button>
-        </div>
-    </div>
+    <div id="winScreen" class="overlay"><div class="card"><h1 style="color:var(--gold); font-size: 48px; margin:0;">FANTASTIC!</h1><button class="btn" onclick="nextLevel()">NEXT STAGE</button></div></div>
+    <div id="failScreen" class="overlay"><div class="card" style="border-color:var(--fail-red); box-shadow:0 0 100px var(--fail-red);"><h1 style="color:var(--fail-red); font-size: 48px; margin:0;">FAILED!</h1><button class="btn" style="background:var(--fail-red); color:#fff;" onclick="retryLevel()">RETRY</button></div></div>
 
 <script>
     const canvas = document.getElementById('fx-canvas'), ctx = canvas.getContext('2d');
     const gridEl = document.getElementById('grid'), lootEl = document.getElementById('loot'), movesEl = document.getElementById('movesTxt');
-    const lvlEl = document.getElementById('lvlTxt'), targetEl = document.getElementById('targetTxt');
-    const speakerBtn = document.getElementById('speakerBtn');
+    const lvlEl = document.getElementById('lvlTxt'), targetEl = document.getElementById('targetTxt'), hammerBtn = document.getElementById('hammerBtn');
 
-    // --- SOUND ENGINE FIX ---
-    const sfxMatch = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
-    let soundEnabled = false;
+    let audioCtx, hammerActive = false;
+    function initAudio() { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if(audioCtx.state === 'suspended') audioCtx.resume(); }
 
-    function toggleSound() {
-        soundEnabled = !soundEnabled;
-        if (soundEnabled) {
-            speakerBtn.innerText = "🔊";
-            speakerBtn.classList.remove('off');
-            // Unlock audio context
-            sfxMatch.play().then(() => {
-                sfxMatch.pause();
-                sfxMatch.currentTime = 0;
-            }).catch(e => console.log("Audio waiting for interaction"));
-        } else {
-            speakerBtn.innerText = "🔇";
-            speakerBtn.classList.add('off');
-        }
+    function playMatchSound(isSpecial) {
+        if (!audioCtx) return;
+        const now = audioCtx.currentTime;
+        let osc1 = audioCtx.createOscillator(), g1 = audioCtx.createGain();
+        osc1.connect(g1); g1.connect(audioCtx.destination);
+        osc1.type = "sine"; osc1.frequency.setValueAtTime(isSpecial ? 1200 : 900, now);
+        osc1.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+        g1.gain.setValueAtTime(0.2, now); g1.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+        osc1.start(now); osc1.stop(now + 0.1);
+        let osc2 = audioCtx.createOscillator(), g2 = audioCtx.createGain();
+        osc2.connect(g2); g2.connect(audioCtx.destination);
+        osc2.type = "triangle"; osc2.frequency.setValueAtTime(isSpecial ? 400 : 250, now);
+        osc2.frequency.exponentialRampToValueAtTime(40, now + 0.15);
+        g2.gain.setValueAtTime(0.3, now); g2.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+        osc2.start(now); osc2.stop(now + 0.15);
     }
 
-    // Celebration FX
     let particles = [];
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.addEventListener('resize', resize); resize();
 
     class Particle {
-        constructor(x, y, color) {
-            this.x = x; this.y = y; this.color = color;
-            this.size = Math.random() * 5 + 2;
-            this.speedX = Math.random() * 10 - 5; this.speedY = Math.random() * 10 - 5; this.life = 1;
-        }
-        update() { this.x += this.speedX; this.y += this.speedY; this.life -= 0.01; }
+        constructor(x, y, color) { this.x = x; this.y = y; this.color = color; this.size = Math.random()*5+2; this.speedX = Math.random()*10-5; this.speedY = Math.random()*10-5; this.life = 1; }
+        update() { this.x += this.speedX; this.y += this.speedY; this.life -= 0.02; }
         draw() { ctx.fillStyle = this.color; ctx.globalAlpha = this.life; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill(); }
-    }
-
-    function createFirework() {
-        const x = Math.random() * canvas.width; const y = Math.random() * (canvas.height/2);
-        const color = `hsl(${Math.random()*360}, 100%, 50%)`;
-        for(let i=0; i<30; i++) particles.push(new Particle(x, y, color));
     }
 
     function animate() {
@@ -153,47 +138,59 @@
     }
     animate();
 
+    // --- PROGRESSIVE DIFFICULTY STAGES ---
     const STAGES = [
-        { t: 500, m: 10 }, { t: 800, m: 12 }, { t: 1200, m: 15 }, { t: 1800, m: 15 }, { t: 2500, m: 18 },
-        { t: 3500, m: 20 }, { t: 5000, m: 20 }, { t: 7000, m: 22 }, { t: 9000, m: 22 }, { t: 12000, m: 25 },
-        { t: 15000, m: 25 }, { t: 18000, m: 28 }, { t: 22000, m: 28 }, { t: 26000, m: 30 }, { t: 30000, m: 30 },
-        { t: 35000, m: 35 }, { t: 40000, m: 35 }, { t: 50000, m: 40 }, { t: 65000, m: 40 }, { t: 80000, m: 45 }
+        { t: 500, m: 15 }, { t: 1200, m: 15 }, { t: 2500, m: 14 }, { t: 4000, m: 14 }, { t: 6000, m: 13 },
+        { t: 9000, m: 13 }, { t: 13000, m: 12 }, { t: 18000, m: 12 }, { t: 25000, m: 11 }, { t: 35000, m: 10 },
+        { t: 48000, m: 10 }, { t: 65000, m: 9 }, { t: 85000, m: 9 }, { t: 110000, m: 8 }, { t: 140000, m: 8 },
+        { t: 180000, m: 7 }, { t: 230000, m: 7 }, { t: 300000, m: 6 }, { t: 400000, m: 6 }, { t: 600000, m: 5 }
     ];
 
-    const jewelSVG = (base, dark, light) => `<svg viewBox="0 0 100 100"><defs><radialGradient id="grad${base.replace('#','')}" cx="35%" cy="35%" r="65%"><stop offset="0%" stop-color="${light}"/><stop offset="100%" stop-color="${base}"/></radialGradient></defs><rect x="15" y="15" width="70" height="70" rx="20" fill="url(#grad${base.replace('#','')})" stroke="${dark}" stroke-width="4"/><path d="M25 30 Q50 20 75 30" fill="none" stroke="#ffd700" stroke-width="3" stroke-linecap="round" opacity="0.7"/><circle cx="35" cy="35" r="10" fill="white" fill-opacity="0.3"/></svg>`;
+    const jewelSVG = (base, dark, light, special = 0) => `
+    <svg viewBox="0 0 100 100">
+        <defs><radialGradient id="grad${base.replace('#','')}" cx="35%" cy="35%" r="65%"><stop offset="0%" stop-color="${light}"/><stop offset="100%" stop-color="${base}"/></radialGradient></defs>
+        <rect x="15" y="15" width="70" height="70" rx="20" fill="url(#grad${base.replace('#','')})" stroke="#ffffff" stroke-width="4"/>
+        ${special === 1 ? '<path d="M15 35 L85 35 M15 50 L85 50 M15 65 L85 65" stroke="white" stroke-width="8" opacity="0.8"/>' : ''}
+        ${special === 2 ? '<circle cx="50" cy="50" r="18" fill="white" opacity="0.6"><animate attributeName="opacity" values="0.2;0.8;0.2" dur="0.4s" repeatCount="indefinite"/></circle>' : ''}
+        <path d="M25 30 Q50 20 75 30" fill="none" stroke="#ffd700" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+    </svg>`;
 
-    const ASSETS = [
-        {svg: jewelSVG('#ff0055', '#990033', '#ff6699'), type: 0},
-        {svg: jewelSVG('#0088ff', '#004499', '#66bbff'), type: 1},
-        {svg: jewelSVG('#ff00ff', '#880088', '#ff88ff'), type: 2}, // Pink Jewel
-        {svg: jewelSVG('#9900ff', '#440099', '#cc66ff'), type: 3},
-        {svg: jewelSVG('#ffaa00', '#cc5500', '#ffdd66'), type: 4}
-    ];
+    const COLORS = [{b: '#ff0055', d: '#990033', l: '#ff6699'}, {b: '#0088ff', d: '#004499', l: '#66bbff'}, {b: '#ff00ff', d: '#880088', l: '#ff88ff'}, {b: '#9900ff', d: '#440099', l: '#cc66ff'}, {b: '#ffaa00', d: '#cc5500', l: '#ffdd66'}];
 
     let squares = [], score=0, moves=0, currentLvl=0, isProcessing=false, sX, sY;
 
     function init() {
-        gridEl.innerHTML = ''; squares = [];
-        const cfg = STAGES[currentLvl];
-        score = 0; moves = cfg.m;
-        lootEl.innerText = score; movesEl.innerText = moves;
+        gridEl.innerHTML = ''; squares = []; const cfg = STAGES[currentLvl];
+        score = 0; moves = cfg.m; lootEl.innerText = score; movesEl.innerText = moves;
         targetEl.innerText = cfg.t; lvlEl.innerText = currentLvl + 1;
-        isProcessing = false;
-
+        isProcessing = false; hammerActive = false; hammerBtn.classList.remove('active');
         for(let i=0; i<49; i++) {
             const slot = document.createElement('div'); slot.className = 'slot';
             const candy = document.createElement('div'); candy.className = 'candy fall-anim';
-            let t = Math.floor(Math.random()*ASSETS.length);
-            candy.innerHTML = ASSETS[t].svg; candy.dataset.type = t;
-            candy.ontouchstart = (e) => { sX = e.touches[0].clientX; sY = e.touches[0].clientY; };
+            let t = Math.floor(Math.random()*COLORS.length);
+            candy.innerHTML = jewelSVG(COLORS[t].b, COLORS[t].d, COLORS[t].l);
+            candy.dataset.type = t; candy.dataset.special = 0;
+            candy.ontouchstart = (e) => { sX = e.touches[0].clientX; sY = e.touches[0].clientY; initAudio(); };
             candy.ontouchend = (e) => handleSwipe(e, i);
+            candy.onclick = () => useHammer(i);
             slot.appendChild(candy); gridEl.appendChild(slot); squares.push(candy);
         }
-        setTimeout(checkMatches, 600);
+        setTimeout(checkMatches, 1000);
+    }
+
+    function activateHammer() { if(isProcessing || moves <= 0) return; hammerActive = !hammerActive; hammerBtn.classList.toggle('active'); }
+
+    function useHammer(i) {
+        if(!hammerActive || isProcessing) return;
+        isProcessing = true; hammerActive = false; hammerBtn.classList.remove('active');
+        playMatchSound(true); const r = squares[i].getBoundingClientRect();
+        for(let j=0; j<15; j++) particles.push(new Particle(r.left + r.width/2, r.top + r.height/2, COLORS[squares[i].dataset.type].b));
+        squares[i].classList.add('pop');
+        setTimeout(refill, 400);
     }
 
     function handleSwipe(e, i) {
-        if(isProcessing || moves <= 0) return;
+        if(isProcessing || moves <= 0 || hammerActive) return;
         let dX = e.changedTouches[0].clientX - sX, dY = e.changedTouches[0].clientY - sY;
         if(Math.abs(dX) > 25 || Math.abs(dY) > 25) {
             let dir = Math.abs(dX) > Math.abs(dY) ? (dX > 0 ? 1 : -1) : (dY > 0 ? 7 : -7);
@@ -204,46 +201,53 @@
     async function swap(id1, id2) {
         if (id2 < 0 || id2 >= 49 || (Math.abs(id1-id2)===1 && Math.floor(id1/7)!==Math.floor(id2/7))) return;
         isProcessing = true;
-        let h1 = squares[id1].innerHTML, h2 = squares[id2].innerHTML;
-        let t1 = squares[id1].dataset.type, t2 = squares[id2].dataset.type;
-        squares[id1].innerHTML = h2; squares[id1].dataset.type = t2;
-        squares[id2].innerHTML = h1; squares[id2].dataset.type = t1;
-        await new Promise(r => setTimeout(r, 200));
-        if(!checkMatches()) {
-            squares[id1].innerHTML = h1; squares[id1].dataset.type = t1;
-            squares[id2].innerHTML = h2; squares[id2].dataset.type = t2;
+        let h1 = squares[id1].innerHTML, h2 = squares[id2].innerHTML, t1 = squares[id1].dataset.type, t2 = squares[id2].dataset.type, s1 = squares[id1].dataset.special, s2 = squares[id2].dataset.special;
+        squares[id1].innerHTML = h2; squares[id1].dataset.type = t2; squares[id1].dataset.special = s2;
+        squares[id2].innerHTML = h1; squares[id2].dataset.type = t1; squares[id2].dataset.special = s1;
+        await new Promise(r => setTimeout(r, 400)); // Increased swap delay for smoothness
+        if(!checkMatches(id2)) {
+            squares[id1].innerHTML = h1; squares[id1].dataset.type = t1; squares[id1].dataset.special = s1;
+            squares[id2].innerHTML = h2; squares[id2].dataset.type = t2; squares[id2].dataset.special = s2;
             isProcessing = false;
         } else { moves--; movesEl.innerText = moves; }
     }
 
-    function checkMatches() {
+    function checkMatches(lastId = null) {
         let matches = new Set();
         for(let r=0; r<7; r++) for(let c=0; c<5; c++) { let i=r*7+c; if(squares[i].dataset.type === squares[i+1].dataset.type && squares[i].dataset.type === squares[i+2].dataset.type) { matches.add(i); matches.add(i+1); matches.add(i+2); }}
         for(let c=0; c<7; c++) for(let r=0; r<5; r++) { let i=r*7+c; if(squares[i].dataset.type === squares[i+7].dataset.type && squares[i].dataset.type === squares[i+14].dataset.type) { matches.add(i); matches.add(i+7); matches.add(i+14); }}
 
         if(matches.size > 0) {
-            // SOUND TRIGGER
-            if (soundEnabled) { sfxMatch.currentTime = 0; sfxMatch.play().catch(()=>{}); }
-            
-            matches.forEach(id => { squares[id].classList.add('pop'); });
+            playMatchSound(matches.size > 3);
+            if(lastId && matches.has(lastId)) { if(matches.size === 4) makeSpecial(lastId, 1); else if(matches.size >= 5) makeSpecial(lastId, 2); }
+            matches.forEach(id => {
+                if(squares[id].dataset.special > 0) triggerPower(id, squares[id].dataset.special);
+                const r = squares[id].getBoundingClientRect();
+                for(let j=0; j<10; j++) particles.push(new Particle(r.left + r.width/2, r.top + r.height/2, COLORS[squares[id].dataset.type].b));
+                squares[id].classList.add('pop');
+            });
             score += matches.size * 25; lootEl.innerText = score;
-            if(score >= STAGES[currentLvl].t) triggerWin();
-            setTimeout(refill, 300); return true;
+            if(score >= STAGES[currentLvl].t) { setTimeout(() => document.getElementById('winScreen').style.display = 'flex', 600); return true; }
+            setTimeout(refill, 500); // Slower refill for premium feel
+            return true;
         }
-        isProcessing = false; return false;
+        isProcessing = false; if(moves <= 0 && score < STAGES[currentLvl].t) document.getElementById('failScreen').style.display = 'flex';
+        return false;
     }
 
-    function triggerWin() {
-        isProcessing = true;
-        for(let i=0; i<5; i++) setTimeout(createFirework, i*200); 
-        setTimeout(() => { document.getElementById('winScreen').style.display = 'flex'; }, 800);
+    function makeSpecial(id, type) { let t = squares[id].dataset.type; squares[id].innerHTML = jewelSVG(COLORS[t].b, COLORS[t].d, COLORS[t].l, type); squares[id].dataset.special = type; }
+
+    function triggerPower(id, type) {
+        if(type == 1) { let row = Math.floor(id / 7); for(let i=0; i<7; i++) squares[row * 7 + i].classList.add('pop'); }
+        else if(type == 2) { let r = Math.floor(id/7), c = id%7; for(let i=r-1; i<=r+1; i++) for(let j=c-1; j<=c+1; j++) if(i>=0&&i<7&&j>=0&&j<7) squares[i*7+j].classList.add('pop'); }
     }
 
     function refill() {
-        squares.forEach(s => { if(s.classList.contains('pop')) { let t = Math.floor(Math.random()*ASSETS.length); s.innerHTML = ASSETS[t].svg; s.dataset.type = t; s.classList.remove('pop'); s.classList.add('fall-anim'); }});
-        setTimeout(() => { squares.forEach(s => s.classList.remove('fall-anim')); checkMatches(); }, 500);
+        squares.forEach(s => { if(s.classList.contains('pop')) { let t = Math.floor(Math.random()*COLORS.length); s.innerHTML = jewelSVG(COLORS[t].b, COLORS[t].d, COLORS[t].l); s.dataset.type = t; s.dataset.special = 0; s.classList.remove('pop'); s.classList.add('fall-anim'); }});
+        setTimeout(() => { squares.forEach(s => s.classList.remove('fall-anim')); checkMatches(); }, 800);
     }
 
+    function retryLevel() { document.getElementById('failScreen').style.display = 'none'; init(); }
     function nextLevel() { currentLvl++; if(currentLvl >= 20) currentLvl = 0; document.getElementById('winScreen').style.display = 'none'; init(); }
     window.onload = init;
 </script>
