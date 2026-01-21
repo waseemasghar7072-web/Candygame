@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jewel Realm: Smooth Hard</title>
+    <title>Jewel Realm: Ultimate Smooth</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&family=Montserrat:wght@700;900&display=swap');
         
@@ -20,6 +20,7 @@
 
         #fx-canvas { position: absolute; inset: 0; pointer-events: none; z-index: 200; }
 
+        /* HUD */
         .hud { 
             width: 92%; max-width: 450px; margin-top: 15px; display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 10px; 
             padding: 12px; background: var(--glass); backdrop-filter: blur(25px); border-radius: 20px; 
@@ -36,7 +37,7 @@
         }
         .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; width: 92vw; max-width: 380px; height: 92vw; max-height: 380px; }
         
-        /* FIXED NEON SLOTS */
+        /* FIXED NEON RINGS */
         .slot { 
             background: rgba(255,255,255,0.02); border-radius: 15px; 
             display: flex; align-items: center; justify-content: center; position: relative;
@@ -44,25 +45,26 @@
             background-size: 110% 110%; background-position: center;
         }
 
-        .candy { width: 85%; height: 85%; cursor: pointer; filter: drop-shadow(0 8px 8px rgba(0,0,0,0.8)); transition: transform 0.2s; z-index: 5; }
+        .candy { width: 85%; height: 85%; cursor: pointer; filter: drop-shadow(0 8px 8px rgba(0,0,0,0.8)); transition: transform 0.4s ease-in-out; z-index: 5; }
         .candy svg { width: 100%; height: 100%; }
 
-        /* --- SMOOTH PHYSICS ANIMATION --- */
-        .fall-anim { animation: smoothDrop 0.9s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        @keyframes smoothDrop { 0% { transform: translateY(-350px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
-        .pop { animation: jewelPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        @keyframes jewelPop { 0% { transform: scale(1); } 50% { transform: scale(1.3) brightness(2); } 100% { transform: scale(0); opacity: 0; } }
+        /* --- SLOWER CINEMATIC ANIMATIONS --- */
+        .fall-anim { animation: smoothDrop 1.2s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
+        @keyframes smoothDrop { 0% { transform: translateY(-400px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+        
+        .pop { animation: jewelPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes jewelPop { 0% { transform: scale(1); } 40% { transform: scale(1.4) brightness(2); } 100% { transform: scale(0); opacity: 0; } }
 
         .toolbar { margin-top: 15px; display: flex; gap: 20px; z-index: 100; }
         .tool-btn { 
             width: 60px; height: 60px; background: var(--glass); border: 2px solid var(--gold); border-radius: 15px;
             display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer;
-            transition: 0.2s; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            transition: 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
         .tool-btn.active { background: var(--gold); color: #000; box-shadow: 0 0 20px var(--gold); }
 
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.96); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(20px); }
-        .card { border: 4px solid var(--gold); background: var(--bg-inner); padding: 50px; border-radius: 35px; text-align: center; box-shadow: 0 0 100px var(--gold); animation: popUp 0.4s ease-out; }
+        .card { border: 4px solid var(--gold); background: var(--bg-inner); padding: 50px; border-radius: 35px; text-align: center; box-shadow: 0 0 100px var(--gold); animation: popUp 0.6s ease-out; }
         @keyframes popUp { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .btn { background: linear-gradient(to right, var(--gold), #b8860b); border: none; padding: 18px 50px; border-radius: 40px; font-weight: 900; color: #000; cursor: pointer; margin-top: 30px; font-family: 'Montserrat'; font-size: 20px; }
 
@@ -110,15 +112,15 @@
         let osc1 = audioCtx.createOscillator(), g1 = audioCtx.createGain();
         osc1.connect(g1); g1.connect(audioCtx.destination);
         osc1.type = "sine"; osc1.frequency.setValueAtTime(isSpecial ? 1200 : 900, now);
-        osc1.frequency.exponentialRampToValueAtTime(600, now + 0.1);
-        g1.gain.setValueAtTime(0.2, now); g1.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-        osc1.start(now); osc1.stop(now + 0.1);
+        osc1.frequency.exponentialRampToValueAtTime(600, now + 0.2);
+        g1.gain.setValueAtTime(0.2, now); g1.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+        osc1.start(now); osc1.stop(now + 0.2);
         let osc2 = audioCtx.createOscillator(), g2 = audioCtx.createGain();
         osc2.connect(g2); g2.connect(audioCtx.destination);
         osc2.type = "triangle"; osc2.frequency.setValueAtTime(isSpecial ? 400 : 250, now);
-        osc2.frequency.exponentialRampToValueAtTime(40, now + 0.15);
-        g2.gain.setValueAtTime(0.3, now); g2.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
-        osc2.start(now); osc2.stop(now + 0.15);
+        osc2.frequency.exponentialRampToValueAtTime(40, now + 0.3);
+        g2.gain.setValueAtTime(0.3, now); g2.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+        osc2.start(now); osc2.stop(now + 0.3);
     }
 
     let particles = [];
@@ -126,8 +128,8 @@
     window.addEventListener('resize', resize); resize();
 
     class Particle {
-        constructor(x, y, color) { this.x = x; this.y = y; this.color = color; this.size = Math.random()*5+2; this.speedX = Math.random()*10-5; this.speedY = Math.random()*10-5; this.life = 1; }
-        update() { this.x += this.speedX; this.y += this.speedY; this.life -= 0.02; }
+        constructor(x, y, color) { this.x = x; this.y = y; this.color = color; this.size = Math.random()*5+2; this.speedX = Math.random()*8-4; this.speedY = Math.random()*8-4; this.life = 1; }
+        update() { this.x += this.speedX; this.y += this.speedY; this.life -= 0.015; }
         draw() { ctx.fillStyle = this.color; ctx.globalAlpha = this.life; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill(); }
     }
 
@@ -138,7 +140,6 @@
     }
     animate();
 
-    // --- PROGRESSIVE DIFFICULTY STAGES ---
     const STAGES = [
         { t: 500, m: 15 }, { t: 1200, m: 15 }, { t: 2500, m: 14 }, { t: 4000, m: 14 }, { t: 6000, m: 13 },
         { t: 9000, m: 13 }, { t: 13000, m: 12 }, { t: 18000, m: 12 }, { t: 25000, m: 11 }, { t: 35000, m: 10 },
@@ -150,8 +151,8 @@
     <svg viewBox="0 0 100 100">
         <defs><radialGradient id="grad${base.replace('#','')}" cx="35%" cy="35%" r="65%"><stop offset="0%" stop-color="${light}"/><stop offset="100%" stop-color="${base}"/></radialGradient></defs>
         <rect x="15" y="15" width="70" height="70" rx="20" fill="url(#grad${base.replace('#','')})" stroke="#ffffff" stroke-width="4"/>
-        ${special === 1 ? '<path d="M15 35 L85 35 M15 50 L85 50 M15 65 L85 65" stroke="white" stroke-width="8" opacity="0.8"/>' : ''}
-        ${special === 2 ? '<circle cx="50" cy="50" r="18" fill="white" opacity="0.6"><animate attributeName="opacity" values="0.2;0.8;0.2" dur="0.4s" repeatCount="indefinite"/></circle>' : ''}
+        ${special === 1 ? '<path d="M15 35 L85 35 M15 50 L85 50 M15 65 L85 65" stroke="white" stroke-width="6" opacity="0.8"/>' : ''}
+        ${special === 2 ? '<circle cx="50" cy="50" r="18" fill="white" opacity="0.6"><animate attributeName="opacity" values="0.2;0.8;0.2" dur="0.8s" repeatCount="indefinite"/></circle>' : ''}
         <path d="M25 30 Q50 20 75 30" fill="none" stroke="#ffd700" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
     </svg>`;
 
@@ -175,7 +176,7 @@
             candy.onclick = () => useHammer(i);
             slot.appendChild(candy); gridEl.appendChild(slot); squares.push(candy);
         }
-        setTimeout(checkMatches, 1000);
+        setTimeout(checkMatches, 1500);
     }
 
     function activateHammer() { if(isProcessing || moves <= 0) return; hammerActive = !hammerActive; hammerBtn.classList.toggle('active'); }
@@ -184,9 +185,9 @@
         if(!hammerActive || isProcessing) return;
         isProcessing = true; hammerActive = false; hammerBtn.classList.remove('active');
         playMatchSound(true); const r = squares[i].getBoundingClientRect();
-        for(let j=0; j<15; j++) particles.push(new Particle(r.left + r.width/2, r.top + r.height/2, COLORS[squares[i].dataset.type].b));
+        for(let j=0; j<20; j++) particles.push(new Particle(r.left + r.width/2, r.top + r.height/2, COLORS[squares[i].dataset.type].b));
         squares[i].classList.add('pop');
-        setTimeout(refill, 400);
+        setTimeout(refill, 800);
     }
 
     function handleSwipe(e, i) {
@@ -204,7 +205,7 @@
         let h1 = squares[id1].innerHTML, h2 = squares[id2].innerHTML, t1 = squares[id1].dataset.type, t2 = squares[id2].dataset.type, s1 = squares[id1].dataset.special, s2 = squares[id2].dataset.special;
         squares[id1].innerHTML = h2; squares[id1].dataset.type = t2; squares[id1].dataset.special = s2;
         squares[id2].innerHTML = h1; squares[id2].dataset.type = t1; squares[id2].dataset.special = s1;
-        await new Promise(r => setTimeout(r, 400)); // Increased swap delay for smoothness
+        await new Promise(r => setTimeout(r, 600)); // RELAXED SWAP DELAY
         if(!checkMatches(id2)) {
             squares[id1].innerHTML = h1; squares[id1].dataset.type = t1; squares[id1].dataset.special = s1;
             squares[id2].innerHTML = h2; squares[id2].dataset.type = t2; squares[id2].dataset.special = s2;
@@ -223,12 +224,12 @@
             matches.forEach(id => {
                 if(squares[id].dataset.special > 0) triggerPower(id, squares[id].dataset.special);
                 const r = squares[id].getBoundingClientRect();
-                for(let j=0; j<10; j++) particles.push(new Particle(r.left + r.width/2, r.top + r.height/2, COLORS[squares[id].dataset.type].b));
+                for(let j=0; j<15; j++) particles.push(new Particle(r.left + r.width/2, r.top + r.height/2, COLORS[squares[id].dataset.type].b));
                 squares[id].classList.add('pop');
             });
             score += matches.size * 25; lootEl.innerText = score;
-            if(score >= STAGES[currentLvl].t) { setTimeout(() => document.getElementById('winScreen').style.display = 'flex', 600); return true; }
-            setTimeout(refill, 500); // Slower refill for premium feel
+            if(score >= STAGES[currentLvl].t) { setTimeout(() => document.getElementById('winScreen').style.display = 'flex', 1000); return true; }
+            setTimeout(refill, 1000); // SLOW REFILL
             return true;
         }
         isProcessing = false; if(moves <= 0 && score < STAGES[currentLvl].t) document.getElementById('failScreen').style.display = 'flex';
@@ -243,8 +244,12 @@
     }
 
     function refill() {
-        squares.forEach(s => { if(s.classList.contains('pop')) { let t = Math.floor(Math.random()*COLORS.length); s.innerHTML = jewelSVG(COLORS[t].b, COLORS[t].d, COLORS[t].l); s.dataset.type = t; s.dataset.special = 0; s.classList.remove('pop'); s.classList.add('fall-anim'); }});
-        setTimeout(() => { squares.forEach(s => s.classList.remove('fall-anim')); checkMatches(); }, 800);
+        squares.forEach(s => { if(s.classList.contains('pop')) { 
+            let t = Math.floor(Math.random()*COLORS.length); 
+            s.innerHTML = jewelSVG(COLORS[t].b, COLORS[t].d, COLORS[t].l); s.dataset.type = t; s.dataset.special = 0;
+            s.classList.remove('pop'); s.classList.add('fall-anim'); 
+        }});
+        setTimeout(() => { squares.forEach(s => s.classList.remove('fall-anim')); checkMatches(); }, 1400);
     }
 
     function retryLevel() { document.getElementById('failScreen').style.display = 'none'; init(); }
