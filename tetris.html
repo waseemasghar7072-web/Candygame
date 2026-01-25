@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <title>Cyber-Grid: BZ247 | Ultra-Modern Neon Tetris</title>
+    <meta name="description" content="Experience the best professional Neon Tetris. High-speed cinematic gameplay by Waseem Asghar.">
+    <meta name="keywords" content="BZ247, Neon Tetris, Online Games, Waseem Asghar, Cyber Grid">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap');
+        :root { --neon: #00ff88; --gold: #ffd700; --bg: #050008; --cyan: #00d4ff; --pink: #ff0055; }
+        
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: var(--bg); font-family: 'Montserrat', sans-serif; touch-action: none; color: white; display: flex; flex-direction: column; align-items: center; }
+
+        /* HUD UI */
+        .hud { position: absolute; top: 15px; width: 92%; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; z-index: 100; }
+        .score-box { background: rgba(30, 0, 50, 0.9); border: 2px solid var(--neon); padding: 8px; border-radius: 12px; text-align: center; backdrop-filter: blur(10px); box-shadow: 0 0 15px rgba(0,255,136,0.2); }
+        .score-box span { font-size: 8px; color: var(--neon); text-transform: uppercase; display: block; }
+        .score-box b { font-size: 18px; text-shadow: 0 0 10px var(--neon); }
+
+        /* GAME CONTAINER */
+        #tetris-container { position: relative; margin-top: 85px; border: 2px solid #222; background: #000; box-shadow: 0 0 40px rgba(0,255,136,0.1); }
+        canvas { display: block; background-image: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 30px 30px; }
+
+        /* PROFESSIONAL CONTROLS */
+        .controls { width: 95%; max-width: 400px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .btn { background: rgba(0, 255, 136, 0.1); border: 2px solid var(--neon); color: var(--neon); padding: 22px; border-radius: 20px; font-weight: 900; text-align: center; cursor: pointer; transition: 0.1s; font-size: 14px; box-shadow: 0 0 10px rgba(0,255,136,0.1); }
+        .rotate { border-color: var(--gold); color: var(--gold); }
+        .btn:active { transform: scale(0.9); background: var(--neon); color: #000; }
+
+        .shake { animation: shake 0.2s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } }
+    </style>
+</head>
+<body onload="startGame()">
+
+    <div class="hud">
+        <div class="score-box"><span>Pilot: Waseem</span><b id="scoreTxt">0</b></div>
+        <div class="score-box"><span>Sector High</span><b id="bestTxt">0</b></div>
+    </div>
+
+    <div id="tetris-container">
+        <canvas id="tetris"></canvas>
+    </div>
+
+    <div class="controls">
+        <div class="btn" id="lBtn">LEFT</div>
+        <div class="btn rotate" id="rBtn">ANGLE</div>
+        <div class="btn" id="riBtn">RIGHT</div>
+    </div>
+
+<script>
+    const canvas = document.getElementById('tetris'), ctx = canvas.getContext('2d');
+    const scoreElement = document.getElementById('scoreTxt'), bestElement = document.getElementById('bestTxt');
+    const ROW = 20, COL = 10, SQ = 30;
+
+    let audioCtx, gameActive = false, score = 0, level = 1, bestScore = localStorage.getItem('bzBest') || 0;
+    let musicInterval;
+
+    function initAudio() { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+
+    // --- CYBER SOUND ENGINE ---
+    function playSound(freq, type, duration) {
+        if(!audioCtx) return;
+        let o = audioCtx.createOscillator(), g = audioCtx.createGain();
+        o.connect(g); g.connect(audioCtx.destination);
+        o.type = type; o.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        g.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        o.start(); o.stop(audioCtx.currentTime + duration);
+    }
+
+    function startMusic() {
+        musicInterval = setInterval(() => {
+            if(!gameActive) return;
+            playSound(60 + (level * 5), 'sawtooth', 0.4);
+        }, Math.max(200, 600 - (level * 50)));
+    }
+
+    // --- NEON RENDERER ---
+    function drawSquare(x, y, color) {
+        if(color === "black") return;
+        ctx.shadowBlur = 15; ctx.shadowColor = color;
+        ctx.strokeStyle = color; ctx.lineWidth = 3;
+        ctx.strokeRect(x * SQ + 2, y * SQ + 2, SQ - 4, SQ - 4);
+        ctx.globalAlpha = 0.2; ctx.fillStyle = color;
+        ctx.fillRect(x * SQ + 4, y * SQ + 4, SQ - 8, SQ - 8);
+        ctx.globalAlpha = 1.0; ctx.shadowBlur = 0;
+    }
+
+    const PIECES = [
+        [[[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], "#00d4ff"],
+        [[[1,0,0],[1,1,1],[0,0,0]], "#0044ff"],
+        [[[0,0,1],[1,1,1],[0,0,0]], "#ff8800"],
+        [[[1,1],[1,1]], "#ffd700"],
+        [[[0,1,1],[1,1,0],[0,0,0]], "#00ff88"],
+        [[[0,1,0],[1,1,1],[0,0,0]], "#cc00ff"],
+        [[[1,1,0],[0,1,1],[0,0,0]], "#ff0055"]
+    ];
+
+    let board = [];
+    function resetBoard() { for(r=0; r<ROW; r++){ board[r]=[]; for(c=0; c<COL; c++){ board[r][c]="black"; }}}
+
+    class Piece {
+        constructor(pattern, color) { this.pattern = pattern; this.color = color; this.active = pattern; this.x = 3; this.y = -2; }
+        draw() { for(r=0; r<this.active.length; r++){ for(c=0; c<this.active.length; c++){ if(this.active[r][c]) drawSquare(this.x+c, this.y+r, this.color); }}}
+        moveDown() { 
+            if(!this.collision(0,1,this.active)){ this.y++; } 
+            else { this.lock(); p = randomPiece(); }
+        }
+        moveRight() { if(!this.collision(1,0,this.active)){ this.x++; }}
+        moveLeft() { if(!this.collision(-1,0,this.active)){ this.x--; }}
+        rotate() {
+            let next = [];
+            for(r=0; r<this.active.length; r++){ next[r]=[]; for(c=0; c<this.active.length; c++){ next[r][c]=this.active[this.active.length-1-c][r]; }}
+            if(!this.collision(0,0,next)){ this.active=next; }
+        }
+        collision(x,y,piece) {
+            for(r=0; r<piece.length; r++){ for(c=0; c<piece.length; c++){
+                if(!piece[r][c]) continue;
+                let newX = this.x+c+x, newY = this.y+r+y;
+                if(newX<0 || newX>=COL || newY>=ROW) return true;
+                if(newY>=0 && board[newY][newX] !== "black") return true;
+            }} return false;
+        }
+        lock() {
+            for(r=0; r<this.active.length; r++){ for(c=0; c<this.active.length; c++){
+                if(!this.active[r][c]) continue;
+                if(this.y+r<0){ gameActive=false; location.reload(); return; }
+                board[this.y+r][this.x+c] = this.color;
+            }}
+            let cleared = 0;
+            for(r=0; r<ROW; r++){
+                let full = true; for(c=0; c<COL; c++){ full = full && (board[r][c] !== "black"); }
+                if(full){
+                    for(y=r; y>1; y--){ for(c=0; c<COL; c++){ board[y][c] = board[y-1][c]; }}
+                    for(c=0; c<COL; c++){ board[0][c] = "black"; }
+                    cleared++;
+                }
+            }
+            if(cleared > 0) {
+                playSound(400, 'square', 0.2);
+                score += (cleared * 100) * level;
+                if(score > level * 1000) level++;
+                scoreElement.innerText = score;
+                if(score > bestScore) { bestScore = score; localStorage.setItem('bzBest', bestScore); bestElement.innerText = bestScore; }
+                document.getElementById('tetris-container').classList.add('shake');
+                setTimeout(()=>document.getElementById('tetris-container').classList.remove('shake'), 200);
+            }
+        }
+    }
+
+    let bag = [];
+    function randomPiece() {
+        if (bag.length === 0) { bag = [0,1,2,3,4,5,6]; bag.sort(() => Math.random() - 0.5); }
+        let r = bag.pop(); return new Piece(PIECES[r][0], PIECES[r][1]);
+    }
+
+    let p, dropStart = Date.now();
+    function loop() {
+        if(!gameActive) return;
+        if(Date.now() - dropStart > Math.max(100, 800 - (level * 50))) { p.moveDown(); dropStart = Date.now(); }
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        for(r=0; r<ROW; r++){ for(c=0; c<COL; c++){ drawSquare(c,r,board[r][c]); }}
+        p.draw(); requestAnimationFrame(loop);
+    }
+
+    function startGame() {
+        canvas.width = COL * SQ; canvas.height = ROW * SQ;
+        bestElement.innerText = bestScore;
+        resetBoard(); p=randomPiece(); gameActive=true; 
+        initAudio(); startMusic(); loop();
+    }
+
+    // Controls
+    document.getElementById('lBtn').onclick = () => p.moveLeft();
+    document.getElementById('riBtn').onclick = () => p.moveRight();
+    document.getElementById('rBtn').onclick = () => p.rotate();
+</script>
+</body>
+</html>
