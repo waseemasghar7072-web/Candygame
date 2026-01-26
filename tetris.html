@@ -3,78 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cyber-Grid: BZ247 | Neon Tetris</title>
-    <meta name="description" content="Experience the best professional Neon Tetris. High-speed cinematic gameplay by Waseem Asghar.">
+    
+    <title>Cyber-Grid Pro: BZ247 | Ultra Fast Tetris</title>
+    <meta name="description" content="Play professional Neon Tetris with Hard Drop feature. Optimized by Waseem Asghar.">
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap');
-        :root { --neon: #00ff88; --gold: #ffd700; --bg: #050008; --cyan: #00d4ff; --pink: #ff0055; }
+        :root { --neon: #00ff88; --gold: #ffd700; --bg: #050008; --cyan: #00d4ff; }
         
-        /* NEW FLEXBOX LAYOUT TO FIX CUT-OFF BUTTONS */
         body, html { 
             margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; 
             background: var(--bg); font-family: 'Montserrat', sans-serif; touch-action: none; 
-            color: white; display: flex; flex-direction: column; 
+            color: white; display: flex; flex-direction: column; align-items: center;
         }
 
-        .main-layout {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between; /* Distributes space evenly */
-            padding: 20px 0;
-            box-sizing: border-box;
-            max-height: 100vh;
+        /* FLEX LAYOUT FOR ALL SCREENS */
+        .game-wrapper {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: space-between; height: 100vh; width: 100%;
+            padding: 10px 0; box-sizing: border-box;
         }
 
-        /* HUD - Removed absolute positioning */
-        .hud { 
-            width: 92%; max-width: 400px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; z-index: 100; 
-            flex-shrink: 0;
-        }
-        .score-box { background: rgba(30, 0, 50, 0.9); border: 2px solid var(--neon); padding: 8px; border-radius: 12px; text-align: center; backdrop-filter: blur(10px); box-shadow: 0 0 15px rgba(0,255,136,0.2); }
-        .score-box span { font-size: 8px; color: var(--neon); text-transform: uppercase; display: block; }
-        .score-box b { font-size: 18px; text-shadow: 0 0 10px var(--neon); }
+        .hud { width: 92%; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex-shrink: 0; }
+        .score-box { background: rgba(30,0,50,0.9); border: 2px solid var(--neon); padding: 8px; border-radius: 12px; text-align: center; box-shadow: 0 0 15px var(--neon); }
+        .score-box b { font-size: 16px; text-shadow: 0 0 10px var(--neon); }
 
-        /* GAME CONTAINER - Removed large margin, added flexibility */
         #tetris-container { 
-            position: relative; 
-            margin: 10px 0;
-            border: 2px solid #222; background: #000; box-shadow: 0 0 40px rgba(0,255,136,0.1); 
-            flex-shrink: 1; /* Allows it to shrink on smaller screens */
-            display: flex; align-items: center; justify-content: center;
+            position: relative; border: 2px solid #222; background: #000; 
+            box-shadow: 0 0 40px rgba(0,255,136,0.1); flex-grow: 1;
+            display: flex; align-items: center; justify-content: center; margin: 5px 0;
         }
-        canvas { display: block; background-image: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 30px 30px; }
+        canvas { max-height: 100%; max-width: 100%; display: block; background-size: 30px 30px; }
 
-        /* CONTROLS - Removed margin-top */
-        .controls { 
-            width: 95%; max-width: 400px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; 
-            flex-shrink: 0;
-        }
-        .btn { background: rgba(0, 255, 136, 0.1); border: 2px solid var(--neon); color: var(--neon); padding: 22px; border-radius: 20px; font-weight: 900; text-align: center; cursor: pointer; transition: 0.1s; font-size: 14px; box-shadow: 0 0 10px rgba(0,255,136,0.1); }
+        .controls { width: 95%; max-width: 400px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; flex-shrink: 0; }
+        .btn { background: rgba(0,255,136,0.1); border: 2px solid var(--neon); color: var(--neon); padding: 18px 0; border-radius: 15px; font-weight: 900; text-align: center; font-size: 14px; }
         .rotate { border-color: var(--gold); color: var(--gold); }
-        .btn:active { transform: scale(0.9); background: var(--neon); color: #000; }
+        .drop-btn { grid-column: span 3; background: var(--cyan); color: #000; border: none; padding: 15px; box-shadow: 0 0 20px var(--cyan); margin-bottom: 10px; }
+        .btn:active { transform: scale(0.9); }
 
-        .shake { animation: shake 0.2s cubic-bezier(.36,.07,.19,.97) both; }
+        .shake { animation: shake 0.2s both; }
         @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } }
     </style>
 </head>
 <body onload="startGame()">
 
-    <div class="main-layout">
+    <div class="game-wrapper">
         <div class="hud">
             <div class="score-box"><span>Pilot: Waseem</span><b id="scoreTxt">0</b></div>
             <div class="score-box"><span>Sector High</span><b id="bestTxt">0</b></div>
         </div>
 
-        <div id="tetris-container">
-            <canvas id="tetris"></canvas>
-        </div>
+        <div id="tetris-container"><canvas id="tetris"></canvas></div>
 
         <div class="controls">
-            <div class="btn" id="lBtn">LEFT</div>
-            <div class="btn rotate" id="rBtn">ANGLE</div>
-            <div class="btn" id="riBtn">RIGHT</div>
+            <div class="btn" onclick="moveLeft()">LEFT</div>
+            <div class="btn rotate" onclick="playerRotate()">ANGLE</div>
+            <div class="btn" onclick="moveRight()">RIGHT</div>
+            <div class="btn drop-btn" onclick="playerDrop()">NEON DROP ▼ (FAST)</div>
         </div>
     </div>
 
@@ -83,8 +68,7 @@
     const scoreElement = document.getElementById('scoreTxt'), bestElement = document.getElementById('bestTxt');
     const ROW = 20, COL = 10, SQ = 30;
 
-    let audioCtx, gameActive = false, score = 0, level = 1, bestScore = localStorage.getItem('bzBest') || 0;
-    let musicInterval;
+    let audioCtx, gameActive = false, score = 0, bestScore = localStorage.getItem('bzBest') || 0;
 
     function initAudio() { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
 
@@ -98,17 +82,10 @@
         o.start(); o.stop(audioCtx.currentTime + duration);
     }
 
-    function startMusic() {
-        musicInterval = setInterval(() => {
-            if(!gameActive) return;
-            playSound(60 + (level * 5), 'sawtooth', 0.4);
-        }, Math.max(200, 600 - (level * 50)));
-    }
-
     function drawSquare(x, y, color) {
         if(color === "black") return;
-        ctx.shadowBlur = 15; ctx.shadowColor = color;
-        ctx.strokeStyle = color; ctx.lineWidth = 3;
+        ctx.shadowBlur = 10; ctx.shadowColor = color;
+        ctx.strokeStyle = color; ctx.lineWidth = 2;
         ctx.strokeRect(x * SQ + 2, y * SQ + 2, SQ - 4, SQ - 4);
         ctx.globalAlpha = 0.2; ctx.fillStyle = color;
         ctx.fillRect(x * SQ + 4, y * SQ + 4, SQ - 8, SQ - 8);
@@ -131,17 +108,6 @@
     class Piece {
         constructor(pattern, color) { this.pattern = pattern; this.color = color; this.active = pattern; this.x = 3; this.y = -2; }
         draw() { for(r=0; r<this.active.length; r++){ for(c=0; c<this.active.length; c++){ if(this.active[r][c]) drawSquare(this.x+c, this.y+r, this.color); }}}
-        moveDown() { 
-            if(!this.collision(0,1,this.active)){ this.y++; } 
-            else { this.lock(); p = randomPiece(); }
-        }
-        moveRight() { if(!this.collision(1,0,this.active)){ this.x++; }}
-        moveLeft() { if(!this.collision(-1,0,this.active)){ this.x--; }}
-        rotate() {
-            let next = [];
-            for(r=0; r<this.active.length; r++){ next[r]=[]; for(c=0; c<this.active.length; c++){ next[r][c]=this.active[this.active.length-1-c][r]; }}
-            if(!this.collision(0,0,next)){ this.active=next; }
-        }
         collision(x,y,piece) {
             for(r=0; r<piece.length; r++){ for(c=0; c<piece.length; c++){
                 if(!piece[r][c]) continue;
@@ -150,35 +116,39 @@
                 if(newY>=0 && board[newY][newX] !== "black") return true;
             }} return false;
         }
-        
-        // --- FIXED LINE CLEARING LOGIC ---
         lock() {
-            for(r=0; r<this.active.length; r++){ for(c=0; c<this.active.length; c++){
-                if(!this.active[r][c]) continue;
-                if(this.y+r<0){ gameActive=false; location.reload(); return; }
-                board[this.y+r][this.x+c] = this.color;
-            }}
-            
+            for(r=0; r<this.active.length; r++){
+                for(c=0; c<this.active.length; c++){
+                    if(!this.active[r][c]) continue;
+                    if(this.y+r < 0){ gameActive=false; location.reload(); return; }
+                    board[this.y+r][this.x+c] = this.color;
+                }
+            }
             for(r=0; r<ROW; r++){
-                let full = true; for(c=0; c<COL; c++){ full = full && (board[r][c] !== "black"); }
+                let full = true;
+                for(c=0; c<COL; c++){ full = full && (board[r][c] !== "black"); }
                 if(full){
-                    // FIX 1: Loop should go down to y>0 to shift all rows correctly
                     for(y=r; y>0; y--){ for(c=0; c<COL; c++){ board[y][c] = board[y-1][c]; }}
                     for(c=0; c<COL; c++){ board[0][c] = "black"; }
-                    
-                    // FIX 2: Decrement 'r' to re-check the same row index, 
-                    // as a new row has fallen into its place.
-                    r--; 
-
-                    playSound(400, 'square', 0.2);
-                    score += (100 * level);
-                    if(score > level * 1000) level++;
-                    scoreElement.innerText = score;
+                    score += 100; scoreElement.innerText = score;
                     if(score > bestScore) { bestScore = score; localStorage.setItem('bzBest', bestScore); bestElement.innerText = bestScore; }
+                    playSound(400, 'square', 0.2);
                     document.getElementById('tetris-container').classList.add('shake');
                     setTimeout(()=>document.getElementById('tetris-container').classList.remove('shake'), 200);
                 }
             }
+        }
+    }
+
+    // --- UPDATED HARD DROP LOGIC ---
+    function playerDrop() {
+        if(gameActive) {
+            initAudio();
+            while(!p.collision(0, 1, p.active)) { p.y++; }
+            p.lock();
+            p = randomPiece();
+            dropStart = Date.now();
+            playSound(200, 'sine', 0.1); 
         }
     }
 
@@ -191,7 +161,7 @@
     let p, dropStart = Date.now();
     function loop() {
         if(!gameActive) return;
-        if(Date.now() - dropStart > Math.max(100, 800 - (level * 50))) { p.moveDown(); dropStart = Date.now(); }
+        if(Date.now() - dropStart > 800) { if(!p.collision(0,1,p.active)) p.y++; else { p.lock(); p = randomPiece(); } dropStart = Date.now(); }
         ctx.clearRect(0,0,canvas.width,canvas.height);
         for(r=0; r<ROW; r++){ for(c=0; c<COL; c++){ drawSquare(c,r,board[r][c]); }}
         p.draw(); requestAnimationFrame(loop);
@@ -199,14 +169,12 @@
 
     function startGame() {
         canvas.width = COL * SQ; canvas.height = ROW * SQ;
-        bestElement.innerText = bestScore;
-        resetBoard(); p=randomPiece(); gameActive=true; 
-        initAudio(); startMusic(); loop();
+        resetBoard(); p=randomPiece(); gameActive=true; loop();
     }
 
-    document.getElementById('lBtn').onclick = () => p.moveLeft();
-    document.getElementById('riBtn').onclick = () => p.moveRight();
-    document.getElementById('rBtn').onclick = () => p.rotate();
+    function moveLeft() { if(gameActive) { initAudio(); if(!p.collision(-1,0,p.active)) p.x--; } }
+    function moveRight() { if(gameActive) { initAudio(); if(!p.collision(1,0,p.active)) p.x++; } }
+    function playerRotate() { if(gameActive) { initAudio(); p.rotate(); } }
 </script>
 </body>
 </html>
