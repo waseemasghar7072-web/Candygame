@@ -2,181 +2,144 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BZ247 Studios | Achievements & Medals</title>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cyber-Grid | BZ247 Gameplay</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap');
+        :root { --neon: #00ff88; --gold: #ffd700; --bg: #050008; --cyan: #00d4ff; }
         
-        :root { --pink: #ff0055; --neon: #00ff88; --bg: #050008; --gold: #ffd700; }
-
-        body, html { margin: 0; padding: 0; background: var(--bg); font-family: 'Montserrat', sans-serif; overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column; align-items: center; user-select: none; color: white; }
-
-        #starfield { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
-
-        /* --- PILOT PROFILE WITH MEDALS --- */
-        .profile-card {
-            background: rgba(255, 255, 255, 0.05); border: 2px solid var(--neon);
-            border-radius: 25px; padding: 20px; width: 90%; max-width: 600px;
-            margin-top: 20px; backdrop-filter: blur(15px); z-index: 10;
-            box-shadow: 0 0 25px rgba(0, 255, 136, 0.2);
-        }
-        .profile-main { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
-        .avatar-circle { font-size: 35px; background: #000; border: 2px solid var(--neon); border-radius: 50%; width: 65px; height: 65px; display: flex; align-items: center; justify-content: center; }
-        .pilot-info { flex-grow: 1; }
-        .pilot-name { font-family: 'Orbitron'; font-size: 16px; margin: 0; }
-        .rank-row { display: flex; align-items: center; gap: 10px; margin-top: 5px; }
-        .rank-tag { font-size: 9px; background: var(--neon); color: #000; padding: 2px 8px; border-radius: 4px; font-weight: 900; }
+        /* 1. ANTI-SEARCH & ANTI-COPY FIX */
+        * { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: none; -webkit-tap-highlight-color: transparent; }
         
-        /* MEDAL GALLERY */
-        .medal-gallery { display: flex; justify-content: space-around; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); }
-        .medal { text-align: center; opacity: 0.3; filter: grayscale(1); transition: 0.5s; }
-        .medal.unlocked { opacity: 1; filter: grayscale(0); }
-        .medal-icon { font-size: 25px; display: block; filter: drop-shadow(0 0 5px var(--gold)); }
-        .medal-name { font-size: 8px; color: var(--gold); margin-top: 5px; display: block; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: var(--bg); font-family: 'Montserrat', sans-serif; color: white; display: flex; flex-direction: column; align-items: center; }
 
-        .logo-container { padding: 30px 20px 20px; text-align: center; }
-        .bz-logo { font-family: 'Orbitron'; font-size: 38px; color: #fff; text-shadow: 0 0 15px var(--pink); margin: 0; }
-        .studio-text { font-size: 10px; color: var(--neon); letter-spacing: 8px; display: block; }
+        /* 2. BUTTON HEIGHT FIX (LIFTED HIGH) */
+        .wrapper { display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 100dvh; width: 100%; padding: 15px 0 100px 0; box-sizing: border-box; }
 
-        .hub-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; width: 90%; max-width: 900px; padding-bottom: 100px; z-index: 10; }
-        .game-card { background: rgba(0, 0, 0, 0.8); border: 2px solid rgba(255, 0, 85, 0.3); border-radius: 30px; padding: 35px 15px; text-align: center; text-decoration: none; color: white; transition: 0.3s; }
-        .game-card:hover { transform: translateY(-8px); border-color: var(--pink); box-shadow: 0 0 30px var(--pink); }
-        .tetris-card:hover { border-color: var(--neon); box-shadow: 0 0 30px var(--neon); }
-        .icon { font-size: 55px; margin-bottom: 10px; display: block; }
-        .play-btn { display: inline-block; margin-top: 15px; padding: 12px 30px; border-radius: 40px; font-weight: 900; text-transform: uppercase; font-size: 12px; }
-        .candy-btn { background: var(--pink); box-shadow: 0 0 15px var(--pink); }
-        .tetris-btn { background: var(--neon); color: black; box-shadow: 0 0 15px var(--neon); }
+        .hud { width: 92%; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .score-box { background: rgba(30,0,50,0.9); border: 2px solid var(--neon); padding: 8px; border-radius: 12px; text-align: center; }
+        .score-box b { font-size: 16px; text-shadow: 0 0 10px var(--neon); }
 
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(20px); }
-        .setup-card { background: #111; border: 3px solid var(--gold); border-radius: 30px; padding: 40px; text-align: center; width: 85%; max-width: 350px; }
-        input { width: 100%; padding: 12px; margin: 15px 0; border-radius: 10px; border: 2px solid var(--neon); background: #000; color: #fff; text-align: center; box-sizing: border-box; }
-        .avatar-options { display: flex; justify-content: space-around; margin-bottom: 20px; }
-        .av-opt { font-size: 30px; cursor: pointer; padding: 10px; border: 2px solid transparent; border-radius: 50%; }
-        .av-opt.selected { border-color: var(--neon); background: rgba(0,255,136,0.1); }
-        
-        .ticker-wrap { position: fixed; bottom: 0; width: 100%; overflow: hidden; background: #000; border-top: 2px solid var(--gold); padding: 8px 0; z-index: 100; }
-        .ticker { display: flex; white-space: nowrap; animation: marquee 30s linear infinite; color: var(--gold); font-size: 10px; font-weight: 900; }
-        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        #container { position: relative; border: 2px solid #333; background: #000; box-shadow: 0 0 40px rgba(0,255,136,0.1); flex-grow: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        canvas { max-height: 50vh; display: block; }
+
+        .controls { width: 95%; max-width: 400px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+        .btn { background: rgba(0,255,136,0.1); border: 2px solid var(--neon); color: var(--neon); padding: 22px 0; border-radius: 18px; font-weight: 900; text-align: center; font-size: 14px; }
+        .rotate { border-color: var(--gold); color: var(--gold); }
+        .drop { grid-column: span 3; background: var(--cyan); color: #000; border: none; padding: 15px; margin-top: 5px; box-shadow: 0 0 20px var(--cyan); }
+        .btn:active { transform: scale(0.9); background: rgba(0,255,136,0.4); }
+
+        .shake { animation: shake 0.2s both; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } }
     </style>
 </head>
-<body>
-
-    <canvas id="starfield"></canvas>
-
-    <div class="profile-card" id="pilotHUD" style="display:none;">
-        <div class="profile-main">
-            <div class="avatar-circle" id="hudAvatar">👤</div>
-            <div class="pilot-info">
-                <p class="pilot-name" id="hudName">PILOT NAME</p>
-                <div class="rank-row">
-                    <span class="rank-tag" id="hudRank">CADET</span>
-                    <span style="font-size: 8px; color: #888;">LVL 1</span>
-                </div>
-            </div>
+<body onload="startGame()">
+    <div class="wrapper">
+        <div class="hud">
+            <div class="score-box"><span>Pilot: Waseem</span><b id="sTxt">0</b></div>
+            <div class="score-box"><span>Sector High</span><b id="bTxt">0</b></div>
         </div>
+
+        <div id="container"><canvas id="tetris"></canvas></div>
+
+        <div class="controls">
+            <div class="btn" onclick="moveLeft()">LEFT</div>
+            <div class="btn rotate" onclick="rotate()">ANGLE</div>
+            <div class="btn" onclick="moveRight()">RIGHT</div>
+            <div class="btn drop" onclick="hardDrop()">NEON DROP ▼</div>
+        </div>
+    </div>
+
+<script>
+    const canvas = document.getElementById('tetris'), ctx = canvas.getContext('2d');
+    const ROW = 20, COL = 10, SQ = 30;
+    let board = [], gameActive = true, score = 0, best = localStorage.getItem('bzBest')||0;
+
+    function startGame() {
+        canvas.width = COL*SQ; canvas.height = ROW*SQ;
+        for(let r=0; r<ROW; r++){ board[r]=[]; for(let c=0; c<COL; c++){ board[r][c]="black"; }}
+        document.getElementById('bTxt').innerText = best;
+        p = randomPiece(); loop();
+    }
+
+    function drawSquare(x, y, color) {
+        if(color === "black") return;
+        ctx.shadowBlur = 10; ctx.shadowColor = color;
+        ctx.strokeStyle = color; ctx.lineWidth = 2;
+        ctx.strokeRect(x*SQ+2, y*SQ+2, SQ-4, SQ-4);
+        ctx.globalAlpha = 0.2; ctx.fillStyle = color;
+        ctx.fillRect(x*SQ+4, y*SQ+4, SQ-8, SQ-8);
+        ctx.globalAlpha = 1.0; ctx.shadowBlur = 0;
+    }
+
+    const PIECES = [
+        [[[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], "#00d4ff"],
+        [[[1,0,0],[1,1,1],[0,0,0]], "#0044ff"],
+        [[[0,0,1],[1,1,1],[0,0,0]], "#ff8800"],
+        [[[1,1],[1,1]], "#ffd700"],
+        [[[0,1,1],[1,1,0],[0,0,0]], "#00ff88"],
+        [[[0,1,0],[1,1,1],[0,0,0]], "#cc00ff"],
+        [[[1,1,0],[0,1,1],[0,0,0]], "#ff0055"]
+    ];
+
+    class Piece {
+        constructor(pattern, color) { this.active = pattern; this.color = color; this.x = 3; this.y = -2; }
+        draw() { for(let r=0; r<this.active.length; r++){ for(let c=0; c<this.active.length; c++){ if(this.active[r][c]) drawSquare(this.x+c, this.y+r, this.color); }}}
+        collision(x,y,piece) {
+            for(let r=0; r<piece.length; r++){ for(let c=0; c<piece.length; c++){
+                if(!piece[r][c]) continue;
+                let newX = this.x+c+x, newY = this.y+r+y;
+                if(newX<0 || newX>=COL || newY>=ROW) return true;
+                if(newY>=0 && board[newY][newX] !== "black") return true;
+            }} return false;
+        }
         
-        <div class="medal-gallery">
-            <div class="medal" id="medal1">
-                <span class="medal-icon">🎖️</span>
-                <span class="medal-name">FIRST BLOOD</span>
-            </div>
-            <div class="medal" id="medal2">
-                <span class="medal-icon">🛡️</span>
-                <span class="medal-name">NEON MASTER</span>
-            </div>
-            <div class="medal" id="medal3">
-                <span class="medal-icon">⚔️</span>
-                <span class="medal-name">CANDY ELITE</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="logo-container">
-        <h1 class="bz-logo">BZ247</h1>
-        <span class="studio-text">STUDIOS</span>
-    </div>
-
-    <div class="hub-grid">
-        <a href="candy.html" class="game-card" onclick="trackClick('candy')">
-            <span class="icon">🍭</span>
-            <h2>CANDY MAFIA</h2>
-            <div class="play-btn candy-btn">DEPLOY ▶</div>
-        </a>
-        <a href="tetris.html" class="game-card tetris-card" onclick="trackClick('tetris')">
-            <span class="icon">🧱</span>
-            <h2 style="color: var(--neon);">CYBER GRID</h2>
-            <div class="play-btn tetris-btn">DEPLOY ▶</div>
-        </a>
-    </div>
-
-    <div class="overlay" id="setupOverlay">
-        <div class="setup-card">
-            <h2 style="color:var(--gold); margin:0;">PILOT REGISTRATION</h2>
-            <input type="text" id="pName" placeholder="ENTER CALLSIGN" maxlength="12">
-            <div class="avatar-options">
-                <div class="av-opt" onclick="selAv(this, '👨‍✈️')">👨‍✈️</div>
-                <div class="av-opt" onclick="selAv(this, '🦾')">🦾</div>
-                <div class="av-opt" onclick="selAv(this, '🛸')">🛸</div>
-                <div class="av-opt" onclick="selAv(this, '🕶️')">🕶️</div>
-            </div>
-            <button class="play-btn tetris-btn" style="width: 100%;" onclick="saveProfile()">START MISSION</button>
-        </div>
-    </div>
-
-    <div class="ticker-wrap"><div class="ticker">🚀 BZ247 HUB: MEDALS SYSTEM ONLINE ... COLLECT ALL 3 TO BECOME SUPREME COMMANDER!</div></div>
-
-    <script>
-        let selectedAvatar = '👤';
-        function selAv(el, av) {
-            document.querySelectorAll('.av-opt').forEach(opt => opt.classList.remove('selected'));
-            el.classList.add('selected'); selectedAvatar = av;
-        }
-
-        function saveProfile() {
-            const name = document.getElementById('pName').value.trim();
-            if(!name) return alert("NAME REQUIRED!");
-            const profile = { name: name.toUpperCase(), avatar: selectedAvatar, medals: [true, false, false] };
-            localStorage.setItem('bzPilot', JSON.stringify(profile));
-            loadProfile();
-        }
-
-        function loadProfile() {
-            const data = localStorage.getItem('bzPilot');
-            if(data) {
-                const p = JSON.parse(data);
-                document.getElementById('setupOverlay').style.display = 'none';
-                document.getElementById('pilotHUD').style.display = 'block';
-                document.getElementById('hudName').innerText = p.name;
-                document.getElementById('hudAvatar').innerText = p.avatar;
-                if(p.medals[0]) document.getElementById('medal1').classList.add('unlocked');
-                if(p.medals[1]) document.getElementById('medal2').classList.add('unlocked');
-                if(p.medals[2]) document.getElementById('medal3').classList.add('unlocked');
+        // 3. BULLETPROOF LINE CLEAR FIX
+        lock() {
+            for(let r=0; r<this.active.length; r++){
+                for(let c=0; c<this.active.length; c++){
+                    if(!this.active[r][c]) continue;
+                    if(this.y+r < 0){ gameActive=false; location.reload(); return; }
+                    board[this.y+r][this.x+c] = this.color;
+                }
             }
+            // Real-time Row Wipe Logic
+            for(let r = ROW - 1; r >= 0; r--) {
+                let isFull = true;
+                for(let c = 0; c < COL; c++) { if(board[r][c] === "black") { isFull = false; break; } }
+                if(isFull) {
+                    board.splice(r, 1);
+                    board.unshift(new Array(COL).fill("black"));
+                    r++; // Re-check this index because rows shifted down
+                    score += 100;
+                    if (navigator.vibrate) navigator.vibrate([40, 30, 40]);
+                    document.getElementById('container').classList.add('shake');
+                    setTimeout(()=>document.getElementById('container').classList.remove('shake'), 150);
+                }
+            }
+            document.getElementById('sTxt').innerText = score;
+            if(score > best){ best=score; localStorage.setItem('bzBest', best); document.getElementById('bTxt').innerText = best; }
         }
+    }
 
-        // --- STARFIELD ENGINE ---
-        const canvas = document.getElementById('starfield'), ctx = canvas.getContext('2d');
-        let stars = [];
-        function initStars() {
-            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            stars = []; for(let i=0; i<200; i++) stars.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, z: Math.random()*canvas.width });
-        }
-        function drawStars() {
-            ctx.fillStyle = "black"; ctx.fillRect(0,0, canvas.width, canvas.height);
-            ctx.fillStyle = "white";
-            stars.forEach(s => {
-                let x = (s.x - canvas.width/2) * (canvas.width/s.z) + canvas.width/2;
-                let y = (s.y - canvas.height/2) * (canvas.width/s.z) + canvas.height/2;
-                let size = (1 - s.z/canvas.width) * 3;
-                ctx.beginPath(); ctx.arc(x, y, size, 0, Math.PI*2); ctx.fill();
-                s.z -= 1; if(s.z <= 0) s.z = canvas.width;
-            });
-            requestAnimationFrame(drawStars);
-        }
+    function randomPiece() { let r = Math.floor(Math.random()*PIECES.length); return new Piece(PIECES[r][0], PIECES[r][1]); }
+    let p, dropStart = Date.now();
+    function loop() {
+        if(!gameActive) return;
+        if(Date.now() - dropStart > 800) { if(!p.collision(0,1,p.active)) p.y++; else { p.lock(); p = randomPiece(); } dropStart = Date.now(); }
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        for(let r=0; r<ROW; r++){ for(let c=0; c<COL; c++){ drawSquare(c,r,board[r][c]); }}
+        p.draw(); requestAnimationFrame(loop);
+    }
 
-        window.onload = () => { initStars(); drawStars(); loadProfile(); };
-    </script>
+    function moveLeft() { if(!p.collision(-1,0,p.active)) p.x--; if(navigator.vibrate) navigator.vibrate(15); }
+    function moveRight() { if(!p.collision(1,0,p.active)) p.x++; if(navigator.vibrate) navigator.vibrate(15); }
+    function rotate() { 
+        let next = [];
+        for(let r=0; r<p.active.length; r++){ next[r]=[]; for(let c=0; c<p.active.length; c++){ next[r][c]=p.active[p.active.length-1-c][r]; }}
+        if(!p.collision(0,0,next)) p.active = next; if(navigator.vibrate) navigator.vibrate(15);
+    }
+    function hardDrop() { while(!p.collision(0,1,p.active)) p.y++; p.lock(); p = randomPiece(); if(navigator.vibrate) navigator.vibrate(40); }
+</script>
 </body>
 </html>
