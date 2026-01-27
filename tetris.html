@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <title>Cyber-Grid Pro: BZ247 | Ultra Fast Tetris</title>
-    <meta name="description" content="Play professional Neon Tetris with Hard Drop feature. Optimized by Waseem Asghar.">
+    <title>Cyber-Grid Pro: BZ247 | Waseem Asghar Special</title>
+    <meta name="description" content="Ultimate Neon Tetris optimized for mobile. High-performance gaming by Waseem Asghar.">
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap');
@@ -17,29 +17,51 @@
             color: white; display: flex; flex-direction: column; align-items: center;
         }
 
-        /* FLEX LAYOUT FOR ALL SCREENS */
+        /* FIXED HEIGHT LAYOUT */
         .game-wrapper {
             display: flex; flex-direction: column; align-items: center;
-            justify-content: space-between; height: 100vh; width: 100%;
-            padding: 10px 0; box-sizing: border-box;
+            justify-content: space-between; 
+            height: 100dvh; /* Dynamic viewport height for mobile browsers */
+            width: 100%;
+            padding: 15px 0 60px 0; /* Extra bottom padding to lift buttons up */
+            box-sizing: border-box;
         }
 
         .hud { width: 92%; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex-shrink: 0; }
-        .score-box { background: rgba(30,0,50,0.9); border: 2px solid var(--neon); padding: 8px; border-radius: 12px; text-align: center; box-shadow: 0 0 15px var(--neon); }
-        .score-box b { font-size: 16px; text-shadow: 0 0 10px var(--neon); }
+        .score-box { background: rgba(30,0,50,0.9); border: 2px solid var(--neon); padding: 6px; border-radius: 12px; text-align: center; }
+        .score-box b { font-size: 16px; color: #fff; text-shadow: 0 0 10px var(--neon); }
 
         #tetris-container { 
-            position: relative; border: 2px solid #222; background: #000; 
-            box-shadow: 0 0 40px rgba(0,255,136,0.1); flex-grow: 1;
-            display: flex; align-items: center; justify-content: center; margin: 5px 0;
+            position: relative; border: 2px solid #333; background: #000; 
+            box-shadow: 0 0 30px rgba(0,255,136,0.1); 
+            flex-grow: 1; /* Board occupies center space */
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
         }
-        canvas { max-height: 100%; max-width: 100%; display: block; background-size: 30px 30px; }
+        
+        /* Shrunk canvas slightly to ensure buttons are visible */
+        canvas { 
+            height: 55vh; /* Fixed height ratio */
+            display: block; 
+            background-image: radial-gradient(circle, #111 1px, transparent 1px); 
+            background-size: 25px 25px; 
+        }
 
-        .controls { width: 95%; max-width: 400px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; flex-shrink: 0; }
-        .btn { background: rgba(0,255,136,0.1); border: 2px solid var(--neon); color: var(--neon); padding: 18px 0; border-radius: 15px; font-weight: 900; text-align: center; font-size: 14px; }
+        .controls { 
+            width: 95%; max-width: 400px; display: grid; 
+            grid-template-columns: 1fr 1fr 1fr; gap: 10px; 
+            flex-shrink: 0; 
+            margin-bottom: 20px; /* Forcefully lift buttons away from screen bottom */
+        }
+        
+        .btn { 
+            background: rgba(0,255,136,0.1); border: 2px solid var(--neon); color: var(--neon); 
+            padding: 22px 0; border-radius: 18px; font-weight: 900; text-align: center; 
+            font-size: 14px; box-shadow: 0 0 15px rgba(0,255,136,0.2); 
+        }
         .rotate { border-color: var(--gold); color: var(--gold); }
-        .drop-btn { grid-column: span 3; background: var(--cyan); color: #000; border: none; padding: 15px; box-shadow: 0 0 20px var(--cyan); margin-bottom: 10px; }
-        .btn:active { transform: scale(0.9); }
+        .drop-btn { grid-column: span 3; background: var(--cyan); color: #000; border: none; padding: 16px; margin-top: 5px; }
+        .btn:active { transform: scale(0.92); filter: brightness(1.2); }
 
         .shake { animation: shake 0.2s both; }
         @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } }
@@ -59,7 +81,7 @@
             <div class="btn" onclick="moveLeft()">LEFT</div>
             <div class="btn rotate" onclick="playerRotate()">ANGLE</div>
             <div class="btn" onclick="moveRight()">RIGHT</div>
-            <div class="btn drop-btn" onclick="playerDrop()">NEON DROP ▼ (FAST)</div>
+            <div class="btn drop-btn" onclick="playerDrop()">NEON DROP ▼</div>
         </div>
     </div>
 
@@ -103,44 +125,62 @@
     ];
 
     let board = [];
-    function resetBoard() { for(r=0; r<ROW; r++){ board[r]=[]; for(c=0; c<COL; c++){ board[r][c]="black"; }}}
+    function resetBoard() { 
+        board = [];
+        for(let r=0; r<ROW; r++){ board[r]=[]; for(let c=0; c<COL; c++){ board[r][c]="black"; }}
+    }
 
     class Piece {
         constructor(pattern, color) { this.pattern = pattern; this.color = color; this.active = pattern; this.x = 3; this.y = -2; }
-        draw() { for(r=0; r<this.active.length; r++){ for(c=0; c<this.active.length; c++){ if(this.active[r][c]) drawSquare(this.x+c, this.y+r, this.color); }}}
+        draw() { for(let r=0; r<this.active.length; r++){ for(let c=0; c<this.active.length; c++){ if(this.active[r][c]) drawSquare(this.x+c, this.y+r, this.color); }}}
         collision(x,y,piece) {
-            for(r=0; r<piece.length; r++){ for(c=0; c<piece.length; c++){
+            for(let r=0; r<piece.length; r++){ for(let c=0; c<piece.length; c++){
                 if(!piece[r][c]) continue;
                 let newX = this.x+c+x, newY = this.y+r+y;
                 if(newX<0 || newX>=COL || newY>=ROW) return true;
                 if(newY>=0 && board[newY][newX] !== "black") return true;
             }} return false;
         }
+        
+        // --- ULTIMATE LINE CLEAR FIX ---
         lock() {
-            for(r=0; r<this.active.length; r++){
-                for(c=0; c<this.active.length; c++){
+            for(let r=0; r<this.active.length; r++){
+                for(let c=0; c<this.active.length; c++){
                     if(!this.active[r][c]) continue;
                     if(this.y+r < 0){ gameActive=false; location.reload(); return; }
                     board[this.y+r][this.x+c] = this.color;
                 }
             }
-            for(r=0; r<ROW; r++){
-                let full = true;
-                for(c=0; c<COL; c++){ full = full && (board[r][c] !== "black"); }
-                if(full){
-                    for(y=r; y>0; y--){ for(c=0; c<COL; c++){ board[y][c] = board[y-1][c]; }}
-                    for(c=0; c<COL; c++){ board[0][c] = "black"; }
-                    score += 100; scoreElement.innerText = score;
-                    if(score > bestScore) { bestScore = score; localStorage.setItem('bzBest', bestScore); bestElement.innerText = bestScore; }
+            
+            // Checking every row from top to bottom
+            for(let r = 0; r < ROW; r++) {
+                let isFull = true;
+                for(let c = 0; c < COL; c++) {
+                    if(board[r][c] === "black") { isFull = false; break; }
+                }
+                
+                if(isFull) {
+                    // Splice removes the full row and unshift adds a new empty one at top
+                    board.splice(r, 1);
+                    board.unshift(new Array(COL).fill("black"));
+                    
+                    score += 100;
                     playSound(400, 'square', 0.2);
                     document.getElementById('tetris-container').classList.add('shake');
-                    setTimeout(()=>document.getElementById('tetris-container').classList.remove('shake'), 200);
+                    setTimeout(()=>document.getElementById('tetris-container').classList.remove('shake'), 150);
                 }
             }
+            scoreElement.innerText = score;
+            if(score > bestScore) { bestScore = score; localStorage.setItem('bzBest', bestScore); bestElement.innerText = bestScore; }
+        }
+
+        rotate() {
+            let next = [];
+            for(let r=0; r<this.active.length; r++){ next[r]=[]; for(let c=0; c<this.active.length; c++){ next[r][c]=this.active[this.active.length-1-c][r]; }}
+            if(!this.collision(0,0,next)){ this.active=next; }
         }
     }
 
-    // --- UPDATED HARD DROP LOGIC ---
     function playerDrop() {
         if(gameActive) {
             initAudio();
@@ -163,7 +203,7 @@
         if(!gameActive) return;
         if(Date.now() - dropStart > 800) { if(!p.collision(0,1,p.active)) p.y++; else { p.lock(); p = randomPiece(); } dropStart = Date.now(); }
         ctx.clearRect(0,0,canvas.width,canvas.height);
-        for(r=0; r<ROW; r++){ for(c=0; c<COL; c++){ drawSquare(c,r,board[r][c]); }}
+        for(let r=0; r<ROW; r++){ for(let c=0; c<COL; c++){ drawSquare(c,r,board[r][c]); }}
         p.draw(); requestAnimationFrame(loop);
     }
 
