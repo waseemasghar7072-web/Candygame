@@ -3,56 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cyber-Grid Pro | BZ247 Layout Fix</title>
+    <title>Cyber-Grid Pro | BZ247 Multi-Theme</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap');
-        :root { --neon: #00ff88; --gold: #ffd700; --bg: #050008; --cyan: #00d4ff; }
+        
+        /* THEME VARIABLES */
+        :root { 
+            --main: #00ff88; --alt: #ff0055; --accent: #00d4ff; --gold: #ffd700; --bg: #050008; 
+        }
+        
+        /* THEME MODES */
+        .theme-gold { --main: #ffd700; --alt: #ffaa00; --accent: #ffffff; --bg: #0a0500; }
+        .theme-ice { --main: #00d4ff; --alt: #0044ff; --accent: #ffffff; --bg: #00050a; }
+
         * { user-select: none; -webkit-user-select: none; touch-action: none; -webkit-tap-highlight-color: transparent; }
         
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: var(--bg); font-family: 'Montserrat', sans-serif; color: white; display: flex; flex-direction: column; align-items: center; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: var(--bg); font-family: 'Montserrat', sans-serif; color: white; display: flex; flex-direction: column; align-items: center; transition: background 0.5s; }
 
-        /* FIXED: Using 'dvh' for better mobile browser support */
         .wrapper {
             display: flex; flex-direction: column; align-items: center;
             justify-content: space-between; height: 100dvh; width: 100%;
             padding: 10px 0 20px 0; box-sizing: border-box;
         }
 
-        .hud { width: 95%; display: grid; grid-template-columns: 1fr 0.6fr 0.7fr 1fr; gap: 5px; flex-shrink: 0; }
-        .box { background: rgba(30,0,50,0.9); border: 2px solid var(--neon); padding: 5px; border-radius: 10px; text-align: center; }
-        .box span { font-size: 7px; color: var(--neon); text-transform: uppercase; display: block; }
-        .box b { font-size: 14px; text-shadow: 0 0 10px var(--neon); }
+        .hud { width: 95%; display: grid; grid-template-columns: 1fr 0.5fr 0.5fr 1fr; gap: 4px; flex-shrink: 0; }
+        .box { background: rgba(30,0,50,0.8); border: 2px solid var(--main); padding: 4px; border-radius: 10px; text-align: center; }
+        .box span { font-size: 6px; color: var(--main); text-transform: uppercase; display: block; }
+        .box b { font-size: 13px; text-shadow: 0 0 8px var(--main); }
         #nextCanvas { width: 28px; height: 28px; }
 
-        /* FIXED: Limited max-height to ensure buttons stay on screen */
+        /* THEME BUTTON */
+        .theme-btn-ui { position: absolute; top: 10px; right: 10px; background: var(--main); color: #000; border: none; border-radius: 50%; width: 35px; height: 35px; font-size: 15px; cursor: pointer; z-index: 100; box-shadow: 0 0 15px var(--main); }
+
         #container { 
-            position: relative; border: 3px solid #444; background: #000; 
-            box-shadow: 0 0 30px rgba(0,255,136,0.15); 
-            flex-grow: 1; display: flex; align-items: center; justify-content: center; 
-            margin: 5px 0; width: fit-content; max-height: 52vh; /* Restricted board height */
+            position: relative; border: 3px solid #333; background: #000; 
+            box-shadow: 0 0 30px rgba(0,255,136,0.1); flex-grow: 1;
+            display: flex; align-items: center; justify-content: center; 
+            margin: 5px 0; width: fit-content; max-height: 52vh;
         }
         canvas { max-height: 100%; display: block; }
 
-        .controls { width: 95%; max-width: 400px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; flex-shrink: 0; padding-bottom: 5px; }
+        .controls { width: 95%; max-width: 400px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; flex-shrink: 0; }
         .btn { 
-            background: rgba(0,255,136,0.1); border: 2px solid var(--neon); color: var(--neon); 
-            padding: 18px 0; border-radius: 15px; font-weight: 900; text-align: center; 
+            background: rgba(0,255,136,0.1); border: 2px solid var(--main); color: var(--main); 
+            padding: 20px 0; border-radius: 15px; font-weight: 900; text-align: center; 
             font-size: 12px; cursor: pointer;
         }
         .rotate { border-color: var(--gold); color: var(--gold); }
-        .drop { grid-column: span 3; background: var(--cyan); color: #000; border: none; padding: 16px; margin-top: 5px; box-shadow: 0 0 20px var(--cyan); }
+        .drop { grid-column: span 3; background: var(--accent); color: #000; border: none; padding: 16px; margin-top: 5px; box-shadow: 0 0 15px var(--accent); }
         .btn:active { transform: scale(0.92); filter: brightness(1.3); }
 
-        #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; display: flex; align-items: center; justify-content: center; }
-        .start-btn { background: var(--neon); color: black; padding: 20px 40px; border-radius: 50px; font-weight: 900; font-size: 18px; cursor: pointer; border: none; box-shadow: 0 0 30px var(--neon); }
+        #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        .start-btn { background: var(--main); color: black; padding: 20px 40px; border-radius: 50px; font-weight: 900; font-size: 18px; cursor: pointer; border: none; box-shadow: 0 0 30px var(--main); }
 
         .shake { animation: shake 0.2s both; }
         @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(1.5px, 0, 0); } }
     </style>
 </head>
-<body>
+<body onload="checkTheme()">
+
+    <button class="theme-btn-ui" onclick="toggleTheme()">🎨</button>
 
     <div id="overlay">
+        <h1 style="color:var(--main); font-family:'Orbitron';">BZ247 STUDIOS</h1>
         <button class="start-btn" onclick="startWithSound()">START MISSION ▶</button>
     </div>
 
@@ -80,7 +93,21 @@
     const ROW = 20, COL = 10, SQ = 30;
 
     let audioCtx, gameActive = false, score = 0, level = 1, best = localStorage.getItem('bzBest')||0;
-    let board = [], nextPieceObj, dropStart;
+    let board = [], nextPieceObj, dropStart, currentTheme = 0;
+
+    // --- THEME ENGINE ---
+    const themes = ['', 'theme-gold', 'theme-ice'];
+    function toggleTheme() {
+        currentTheme = (currentTheme + 1) % themes.length;
+        document.body.className = themes[currentTheme];
+        localStorage.setItem('bzTheme', currentTheme);
+        vib(30); playSound(800, 'sine', 0.1);
+    }
+    function checkTheme() {
+        let saved = localStorage.getItem('bzTheme') || 0;
+        currentTheme = parseInt(saved);
+        document.body.className = themes[currentTheme];
+    }
 
     function initAudio() {
         if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -91,7 +118,7 @@
         if(!audioCtx) return;
         let o = audioCtx.createOscillator(), g = audioCtx.createGain();
         o.type = type; o.frequency.setValueAtTime(f, audioCtx.currentTime);
-        g.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        g.gain.setValueAtTime(0.06, audioCtx.currentTime);
         o.connect(g); g.connect(audioCtx.destination);
         o.start(); o.stop(audioCtx.currentTime + d);
     }
@@ -105,10 +132,11 @@
 
     function drawSquare(x, y, color, context, size = SQ) {
         if(color === "black") return;
+        // THEME-BASED GLOW
         context.shadowBlur = 10; context.shadowColor = color;
         context.strokeStyle = color; context.lineWidth = 2;
         context.strokeRect(x * size + 2, y * size + 2, size - 4, size - 4);
-        context.globalAlpha = 0.2; context.fillStyle = color;
+        context.globalAlpha = 0.25; context.fillStyle = color;
         context.fillRect(x * size + 4, y * size + 4, size - 8, size - 8);
         context.globalAlpha = 1.0; context.shadowBlur = 0;
     }
@@ -192,14 +220,16 @@
         gameActive = true; dropStart = Date.now(); loop();
     }
 
-    function moveLeft() { if(!p.collision(-1,0,p.active)) { p.x--; vib(15); playSound(200, 'sine', 0.05); } }
-    function moveRight() { if(!p.collision(1,0,p.active)) { p.x++; vib(15); playSound(200, 'sine', 0.05); } }
+    function moveLeft() { initAudio(); if(!p.collision(-1,0,p.active)) { p.x--; vib(15); playSound(200, 'sine', 0.05); } }
+    function moveRight() { initAudio(); if(!p.collision(1,0,p.active)) { p.x++; vib(15); playSound(200, 'sine', 0.05); } }
     function playerRotate() { 
-        let next = [];
-        for(let r=0; r<p.active.length; r++){ next[r]=[]; for(let c=0; c<p.active.length; c++) next[r][c]=p.active[p.active.length-1-c][r]; }
-        if(!p.collision(0,0,next)){ p.active = next; vib(15); playSound(300, 'sine', 0.05); }
+        initAudio();
+        let n = [];
+        for(let r=0; r<p.active.length; r++){ n[r]=[]; for(let c=0; c<p.active.length; c++) n[r][c]=p.active[p.active.length-1-c][r]; }
+        if(!p.collision(0,0,n)){ p.active = n; vib(15); playSound(300, 'sine', 0.05); }
     }
     function playerDrop() {
+        initAudio();
         while(!p.collision(0, 1, p.active)) p.y++;
         p.lock(); p = nextPieceObj; nextPieceObj = getPiece(); drawNext();
         dropStart = Date.now(); vib(35); playSound(150, 'sine', 0.1);
