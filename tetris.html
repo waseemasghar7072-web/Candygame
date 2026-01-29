@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cyber-Grid Pro | BZ247 Final Fix</title>
+    <title>Cyber-Grid Pro | BZ247 Layout Fix</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap');
         :root { --neon: #00ff88; --gold: #ffd700; --bg: #050008; --cyan: #00d4ff; }
@@ -11,29 +11,29 @@
         
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: var(--bg); font-family: 'Montserrat', sans-serif; color: white; display: flex; flex-direction: column; align-items: center; }
 
-        /* FIXED: Removed side gaps and centered layout */
+        /* FIXED: Using 'dvh' for better mobile browser support */
         .wrapper {
             display: flex; flex-direction: column; align-items: center;
             justify-content: space-between; height: 100dvh; width: 100%;
-            padding: 10px 0 25px 0; box-sizing: border-box;
+            padding: 10px 0 20px 0; box-sizing: border-box;
         }
 
         .hud { width: 95%; display: grid; grid-template-columns: 1fr 0.6fr 0.7fr 1fr; gap: 5px; flex-shrink: 0; }
         .box { background: rgba(30,0,50,0.9); border: 2px solid var(--neon); padding: 5px; border-radius: 10px; text-align: center; }
         .box span { font-size: 7px; color: var(--neon); text-transform: uppercase; display: block; }
         .box b { font-size: 14px; text-shadow: 0 0 10px var(--neon); }
-        #nextCanvas { width: 30px; height: 30px; margin-top: 2px; }
+        #nextCanvas { width: 28px; height: 28px; }
 
-        /* FIXED: fit-content ensures no gaps on left/right */
+        /* FIXED: Limited max-height to ensure buttons stay on screen */
         #container { 
             position: relative; border: 3px solid #444; background: #000; 
-            box-shadow: 0 0 30px rgba(0,255,136,0.15); flex-grow: 1;
-            display: flex; align-items: center; justify-content: center; 
-            margin: 10px 0; width: fit-content; /* Hugs the canvas width */
+            box-shadow: 0 0 30px rgba(0,255,136,0.15); 
+            flex-grow: 1; display: flex; align-items: center; justify-content: center; 
+            margin: 5px 0; width: fit-content; max-height: 52vh; /* Restricted board height */
         }
         canvas { max-height: 100%; display: block; }
 
-        .controls { width: 95%; max-width: 400px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; flex-shrink: 0; }
+        .controls { width: 95%; max-width: 400px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; flex-shrink: 0; padding-bottom: 5px; }
         .btn { 
             background: rgba(0,255,136,0.1); border: 2px solid var(--neon); color: var(--neon); 
             padding: 18px 0; border-radius: 15px; font-weight: 900; text-align: center; 
@@ -43,12 +43,11 @@
         .drop { grid-column: span 3; background: var(--cyan); color: #000; border: none; padding: 16px; margin-top: 5px; box-shadow: 0 0 20px var(--cyan); }
         .btn:active { transform: scale(0.92); filter: brightness(1.3); }
 
-        /* SOUND OVERLAY */
-        #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; display: flex; align-items: center; justify-content: center; }
+        #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 1000; display: flex; align-items: center; justify-content: center; }
         .start-btn { background: var(--neon); color: black; padding: 20px 40px; border-radius: 50px; font-weight: 900; font-size: 18px; cursor: pointer; border: none; box-shadow: 0 0 30px var(--neon); }
 
         .shake { animation: shake 0.2s both; }
-        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } }
+        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(1.5px, 0, 0); } }
     </style>
 </head>
 <body>
@@ -92,7 +91,7 @@
         if(!audioCtx) return;
         let o = audioCtx.createOscillator(), g = audioCtx.createGain();
         o.type = type; o.frequency.setValueAtTime(f, audioCtx.currentTime);
-        g.gain.setValueAtTime(0.08, audioCtx.currentTime); // Increased gain
+        g.gain.setValueAtTime(0.08, audioCtx.currentTime);
         o.connect(g); g.connect(audioCtx.destination);
         o.start(); o.stop(audioCtx.currentTime + d);
     }
@@ -101,9 +100,7 @@
 
     function startWithSound() {
         document.getElementById('overlay').style.display = 'none';
-        initAudio();
-        startGame();
-        playSound(440, 'sine', 0.2); // Welcome beep
+        initAudio(); startGame(); playSound(440, 'sine', 0.2);
     }
 
     function drawSquare(x, y, color, context, size = SQ) {
@@ -164,7 +161,7 @@
 
     function drawNext() {
         nCtx.clearRect(0,0,nextCanvas.width,nextCanvas.height);
-        const s = 8;
+        const s = 7;
         for(let r=0; r<nextPieceObj.active.length; r++)
             for(let c=0; c<nextPieceObj.active.length; c++)
                 if(nextPieceObj.active[r][c]) drawSquare(c, r, nextPieceObj.color, nCtx, s);
@@ -188,7 +185,7 @@
     }
 
     function startGame() {
-        canvas.width = COL*SQ; canvas.height = ROW*SQ; nextCanvas.width = 32; nextCanvas.height = 32;
+        canvas.width = COL*SQ; canvas.height = ROW*SQ; nextCanvas.width = 30; nextCanvas.height = 30;
         board = []; for(let r=0; r<ROW; r++){ board[r]=[]; for(let c=0; c<COL; c++){ board[r][c]="black"; }}
         document.getElementById('bTxt').innerText = best;
         p = getPiece(); nextPieceObj = getPiece(); drawNext();
