@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cyber-Grid Pro | BZ247 Fixed</title>
+    <title>Cyber-Grid Pro | BZ247 Final Fix</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap');
         :root { --neon: #00ff88; --gold: #ffd700; --bg: #050008; --cyan: #00d4ff; }
@@ -11,27 +11,27 @@
         
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: var(--bg); font-family: 'Montserrat', sans-serif; color: white; display: flex; flex-direction: column; align-items: center; }
 
-        /* FIXED LAYOUT TO SHOW ALL BUTTONS */
+        /* FIXED: Removed side gaps and centered layout */
         .wrapper {
             display: flex; flex-direction: column; align-items: center;
             justify-content: space-between; height: 100dvh; width: 100%;
-            padding: 10px 0 20px 0; box-sizing: border-box;
+            padding: 10px 0 25px 0; box-sizing: border-box;
         }
 
         .hud { width: 95%; display: grid; grid-template-columns: 1fr 0.6fr 0.7fr 1fr; gap: 5px; flex-shrink: 0; }
         .box { background: rgba(30,0,50,0.9); border: 2px solid var(--neon); padding: 5px; border-radius: 10px; text-align: center; }
         .box span { font-size: 7px; color: var(--neon); text-transform: uppercase; display: block; }
         .box b { font-size: 14px; text-shadow: 0 0 10px var(--neon); }
-        #nextCanvas { width: 30px; height: 30px; }
+        #nextCanvas { width: 30px; height: 30px; margin-top: 2px; }
 
-        /* Board height adjusted to make room for drop button */
+        /* FIXED: fit-content ensures no gaps on left/right */
         #container { 
-            position: relative; border: 2px solid #333; background: #000; 
-            box-shadow: 0 0 30px rgba(0,255,136,0.1); flex-grow: 1;
+            position: relative; border: 3px solid #444; background: #000; 
+            box-shadow: 0 0 30px rgba(0,255,136,0.15); flex-grow: 1;
             display: flex; align-items: center; justify-content: center; 
-            margin: 10px 0; overflow: hidden; width: 90%;
+            margin: 10px 0; width: fit-content; /* Hugs the canvas width */
         }
-        canvas { max-height: 100%; max-width: 100%; display: block; object-fit: contain; }
+        canvas { max-height: 100%; display: block; }
 
         .controls { width: 95%; max-width: 400px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; flex-shrink: 0; }
         .btn { 
@@ -40,15 +40,22 @@
             font-size: 12px; cursor: pointer;
         }
         .rotate { border-color: var(--gold); color: var(--gold); }
-        /* NEON DROP RESTORED */
-        .drop { grid-column: span 3; background: var(--cyan); color: #000; border: none; padding: 15px; margin-top: 5px; box-shadow: 0 0 20px var(--cyan); }
-        .btn:active { transform: scale(0.92); filter: brightness(1.2); }
+        .drop { grid-column: span 3; background: var(--cyan); color: #000; border: none; padding: 16px; margin-top: 5px; box-shadow: 0 0 20px var(--cyan); }
+        .btn:active { transform: scale(0.92); filter: brightness(1.3); }
+
+        /* SOUND OVERLAY */
+        #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 1000; display: flex; align-items: center; justify-content: center; }
+        .start-btn { background: var(--neon); color: black; padding: 20px 40px; border-radius: 50px; font-weight: 900; font-size: 18px; cursor: pointer; border: none; box-shadow: 0 0 30px var(--neon); }
 
         .shake { animation: shake 0.2s both; }
         @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } }
     </style>
 </head>
-<body onload="startGame()">
+<body>
+
+    <div id="overlay">
+        <button class="start-btn" onclick="startWithSound()">START MISSION ▶</button>
+    </div>
 
     <div class="wrapper">
         <div class="hud">
@@ -76,22 +83,28 @@
     let audioCtx, gameActive = false, score = 0, level = 1, best = localStorage.getItem('bzBest')||0;
     let board = [], nextPieceObj, dropStart;
 
-    // --- SOUND ENGINE FIX ---
     function initAudio() {
         if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if(audioCtx.state === 'suspended') audioCtx.resume();
     }
 
     function playSound(f, type, d) {
-        initAudio(); if(!audioCtx) return;
+        if(!audioCtx) return;
         let o = audioCtx.createOscillator(), g = audioCtx.createGain();
         o.type = type; o.frequency.setValueAtTime(f, audioCtx.currentTime);
-        g.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        g.gain.setValueAtTime(0.08, audioCtx.currentTime); // Increased gain
         o.connect(g); g.connect(audioCtx.destination);
         o.start(); o.stop(audioCtx.currentTime + d);
     }
 
     function vib(ms) { if(navigator.vibrate) navigator.vibrate(ms); }
+
+    function startWithSound() {
+        document.getElementById('overlay').style.display = 'none';
+        initAudio();
+        startGame();
+        playSound(440, 'sine', 0.2); // Welcome beep
+    }
 
     function drawSquare(x, y, color, context, size = SQ) {
         if(color === "black") return;
@@ -131,17 +144,13 @@
                     board[this.y+r][this.x+c] = this.color;
                 }
             }
-            let lines = 0;
+            let lns = 0;
             for(let r = ROW - 1; r >= 0; r--){
-                let full = true;
-                for(let c = 0; c < COL; c++){ if(board[r][c] === "black"){ full = false; break; } }
-                if(full){
-                    board.splice(r, 1); board.unshift(new Array(COL).fill("black"));
-                    lines++; r++;
-                }
+                let f = true; for(let c = 0; c < COL; c++) if(board[r][c] === "black"){ f = false; break; }
+                if(f){ board.splice(r, 1); board.unshift(new Array(COL).fill("black")); lns++; r++; }
             }
-            if(lines > 0){
-                score += (lines * 100) * level;
+            if(lns > 0){
+                score += (lns * 100) * level;
                 if(score >= level * 1000) { level++; playSound(600, 'sine', 0.2); }
                 document.getElementById('sTxt').innerText = score;
                 document.getElementById('lTxt').innerText = level;
@@ -186,16 +195,14 @@
         gameActive = true; dropStart = Date.now(); loop();
     }
 
-    function moveLeft() { initAudio(); if(!p.collision(-1,0,p.active)) { p.x--; vib(15); playSound(200, 'sine', 0.05); } }
-    function moveRight() { initAudio(); if(!p.collision(1,0,p.active)) { p.x++; vib(15); playSound(200, 'sine', 0.05); } }
+    function moveLeft() { if(!p.collision(-1,0,p.active)) { p.x--; vib(15); playSound(200, 'sine', 0.05); } }
+    function moveRight() { if(!p.collision(1,0,p.active)) { p.x++; vib(15); playSound(200, 'sine', 0.05); } }
     function playerRotate() { 
-        initAudio();
         let next = [];
         for(let r=0; r<p.active.length; r++){ next[r]=[]; for(let c=0; c<p.active.length; c++) next[r][c]=p.active[p.active.length-1-c][r]; }
         if(!p.collision(0,0,next)){ p.active = next; vib(15); playSound(300, 'sine', 0.05); }
     }
     function playerDrop() {
-        initAudio();
         while(!p.collision(0, 1, p.active)) p.y++;
         p.lock(); p = nextPieceObj; nextPieceObj = getPiece(); drawNext();
         dropStart = Date.now(); vib(35); playSound(150, 'sine', 0.1);
