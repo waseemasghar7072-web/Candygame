@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BZ247 | Royal Gems Puzzle 3D</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap');
+        
+        :root {
+            --bg-overlay: rgba(0, 0, 50, 0.6);
+            --glass: rgba(255, 255, 255, 0.1);
+            --border: rgba(255, 255, 255, 0.3);
+            --gem-blue: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gem-shadow: inset 0 0 10px rgba(255,255,255,0.5), 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        * { user-select: none; touch-action: none; -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+
+        body {
+            margin: 0; padding: 20px 0;
+            /* BEAUTIFUL BACKGROUND WALLPAPER */
+            background: url('https://images.unsplash.com/photo-1536152470836-b943b246224c?q=80&w=1080&auto=format&fit=crop') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Montserrat', sans-serif;
+            color: white;
+            display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+            height: 100dvh;
+            overflow: hidden;
+        }
+
+        body::before { content: ''; position: fixed; inset: 0; background: var(--bg-overlay); z-index: -1; backdrop-filter: blur(5px); }
+
+        /* HUD */
+        .hud {
+            display: flex; gap: 20px;
+            background: var(--glass); padding: 15px 30px;
+            border-radius: 20px; border: 1px solid var(--border);
+            backdrop-filter: blur(15px); box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .score-unit span { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
+        .score-unit b { font-size: 24px; text-shadow: 0 2px 5px rgba(0,0,0,0.5); display: block; }
+
+        /* 3D GAME GRID */
+        #grid-container {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr); /* 8x8 Grid like the screenshot */
+            gap: 4px;
+            padding: 10px;
+            background: var(--glass);
+            border-radius: 15px;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            width: 90vw; max-width: 400px; aspect-ratio: 1;
+        }
+
+        .cell {
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+        }
+
+        /* 3D GEM BLOCK STYLE */
+        .block {
+            width: 100%; height: 100%;
+            border-radius: 8px;
+            background: var(--gem-blue);
+            box-shadow: var(--gem-shadow);
+            border-top: 1px solid rgba(255,255,255,0.8);
+            border-bottom: 3px solid rgba(0,0,0,0.3);
+            transform: translateY(-2px);
+            transition: transform 0.1s, opacity 0.3s;
+        }
+
+        /* PIECE SELECTION AREA */
+        #pieces-container {
+            display: flex; justify-content: space-around; width: 95%; max-width: 450px;
+            height: 120px; align-items: center;
+        }
+        .piece-slot {
+            width: 30%; height: 100%; display: flex; align-items: center; justify-content: center;
+        }
+        .draggable-piece {
+            display: grid; gap: 2px; touch-action: none; transform-origin: center;
+        }
+        .draggable-piece .block { width: 25px; height: 25px; } /* Smaller preview blocks */
+        .dragging { opacity: 0.7; transform: scale(1.2) !important; z-index: 1000; pointer-events: none; }
+
+        /* Game Over Overlay */
+        #gameOver {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none;
+            flex-direction: column; align-items: center; justify-content: center; z-index: 2000;
+        }
+        .restart-btn {
+            padding: 15px 40px; background: linear-gradient(toright, #ff0055, #ff5500);
+            border: none; border-radius: 30px; color: white; font-weight: 900; font-size: 18px; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hud">
+        <div class="score-unit"><span>Score</span><b id="scoreTxt">0</b></div>
+        <div class="score-unit"><span>Best</span><b id="bestTxt">0</b></div>
+    </div>
+
+    <div id="grid-container">
+        </div>
+
+    <div id="pieces-container">
+        <div class="piece-slot" id="slot0"></div>
+        <div class="piece-slot" id="slot1"></div>
+        <div class="piece-slot" id="slot2"></div>
+    </div>
+
+    <div id="gameOver">
+        <h1>NO MOVES LEFT!</h1>
+        <button class="restart-btn" onclick="resetGame()">TRY AGAIN</button>
+    </div>
+
+<script>
+    const GRID_SIZE = 8;
+    const gridContainer = document.getElementById('grid-container');
+    const scoreTxt = document.getElementById('scoreTxt');
+    const bestTxt = document.getElementById('bestTxt');
+    let grid = [];
+    let score = 0;
+    let bestScore = localStorage.getItem('gemsBest') || 0;
+    bestTxt.innerText = bestScore;
+
+    // 3D GEM COLORS
+    const COLORS = [
+        'linear-gradient(135deg, #FF512F 0%, #DD2476 100%)', // Ruby
+        'linear-gradient(135deg, #00b09b 0%, #96c93d 100%)', // Emerald
+        'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', // Sapphire
+        'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', // Amethyst
+        'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'  // Gold
+    ];
+
+    // SHAPE DEFINITIONS (Like screenshot)
+    const SHAPES = [
+        [[1]], [[1,1]], [[1,1,1]], [[1,1,1,1]], // Lines
+        [[1,1],[1,1]], // Square
+        [[1,0],[1,1]], [[0,1],[1,1]], // Small L
+        [[1,0,0],[1,1,1]], [[0,0,1],[1,1,1]], // Big L
+        [[1,1,1],[0,1,0]] // T
+    ];
+
+    // --- INITIALIZE GRID ---
+    function initGrid() {
+        gridContainer.innerHTML = '';
+        grid = Array(GRID_SIZE).fill(0).map(() => Array(GRID_SIZE).fill(null));
+        for (let i = 0; i < GRID_SIZE * GRID_SIZE; i++) {
+            let cell = document.createElement('div');
+            cell.classList.add('cell');
+            cell.dataset.idx = i;
+            gridContainer.appendChild(cell);
+        }
+    }
+
+    // --- SPAWN NEW PIECES ---
+    function spawnPieces() {
+        for(let i=0; i<3; i++) {
+            const slot = document.getElementById(`slot${i}`);
+            if(slot.childElementCount === 0) {
+                createDraggablePiece(slot);
+            }
+        }
+        checkGameOver();
+    }
+
+    function createDraggablePiece(slot) {
+        const shape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+        const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+        
+        const piece = document.createElement('div');
+        piece.classList.add('draggable-piece');
+        piece.style.gridTemplateColumns = `repeat(${shape[0].length}, 1fr)`;
+        piece.dataset.shape = JSON.stringify(shape);
+        piece.dataset.color = color;
+
+        shape.forEach(row => {
+            row.forEach(cell => {
+                const block = document.createElement('div');
+                if(cell) {
+                    block.classList.add('block');
+                    block.style.background = color;
+                }
+                piece.appendChild(block);
+            });
+        });
+
+        makeDraggable(piece);
+        slot.appendChild(piece);
+    }
+
+    // --- DRAG & DROP LOGIC (The Core mechanics) ---
+    let dragEl = null;
+    let startPos = {x:0, y:0};
+
+    function makeDraggable(el) {
+        // Touch support
+        el.addEventListener('touchstart', dragStart, {passive: false});
+        el.addEventListener('touchmove', drag, {passive: false});
+        el.addEventListener('touchend', dragEnd);
+        // Mouse support
+        el.addEventListener('mousedown', dragStart);
+    }
+
+    function dragStart(e) {
+        e.preventDefault();
+        dragEl = this;
+        dragEl.classList.add('dragging');
+        const touch = e.touches ? e.touches[0] : e;
+        const rect = dragEl.getBoundingClientRect();
+        startPos = { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', dragEnd);
+    }
+
+    function drag(e) {
+        if(!dragEl) return;
+        e.preventDefault();
+        const touch = e.touches ? e.touches[0] : e;
+        dragEl.style.position = 'fixed';
+        dragEl.style.left = (touch.clientX - startPos.x) + 'px';
+        dragEl.style.top = (touch.clientY - startPos.y) + 'px';
+    }
+
+    function dragEnd(e) {
+        if(!dragEl) return;
+        dragEl.classList.remove('dragging');
+        document.removeEventListener('mousemove', drag);
+        document.removeEventListener('mouseup', dragEnd);
+
+        // Check placement
+        const touch = e.changedTouches ? e.changedTouches[0] : e;
+        const gridRect = gridContainer.getBoundingClientRect();
+        
+        // If dropped inside grid
+        if (touch.clientX > gridRect.left && touch.clientX < gridRect.right &&
+            touch.clientY > gridRect.top && touch.clientY < gridRect.bottom) {
+            
+            // Calculate closest cell index
+            const cellSize = gridRect.width / GRID_SIZE;
+            const col = Math.floor((touch.clientX - gridRect.left) / cellSize);
+            const row = Math.floor((touch.clientY - gridRect.top) / cellSize);
+            
+            // Center the piece drop point
+            const shape = JSON.parse(dragEl.dataset.shape);
+            const rOffset = Math.floor(shape.length / 2);
+            const cOffset = Math.floor(shape[0].length / 2);
+
+            if (canPlace(shape, row - rOffset, col - cOffset)) {
+                placePiece(shape, row - rOffset, col - cOffset, dragEl.dataset.color);
+                dragEl.remove();
+                checkLines();
+                spawnPieces();
+            } else {
+                resetDrag();
+            }
+        } else {
+            resetDrag();
+        }
+        dragEl = null;
+    }
+
+    function resetDrag() {
+        dragEl.style.position = 'static';
+        dragEl.style.transform = 'none';
+    }
+
+    // --- GAME LOGIC ---
+    function canPlace(shape, r, c) {
+        for(let i=0; i<shape.length; i++) {
+            for(let j=0; j<shape[0].length; j++) {
+                if(shape[i][j]) {
+                    if(r+i < 0 || r+i >= GRID_SIZE || c+j < 0 || c+j >= GRID_SIZE || grid[r+i][c+j]) return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    function placePiece(shape, r, c, color) {
+        const cells = Array.from(gridContainer.children);
+        for(let i=0; i<shape.length; i++) {
+            for(let j=0; j<shape[0].length; j++) {
+                if(shape[i][j]) {
+                    grid[r+i][c+j] = color;
+                    const idx = (r+i) * GRID_SIZE + (c+j);
+                    const block = document.createElement('div');
+                    block.classList.add('block');
+                    block.style.background = color;
+                    cells[idx].appendChild(block);
+                }
+            }
+        }
+        score += shape.flat().filter(x=>x).length * 10;
+        updateScore();
+    }
+
+    function checkLines() {
+        let lines = 0;
+        let rowsToClear = [], colsToClear = [];
+
+        // Check rows
+        for(let r=0; r<GRID_SIZE; r++) {
+            if(grid[r].every(cell => cell !== null)) rowsToClear.push(r);
+        }
+        // Check cols
+        for(let c=0; c<GRID_SIZE; c++) {
+            let full = true;
+            for(let r=0; r<GRID_SIZE; r++) if(grid[r][c] === null) full = false;
+            if(full) colsToClear.push(c);
+        }
+
+        // Clear them
+        const cells = Array.from(gridContainer.children);
+        rowsToClear.forEach(r => {
+            for(let c=0; c<GRID_SIZE; c++) clearCell(r, c, cells);
+            lines++;
+        });
+        colsToClear.forEach(c => {
+            for(let r=0; r<GRID_SIZE; r++) clearCell(r, c, cells);
+            lines++;
+        });
+
+        if(lines > 0) {
+            score += lines * 100 * lines; // Bonus for multi-line
+            updateScore();
+            if(navigator.vibrate) navigator.vibrate(lines * 50);
+        }
+    }
+
+    function clearCell(r, c, cells) {
+        if(grid[r][c]) {
+            grid[r][c] = null;
+            const idx = r * GRID_SIZE + c;
+            cells[idx].innerHTML = '';
+        }
+    }
+
+    function checkGameOver() {
+        const slots = Array.from(document.querySelectorAll('.piece-slot'));
+        const pieces = slots.map(s => s.firstChild).filter(p => p);
+        if(pieces.length === 0) return;
+
+        let canMove = false;
+        for(let p of pieces) {
+            const shape = JSON.parse(p.dataset.shape);
+            for(let r=0; r<GRID_SIZE; r++) {
+                for(let c=0; c<GRID_SIZE; c++) {
+                    if(canPlace(shape, r, c)) { canMove = true; break; }
+                }
+            }
+        }
+        if(!canMove) document.getElementById('gameOver').style.display = 'flex';
+    }
+
+    function updateScore() {
+        scoreTxt.innerText = score;
+        if(score > bestScore) {
+            bestScore = score;
+            localStorage.setItem('gemsBest', bestScore);
+            bestTxt.innerText = bestScore;
+        }
+    }
+
+    function resetGame() {
+        score = 0; updateScore();
+        document.getElementById('gameOver').style.display = 'none';
+        initGrid();
+        document.querySelectorAll('.piece-slot').forEach(s => s.innerHTML = '');
+        spawnPieces();
+    }
+
+    initGrid(); spawnPieces();
+</script>
+</body>
+</html>
