@@ -3,135 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BZ247 Studios | Fixed Hub</title>
+    <title>BZ247 Studios | Official 3D Hub</title>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&display=swap');
         
-        :root { --pink: #ff0055; --neon: #00ff88; --bg: #050008; --gold: #ffd700; }
+        :root { 
+            --pink: #ff0055; --neon: #00ff88; --gold: #ffd700; --cyan: #00d4ff;
+            --glass: rgba(255, 255, 255, 0.1); --border: rgba(255, 255, 255, 0.2);
+        }
 
-        /* FIXED: Added scroll support and prevented cutting */
+        /* 1. ANTI-SEARCH & SELECTION */
+        * { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+
         body, html { 
             margin: 0; padding: 0; width: 100%; height: 100%; 
-            background: var(--bg); color: white; font-family: 'Montserrat', sans-serif; 
+            font-family: 'Montserrat', sans-serif; color: white;
             overflow-x: hidden; display: flex; flex-direction: column;
         }
 
-        /* Background Animation */
-        #starfield { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+        /* BEAUTIFUL 3D BACKGROUND */
+        .bg-wallpaper {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: url('https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=1080&auto=format&fit=crop') no-repeat center center;
+            background-size: cover; z-index: -2; transform: scale(1.1);
+        }
+        .bg-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: -1; }
 
-        /* HEADER */
-        .header { text-align: center; padding: 30px 0 10px; flex-shrink: 0; }
-        .logo { font-family: 'Orbitron'; font-size: 35px; color: #fff; text-shadow: 0 0 15px var(--pink); margin: 0; }
-        .studio { font-size: 10px; color: var(--neon); letter-spacing: 8px; display: block; }
+        /* HEADER & LOGO */
+        .header { text-align: center; padding: 35px 0 10px; flex-shrink: 0; }
+        .logo { font-family: 'Orbitron'; font-size: 38px; color: #fff; text-shadow: 0 0 15px var(--pink); margin: 0; animation: flicker 3s infinite; }
+        .studio { font-size: 10px; color: var(--neon); letter-spacing: 8px; display: block; text-shadow: 0 0 10px var(--neon); }
 
-        /* SCROLLABLE CONTENT AREA */
-        .scroll-container {
-            flex: 1;
-            overflow-y: auto;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-bottom: 80px; /* Space for ticker */
-            -webkit-overflow-scrolling: touch;
+        @keyframes flicker { 0%, 18%, 22%, 53%, 100% { opacity: 1; } 20%, 55% { opacity: 0.7; } }
+
+        /* SCROLLABLE HUB AREA */
+        .hub-content {
+            flex: 1; overflow-y: auto; width: 100%; display: flex; flex-direction: column; 
+            align-items: center; padding-bottom: 90px; -webkit-overflow-scrolling: touch;
         }
 
-        /* PROFILE CARD */
+        /* PILOT PROFILE HUD */
         .profile-card { 
-            background: rgba(255, 255, 255, 0.05); border: 2px solid var(--neon); 
-            border-radius: 20px; padding: 12px 20px; width: 88%; max-width: 500px; 
-            display: flex; align-items: center; gap: 15px; margin-bottom: 20px;
-            backdrop-filter: blur(10px); flex-shrink: 0;
+            background: var(--glass); border: 2px solid var(--neon); border-radius: 20px; 
+            padding: 12px 20px; width: 88%; max-width: 500px; display: flex; align-items: center; 
+            gap: 15px; margin-bottom: 25px; backdrop-filter: blur(15px); box-shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
-        .avatar { font-size: 25px; border: 2px solid var(--neon); border-radius: 50%; padding: 8px; background: #000; }
+        .avatar { font-size: 30px; border: 2px solid var(--neon); border-radius: 50%; padding: 5px; background: #000; }
 
         /* GAME GRID */
-        .hub-grid { display: flex; flex-direction: column; gap: 20px; width: 90%; max-width: 500px; }
+        .grid { display: flex; flex-direction: column; gap: 20px; width: 92%; max-width: 500px; }
         
         .card { 
-            background: rgba(0, 0, 0, 0.8); border: 2px solid var(--pink); 
-            border-radius: 25px; padding: 30px 10px; text-align: center; 
-            text-decoration: none; color: white; transition: 0.3s;
-            box-shadow: 0 0 20px rgba(255, 0, 85, 0.1);
+            background: var(--glass); border: 2px solid var(--border); border-radius: 30px; 
+            padding: 30px 15px; text-align: center; text-decoration: none; color: white; 
+            transition: 0.4s; backdrop-filter: blur(10px); box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            position: relative; overflow: hidden;
         }
-        .tetris-card { border-color: var(--neon); box-shadow: 0 0 20px rgba(0, 255, 136, 0.1); }
         .card:active { transform: scale(0.96); }
 
+        /* 3D GEMS CARD */
+        .card-jewel { border-color: var(--gold); }
+        .card-tetris { border-color: var(--neon); }
+        .card-candy { border-color: var(--pink); }
+
+        .icon { font-size: 50px; display: block; margin-bottom: 10px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.3)); }
+        
         .btn { 
-            display: inline-block; margin-top: 15px; padding: 12px 35px; 
+            display: inline-block; margin-top: 15px; padding: 12px 40px; 
             border-radius: 40px; font-weight: 900; text-transform: uppercase; 
-            font-size: 12px; background: var(--pink); box-shadow: 0 0 15px var(--pink); 
+            font-size: 13px; letter-spacing: 1px;
         }
-        .tetris-btn { background: var(--neon); color: black; box-shadow: 0 0 15px var(--neon); }
+        .btn-candy { background: var(--pink); box-shadow: 0 0 15px var(--pink); }
+        .btn-tetris { background: var(--neon); color: #000; box-shadow: 0 0 15px var(--neon); }
+        .btn-jewel { background: var(--gold); color: #000; box-shadow: 0 0 20px var(--gold); }
 
         /* TICKER */
         .ticker-wrap { 
-            position: fixed; bottom: 0; width: 100%; background: #000; 
+            position: fixed; bottom: 0; width: 100%; background: rgba(0,0,0,0.9); 
             border-top: 2px solid var(--gold); padding: 10px 0; z-index: 100; 
         }
-        .ticker { display: flex; white-space: nowrap; animation: marquee 30s linear infinite; color: var(--gold); font-size: 10px; font-weight: 900; }
+        .ticker { display: flex; white-space: nowrap; animation: marquee 35s linear infinite; color: var(--gold); font-size: 11px; font-weight: 900; letter-spacing: 1px; }
         @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
     </style>
 </head>
 <body>
 
-    <canvas id="starfield"></canvas>
+    <div class="bg-wallpaper"></div>
+    <div class="bg-overlay"></div>
 
     <div class="header">
         <h1 class="logo">BZ247</h1>
         <span class="studio">STUDIOS</span>
     </div>
 
-    <div class="scroll-container">
+    <div class="hub-content">
         <div class="profile-card">
             <div class="avatar">👨‍✈️</div>
             <div>
-                <p style="margin:0; font-family:'Orbitron'; font-size:14px;">PILOT WASEEM</p>
-                <span style="font-size: 8px; background: var(--neon); color: #000; padding: 2px 6px; border-radius: 4px; font-weight: 900;">CADET LVL 1</span>
+                <p style="margin:0; font-family:'Orbitron'; font-size:15px; letter-spacing:1px;">PILOT WASEEM</p>
+                <span style="font-size: 9px; background: var(--neon); color: #000; padding: 2px 8px; border-radius: 5px; font-weight: 900; text-transform: uppercase;">RANK: CADET LVL 1</span>
             </div>
         </div>
 
-        <div class="hub-grid">
-            <a href="candy.html" class="card">
-                <span style="font-size: 50px; display: block; margin-bottom: 10px;">🍭</span>
-                <h2 style="margin:0;">CANDY MAFIA</h2>
-                <div class="btn">DEPLOY ▶</div>
+        <div class="grid">
+            <a href="candy.html" class="card card-candy" onclick="playClick()">
+                <span class="icon">🍭</span>
+                <h2 style="margin:0; font-size: 20px;">CANDY MAFIA</h2>
+                <p style="font-size: 10px; color: #ccc; margin-top: 5px;">3D ACTION SURVIVAL</p>
+                <div class="btn btn-candy">DEPLOY ▶</div>
             </a>
 
-            <a href="tetris.html" class="card tetris-card">
-                <span style="font-size: 50px; display: block; margin-bottom: 10px;">🧱</span>
-                <h2 style="color: var(--neon); margin:0;">CYBER GRID</h2>
-                <div class="btn tetris-btn">DEPLOY ▶</div>
+            <a href="tetris.html" class="card card-tetris" onclick="playClick()">
+                <span class="icon">🧱</span>
+                <h2 style="margin:0; font-size: 20px; color: var(--neon);">CYBER GRID</h2>
+                <p style="font-size: 10px; color: #ccc; margin-top: 5px;">NEON TACTICAL STRATEGY</p>
+                <div class="btn btn-tetris">DEPLOY ▶</div>
+            </a>
+
+            <a href="jewel.html" class="card card-jewel" onclick="playClick()">
+                <span class="icon">💎</span>
+                <h2 style="margin:0; font-size: 20px; color: var(--gold);">ROYAL GEMS</h2>
+                <p style="font-size: 10px; color: #ccc; margin-top: 5px;">3D DRAG & DROP PUZZLE</p>
+                <div class="btn btn-jewel">DEPLOY ▶</div>
             </a>
         </div>
     </div>
 
     <div class="ticker-wrap">
-        <div class="ticker">🚀 BZ247 HUB: SYSTEM ONLINE ... SCROLL DOWN TO EXPLORE MORE MISSIONS ... 🎖️ NEW RANK SYSTEM ACTIVE</div>
+        <div class="ticker">🚀 WELCOME TO BZ247 STUDIOS ... NEW 3D ROYAL GEMS PUZZLE IS NOW LIVE ... 🎖️ MISSION STATUS: ACTIVE ... 🏆 TOP PILOT: WASEEM</div>
     </div>
 
     <script>
-        const canvas = document.getElementById('starfield'), ctx = canvas.getContext('2d');
-        let stars = [];
-        function initStars() {
-            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            stars = []; for(let i=0; i<150; i++) stars.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, z: Math.random()*canvas.width });
+        let aCtx;
+        function playClick() {
+            if(!aCtx) aCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (aCtx.state === 'suspended') aCtx.resume();
+            let o = aCtx.createOscillator(), g = aCtx.createGain();
+            o.type = 'sine'; o.frequency.setValueAtTime(1000, aCtx.currentTime);
+            g.gain.setValueAtTime(0.05, aCtx.currentTime);
+            o.connect(g); g.connect(aCtx.destination);
+            o.start(); o.stop(aCtx.currentTime + 0.1);
+            if(navigator.vibrate) navigator.vibrate(25);
         }
-        function drawStars() {
-            ctx.fillStyle = "black"; ctx.fillRect(0,0, canvas.width, canvas.height);
-            ctx.fillStyle = "white";
-            stars.forEach(s => {
-                let x = (s.x - canvas.width/2) * (canvas.width/s.z) + canvas.width/2;
-                let y = (s.y - canvas.height/2) * (canvas.width/s.z) + canvas.height/2;
-                let size = (1 - s.z/canvas.width) * 2;
-                ctx.beginPath(); ctx.arc(x, y, size, 0, Math.PI*2); ctx.fill();
-                s.z -= 0.8; if(s.z <= 0) s.z = canvas.width;
-            });
-            requestAnimationFrame(drawStars);
-        }
-        window.onresize = initStars; initStars(); drawStars();
     </script>
 </body>
 </html>
