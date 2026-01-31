@@ -4,157 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>BZ247 Studios | Command Center</title>
-    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&display=swap');
-        
-        :root { 
-            --pink: #ff0055; --neon: #00ff88; --gold: #ffd700; --cyan: #00d4ff;
-            --glass: rgba(255, 255, 255, 0.08); --border: rgba(255, 255, 255, 0.15);
-        }
-
+        :root { --pink: #ff0055; --neon: #00ff88; --gold: #ffd700; --cyan: #00d4ff; --glass: rgba(255, 255, 255, 0.08); }
         * { user-select: none; -webkit-user-select: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
-
-        body, html { 
-            margin: 0; padding: 0; width: 100%; height: 100%; 
-            font-family: 'Montserrat', sans-serif; color: white;
-            overflow-x: hidden; display: flex; flex-direction: column;
-            background: #000;
-        }
-
-        /* REALISTIC 3D BACKGROUND */
-        .bg-wallpaper {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1080&auto=format&fit=crop') no-repeat center center;
-            background-size: cover; z-index: -2;
-        }
-        .bg-overlay { position: fixed; inset: 0; background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.8) 100%); backdrop-filter: blur(10px); z-index: -1; }
-
-        .header { text-align: center; padding: 30px 0 15px; flex-shrink: 0; }
-        .logo { font-family: 'Orbitron'; font-size: 40px; color: #fff; text-shadow: 0 0 20px var(--pink); margin: 0; letter-spacing: 2px; }
-        .studio { font-size: 11px; color: var(--neon); letter-spacing: 10px; display: block; font-weight: 900; }
-
-        .hub-content {
-            flex: 1; overflow-y: auto; width: 100%; display: flex; flex-direction: column; 
-            align-items: center; padding-bottom: 100px; -webkit-overflow-scrolling: touch;
-        }
-
-        /* ADVANCED PILOT Dossier */
-        .profile-card { 
-            background: var(--glass); border: 2px solid var(--neon); border-radius: 25px; 
-            padding: 15px 25px; width: 85%; max-width: 500px; display: flex; align-items: center; 
-            gap: 20px; margin-bottom: 25px; backdrop-filter: blur(20px);
-            box-shadow: 0 0 30px rgba(0, 255, 136, 0.15);
-        }
-        .avatar-wrap { position: relative; }
-        .avatar { font-size: 35px; border: 3px solid var(--neon); border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; background: #000; box-shadow: 0 0 15px var(--neon); }
-        .online-dot { position: absolute; bottom: 5px; right: 5px; width: 12px; height: 12px; background: var(--neon); border-radius: 50%; border: 2px solid #000; }
-
-        .pilot-info h2 { margin: 0; font-family: 'Orbitron'; font-size: 16px; letter-spacing: 1px; }
-        .xp-bar { width: 150px; height: 6px; background: #222; border-radius: 10px; margin-top: 8px; overflow: hidden; }
-        .xp-fill { width: 45%; height: 100%; background: var(--neon); box-shadow: 0 0 10px var(--neon); }
-
-        /* MISSION GRID */
-        .grid { display: grid; grid-template-columns: 1fr; gap: 20px; width: 90%; max-width: 500px; }
-        
-        .card { 
-            background: var(--glass); border: 1px solid var(--border); border-radius: 30px; 
-            padding: 25px; text-align: left; text-decoration: none; color: white; 
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; gap: 20px;
-        }
-        .card:active { transform: scale(0.97); background: rgba(255,255,255,0.05); }
-
-        .card-space { border-left: 5px solid var(--cyan); box-shadow: 0 10px 30px rgba(0, 212, 255, 0.1); }
-        .card-jewel { border-left: 5px solid var(--gold); }
-        .card-tetris { border-left: 5px solid var(--neon); }
-        .card-candy { border-left: 5px solid var(--pink); }
-
-        .icon-box { font-size: 40px; flex-shrink: 0; }
-        .details { flex-grow: 1; }
-        .details h3 { margin: 0; font-size: 18px; letter-spacing: 1px; }
-        .details p { margin: 5px 0 0; font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
-
-        .status-badge { font-size: 8px; background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 10px; color: var(--cyan); font-weight: 900; }
-
-        /* BOTTOM TICKER */
-        .ticker-wrap { 
-            position: fixed; bottom: 0; width: 100%; background: rgba(0,0,0,0.95); 
-            border-top: 2px solid var(--cyan); padding: 12px 0; z-index: 100; 
-        }
-        .ticker { display: flex; white-space: nowrap; animation: marquee 40s linear infinite; color: var(--cyan); font-size: 10px; font-weight: 900; letter-spacing: 1px; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: 'Montserrat', sans-serif; color: white; background: #000; overflow: hidden; }
+        .bg-wallpaper { position: fixed; inset: 0; background: url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=1080&auto=format&fit=crop') no-repeat center center; background-size: cover; z-index: -2; }
+        .bg-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: -1; }
+        .header { text-align: center; padding: 30px 0 15px; }
+        .logo { font-family: 'Orbitron'; font-size: 35px; color: #fff; text-shadow: 0 0 20px var(--pink); margin: 0; }
+        .hub-content { flex: 1; overflow-y: auto; width: 100%; display: flex; flex-direction: column; align-items: center; padding-bottom: 100px; -webkit-overflow-scrolling: touch; }
+        .profile-card { background: var(--glass); border: 2px solid var(--neon); border-radius: 20px; padding: 12px 20px; width: 85%; max-width: 500px; display: flex; align-items: center; gap: 15px; margin-bottom: 20px; backdrop-filter: blur(15px); }
+        .avatar { font-size: 30px; border: 2px solid var(--neon); border-radius: 50%; width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; background: #000; }
+        .grid { display: grid; grid-template-columns: 1fr; gap: 15px; width: 90%; max-width: 500px; }
+        .card { background: var(--glass); border: 1px solid rgba(255,255,255,0.1); border-radius: 25px; padding: 20px; text-align: left; text-decoration: none; color: white; display: flex; align-items: center; gap: 15px; }
+        .card-space { border-left: 5px solid var(--cyan); }
+        .status-badge { font-size: 8px; background: rgba(0,212,255,0.2); padding: 3px 8px; border-radius: 10px; color: var(--cyan); font-weight: 900; }
+        .ticker-wrap { position: fixed; bottom: 0; width: 100%; background: #000; border-top: 2px solid var(--cyan); padding: 10px 0; z-index: 100; }
+        .ticker { display: flex; white-space: nowrap; animation: marquee 40s linear infinite; color: var(--cyan); font-size: 10px; font-weight: 900; }
         @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
     </style>
 </head>
 <body>
-
-    <div class="bg-wallpaper"></div>
-    <div class="bg-overlay"></div>
-
-    <div class="header">
-        <h1 class="logo">BZ247</h1>
-        <span class="studio">MILITARY COMMAND</span>
-    </div>
-
+    <div class="bg-wallpaper"></div><div class="bg-overlay"></div>
+    <div class="header"><h1 class="logo">BZ247</h1><span style="font-size:10px; color:var(--neon); letter-spacing:8px;">COMMAND CENTER</span></div>
     <div class="hub-content">
         <div class="profile-card">
-            <div class="avatar-wrap">
-                <div class="avatar">👨‍✈️</div>
-                <div class="online-dot"></div>
-            </div>
-            <div class="pilot-info">
-                <h2>COMMANDER WASEEM</h2>
-                <div class="xp-bar"><div class="xp-fill"></div></div>
-                <p style="font-size: 9px; margin-top: 5px; color: var(--neon);">RANK: ELITE PILOT | LVL 12</p>
-            </div>
+            <div class="avatar">👨‍✈️</div>
+            <div><h2 style="margin:0; font-family:'Orbitron'; font-size:14px;">COMMANDER WASEEM</h2><p style="font-size:8px; color:var(--neon); margin:2px 0;">RANK: ELITE PILOT | LVL 12</p></div>
         </div>
-
         <div class="grid">
-            <a href="Space-shootar.html" class="card card-space" onclick="playClick()">
-                <div class="icon-box">🚀</div>
-                <div class="details">
-                    <span class="status-badge">NEW MISSION</span>
-                    <h3>SPACE VANGUARD</h3>
-                    <p>Stage 1: Dragon Defeat | Stage 2: Alien War</p>
-                </div>
-                <div style="color: var(--cyan);">▶</div>
+            <a href="space-shooter.html" class="card card-space">
+                <div style="font-size:35px;">🚀</div>
+                <div><span class="status-badge">MISSION ACTIVE</span><h3 style="margin:5px 0 0;">SPACE VANGUARD</h3><p style="font-size:9px; color:#888;">DRAGON BOSS & ALIEN WAR</p></div>
+                <div style="margin-left:auto; color:var(--cyan);">▶</div>
             </a>
-
-            <a href="jewel.html" class="card card-jewel" onclick="playClick()">
-                <div class="icon-box">💎</div>
-                <div class="details">
-                    <h3>ROYAL GEMS</h3>
-                    <p>3D Gem Puzzle & Strategy</p>
-                </div>
-                <div style="color: var(--gold);">▶</div>
-            </a>
-
-            <a href="tetris.html" class="card card-tetris" onclick="playClick()">
-                <div class="icon-box">🧱</div>
-                <div class="details">
-                    <h3>CYBER GRID</h3>
-                    <p>Neon Block Tactical Defense</p>
-                </div>
-                <div style="color: var(--neon);">▶</div>
-            </a>
-
-            <a href="candy.html" class="card card-candy" onclick="playClick()">
-                <div class="icon-box">🍭</div>
-                <div class="details">
-                    <h3>CANDY MAFIA</h3>
-                    <p>Cinematic 3D Survival Action</p>
-                </div>
-                <div style="color: var(--pink);">▶</div>
-            </a>
+            <a href="jewel.html" class="card" style="border-left:5px solid var(--gold);"><div style="font-size:35px;">💎</div><div><h3>ROYAL GEMS</h3><p style="font-size:9px; color:#888;">3D GEMS PUZZLE</p></div></a>
+            <a href="tetris.html" class="card" style="border-left:5px solid var(--neon);"><div style="font-size:35px;">🧱</div><div><h3>CYBER GRID</h3><p style="font-size:9px; color:#888;">NEON TACTICAL DEFENSE</p></div></a>
+            <a href="candy.html" class="card" style="border-left:5px solid var(--pink);"><div style="font-size:35px;">🍭</div><div><h3>CANDY MAFIA</h3><p style="font-size:9px; color:#888;">3D SURVIVAL ACTION</p></div></a>
         </div>
     </div>
-
-    <div class="ticker-wrap">
-        <div class="ticker">
-            ⚠️ WARNING: ALIEN SIGNAL DETECTED IN STAGE 2 ... 🎖️ COMMANDER WASEEM PREPARE FOR DEPLOYMENT ... 🚀 SPACE VANGUARD SHIP UPGRADED ... 💎 COLLECT ROYAL GEMS TO UNLOCK SECRET RANKS ... ⚠️
-        </div>
-    </div>
-
+    <div class="ticker-wrap"><div class="ticker">⚠️ WARNING: ALIEN SIGNAL DETECTED ... STAGE 2 UNLOCKED AFTER DRAGON DEFEAT ... 🚀 COMMANDER WASEEM PREPARE FOR DEPLOYMENT ...</div></div>
     <script>
         let aCtx;
         function playClick() {
@@ -165,7 +56,6 @@
             g.gain.setValueAtTime(0.05, aCtx.currentTime);
             o.connect(g); g.connect(aCtx.destination);
             o.start(); o.stop(aCtx.currentTime + 0.1);
-            if(navigator.vibrate) navigator.vibrate(25);
         }
     </script>
 </body>
