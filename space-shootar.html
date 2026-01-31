@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BZ247 Studios | Space Vanguard 3D</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&display=swap');
+        :root { --neon: #00ff88; --pink: #ff0055; --gold: #ffd700; }
+        * { user-select: none; touch-action: none; -webkit-tap-highlight-color: transparent; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Orbitron', sans-serif; color: white; }
+        
+        #gameCanvas { display: block; background: url('https://images.unsplash.com/photo-1506318137071-a8e063b4b6a1?q=80&w=1000&auto=format&fit=crop') repeat-y; background-size: cover; }
+        
+        .hud { position: absolute; top: 15px; width: 100%; display: flex; justify-content: space-around; pointer-events: none; }
+        .stat { background: rgba(0,0,0,0.6); border: 1px solid var(--neon); padding: 5px 15px; border-radius: 20px; text-align: center; }
+        .stat span { font-size: 8px; color: var(--neon); display: block; text-transform: uppercase; }
+        .stat b { font-size: 16px; }
+
+        #bossHealthWrap { position: absolute; top: 70px; width: 80%; left: 10%; display: none; }
+        #bossHealth { width: 100%; height: 10px; background: #333; border: 1px solid var(--pink); border-radius: 5px; }
+        #bossFill { height: 100%; background: var(--pink); width: 100%; transition: 0.1s; }
+
+        #msg { position: absolute; top: 50%; width: 100%; text-align: center; font-size: 30px; text-shadow: 0 0 20px var(--gold); display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="hud">
+        <div class="stat"><span>Score</span><b id="sTxt">0</b></div>
+        <div class="stat"><span>Stage</span><b id="lvlTxt">1</b></div>
+        <div class="stat"><span>Health</span><b id="hTxt">100</b></div>
+    </div>
+
+    <div id="bossHealthWrap">
+        <div id="bossHealth"><div id="bossFill"></div></div>
+        <center><small style="color:var(--pink)">DRAGON BOSS DETECTED</small></center>
+    </div>
+
+    <div id="msg">STAGE 2 START</div>
+
+    <canvas id="gameCanvas"></canvas>
+
+<script>
+    const canvas = document.getElementById('gameCanvas'), ctx = canvas.getContext('2d');
+    const sTxt = document.getElementById('sTxt'), lvlTxt = document.getElementById('lvlTxt'), hTxt = document.getElementById('hTxt');
+    
+    let shipImg = new Image(), enemyImg = new Image(), dragonImg = new Image();
+    shipImg.src = 'https://cdn-icons-png.flaticon.com/512/1055/1055620.png'; // Pro Space Ship
+    enemyImg.src = 'https://cdn-icons-png.flaticon.com/512/3034/3034237.png'; // Alien Ship
+    dragonImg.src = 'https://cdn-icons-png.flaticon.com/512/3063/3063548.png'; // Dragon Boss
+
+    let score = 0, stage = 1, health = 100, gameActive = true;
+    let shooting = false, powerActive = false, dragonActive = false;
+    let dragonHealth = 1000;
+
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+
+    let player = { x: canvas.width/2 - 25, y: canvas.height - 100, w: 50, h: 50 };
+    let bullets = [], enemies = [], powers = [], particles = [];
+
+    // --- TOUCH CONTROLS (Hold thumb to move & shoot) ---
+    canvas.addEventListener('touchstart', (e) => { 
+        shooting = true; updatePos(e); 
+        if(!audioCtx) initAudio();
+    });
+    canvas.addEventListener('touchmove', (e) => { updatePos(e); });
+    canvas.addEventListener('touchend', () => { shooting = false; });
+
+    function updatePos(e) {
+        const touch = e.touches[0];
+        player.x = touch.clientX - player.w/2;
+        player.y = touch.clientY - player.h/2 - 50; // Offset for thumb visibility
+    }
+
+    // --- GAME LOGIC ---
+    function spawnEnemy() {
+        if(dragonActive) return;
+        enemies.push({ x: Math.random()*(canvas.width-40), y: -50, w: 40, h: 40, hp: stage*2 });
+    }
+
+    function spawnPower() {
+        powers.push({ x: Math.random()*(canvas.width-30), y: -30, w: 30, h: 30 });
+    }
+
+    function shoot() {
+        if(!shooting || !gameActive) return;
+        bullets.push({ x: player.x + player.w/2 - 2, y: player.y, w: 4, h: 15 });
+        if(powerActive) {
+            bullets.push({ x: player.x, y: player.y, w: 4, h: 15 });
+            bullets.push({ x: player.x + player.w, y: player.y, w: 4, h: 15 });
+        }
+        playLaserSound();
+    }
+    setInterval(shoot, 150);
+    setInterval(spawnEnemy, 1000);
+    setInterval(() => { if(Math.random() < 0.2) spawnPower(); }, 5000);
+
+    function loop() {
+        if(!gameActive) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Score Check for Dragon Boss
+        if(score >= 1000 && stage === 1 && !dragonActive) {
+            dragonActive = true;
+            document.getElementById('bossHealthWrap').style.display = 'block';
+        }
+
+        // Move Bullets
+        bullets.forEach((b, i) => {
+            b.y -= 10; if(b.y < 0) bullets.splice(i, 1);
+            ctx.fillStyle = powerActive ? 'cyan' : 'yellow';
+            ctx.fillRect(b.x, b.y, b.w, b.h);
+        });
+
+        // Move Enemies
+        enemies.forEach((e, i) => {
+            e.y += 2 + stage;
+            ctx.drawImage(enemyImg, e.x, e.y, e.w, e.h);
+            if(e.y > canvas.height) { enemies.splice(i, 1); health -= 5; }
+
+            bullets.forEach((b, bi) => {
+                if(b.x < e.x + e.w && b.x + b.w > e.x && b.y < e.y + e.h && b.y + b.h > e.y) {
+                    enemies.splice(i, 1); bullets.splice(bi, 1);
+                    score += 20; sTxt.innerText = score;
+                }
+            });
+        });
+
+        // Power-ups
+        powers.forEach((p, i) => {
+            p.y += 3;
+            ctx.fillStyle = 'var(--gold)'; ctx.beginPath();
+            ctx.arc(p.x + 15, p.y + 15, 15, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = 'black'; ctx.fillText('P', p.x + 10, p.y + 20);
+            
+            if(p.x < player.x + player.w && p.x + p.w > player.x && p.y < player.y + player.h && p.y + p.h > player.y) {
+                powers.splice(i, 1); powerActive = true;
+                setTimeout(() => powerActive = false, 7000);
+            }
+        });
+
+        // DRAGON BOSS LOGIC
+        if(dragonActive) {
+            let dx = Math.sin(Date.now()/500) * 100 + (canvas.width/2 - 75);
+            ctx.drawImage(dragonImg, dx, 100, 150, 150);
+            
+            bullets.forEach((b, bi) => {
+                if(b.x < dx + 150 && b.x + b.w > dx && b.y < 100 + 150 && b.y + b.h > 100) {
+                    dragonHealth -= 5; bullets.splice(bi, 1);
+                    document.getElementById('bossFill').style.width = (dragonHealth/10) + "%";
+                }
+            });
+
+            if(dragonHealth <= 0) {
+                dragonActive = false;
+                document.getElementById('bossHealthWrap').style.display = 'none';
+                startStageTransition(); // Kill Dragon -> Ship moves up
+            }
+        }
+
+        ctx.drawImage(shipImg, player.x, player.y, player.w, player.h);
+        hTxt.innerText = health;
+        if(health <= 0) { alert("MISSION FAILED!"); location.reload(); }
+        
+        requestAnimationFrame(loop);
+    }
+
+    function startStageTransition() {
+        let upAnim = setInterval(() => {
+            player.y -= 15;
+            if(player.y < -100) {
+                clearInterval(upAnim);
+                nextStage();
+            }
+        }, 30);
+    }
+
+    function nextStage() {
+        stage = 2; lvlTxt.innerText = stage;
+        document.getElementById('msg').style.display = 'block';
+        setTimeout(() => {
+            document.getElementById('msg').style.display = 'none';
+            player.y = canvas.height - 100;
+        }, 2000);
+    }
+
+    // --- AUDIO ---
+    let audioCtx;
+    function initAudio() { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    function playLaserSound() {
+        if(!audioCtx) return;
+        let o = audioCtx.createOscillator(), g = audioCtx.createGain();
+        o.type = 'sawtooth'; o.frequency.setValueAtTime(400, audioCtx.currentTime);
+        o.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1);
+        g.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start(); o.stop(audioCtx.currentTime + 0.1);
+    }
+
+    loop();
+</script>
+</body>
+</html>
