@@ -3,99 +3,194 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Space Vanguard | BZ247 Studios</title>
+    <title>Space Vanguard Pro | BZ247 Studios</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&display=swap');
         :root { --neon: #00ff88; --pink: #ff0055; --gold: #ffd700; --cyan: #00d4ff; }
         * { user-select: none; touch-action: none; -webkit-tap-highlight-color: transparent; }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Orbitron', sans-serif; color: white; }
-        #gameCanvas { display: block; background: black; }
+        
+        /* Realistic Space Background */
+        #gameCanvas { display: block; background: url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=1000&auto=format&fit=crop') repeat-y; background-size: cover; }
+        
         .hud { position: absolute; top: 15px; width: 100%; display: flex; justify-content: space-around; pointer-events: none; z-index: 10; }
-        .stat { background: rgba(0,0,0,0.7); border: 2px solid var(--neon); padding: 5px 12px; border-radius: 12px; text-align: center; }
-        .stat span { font-size: 7px; color: var(--neon); display: block; }
-        #bossHealthWrap { position: absolute; top: 80px; width: 80%; left: 10%; display: none; z-index: 10; }
-        #bossFill { height: 10px; background: var(--pink); width: 100%; transition: 0.1s; border-radius: 5px; box-shadow: 0 0 10px var(--pink); }
+        .stat { background: rgba(0,0,0,0.8); border: 2px solid var(--neon); padding: 8px 15px; border-radius: 12px; text-align: center; backdrop-filter: blur(5px); }
+        .stat b { font-size: 16px; text-shadow: 0 0 10px var(--neon); }
+
+        #bossHealthWrap { position: absolute; top: 85px; width: 80%; left: 10%; display: none; z-index: 10; }
+        #bossFill { height: 10px; background: linear-gradient(to right, #660000, #ff0000); width: 100%; transition: 0.1s; border-radius: 5px; box-shadow: 0 0 15px var(--pink); }
+
+        /* START OVERLAY FOR AUDIO */
+        #startOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
+        .start-btn { background: var(--cyan); color: #000; padding: 20px 40px; border-radius: 50px; font-weight: 900; font-size: 20px; border: none; cursor: pointer; box-shadow: 0 0 30px var(--cyan); }
     </style>
 </head>
-<body onload="init()">
-    <div class="hud">
-        <div class="stat"><span>Score</span><b id="s">0</b></div>
-        <div class="stat"><span>Stage</span><b id="lv">1</b></div>
-        <div class="stat"><span>Health</span><b id="h">100</b></div>
+<body>
+
+    <div id="startOverlay">
+        <h1 style="color:var(--cyan); margin-bottom:20px;">READY COMMANDER?</h1>
+        <button class="start-btn" onclick="startGame()">INITIATE MISSION ▶</button>
     </div>
-    <div id="bossHealthWrap"><div style="background:#222; border-radius:5px;"><div id="bossFill"></div></div><center><small style="color:var(--pink)">DRAGON BOSS DETECTED</small></center></div>
+
+    <div class="hud">
+        <div class="stat"><span>SCORE</span><br><b id="s">0</b></div>
+        <div class="stat"><span>STAGE</span><br><b id="lv">1</b></div>
+        <div class="stat"><span>HEALTH</span><br><b id="h">100</b></div>
+    </div>
+
+    <div id="bossHealthWrap">
+        <div style="background:#111; border-radius:5px;"><div id="bossFill"></div></div>
+        <center><small style="color:var(--pink); letter-spacing:3px;">DRAGON BOSS DETECTED</small></center>
+    </div>
+
     <canvas id="gameCanvas"></canvas>
 
 <script>
     const canvas = document.getElementById('gameCanvas'), ctx = canvas.getContext('2d');
-    let shipImg = new Image(), enemyImg = new Image(), alienImg = new Image(), dragonImg = new Image();
-    shipImg.src = 'https://cdn-icons-png.flaticon.com/512/1055/1055620.png'; // Realistic Ship
-    enemyImg.src = 'https://cdn-icons-png.flaticon.com/512/3034/3034237.png'; // Stage 1 Alien
-    alienImg.src = 'https://cdn-icons-png.flaticon.com/512/6122/6122170.png'; // Stage 2 Pro Alien
-    dragonImg.src = 'https://cdn-icons-png.flaticon.com/512/3063/3063548.png'; // Dragon
+    
+    // REALISTIC SHIP ASSETS
+    let shipImg = new Image(), enemyImg = new Image(), dragonImg = new Image();
+    shipImg.src = 'https://cdn-icons-png.flaticon.com/512/3214/3214589.png'; // High-res Sci-Fi Ship
+    enemyImg.src = 'https://cdn-icons-png.flaticon.com/512/3214/3214643.png'; // Realistic Alien Ship
+    dragonImg.src = 'https://cdn-icons-png.flaticon.com/512/3063/3063548.png'; // Dragon Boss
 
-    let score = 0, stage = 1, health = 100, dragonHP = 1000, gameActive = true, dragonActive = false, shooting = false;
-    let player = { x: 0, y: 0, w: 55, h: 55 }, bullets = [], enemies = [], powerUps = [];
+    let score = 0, stage = 1, health = 100, dragonHP = 1000, gameActive = false;
+    let shooting = false, dragonActive = false, bgY = 0;
+    let player = { x: 0, y: 0, w: 60, h: 60 }, bullets = [], enemies = [], powerUps = [];
 
-    function init() {
+    // AUDIO CONTEXT
+    let audioCtx, music;
+    function initAudio() {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // Simple Background Music Tone Loop
+        setInterval(() => { if(gameActive) playSound(150, 'sine', 0.5, 0.02); }, 1000);
+    }
+
+    function playSound(f, type, d, v=0.05) {
+        if(!audioCtx) return;
+        let o = audioCtx.createOscillator(), g = audioCtx.createGain();
+        o.type = type; o.frequency.setValueAtTime(f, audioCtx.currentTime);
+        g.gain.setValueAtTime(v, audioCtx.currentTime);
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start(); o.stop(audioCtx.currentTime + d);
+    }
+
+    function startGame() {
+        document.getElementById('startOverlay').style.display = 'none';
+        initAudio();
         canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-        player.x = canvas.width/2 - 27; player.y = canvas.height - 150;
+        player.x = canvas.width/2 - 30; player.y = canvas.height - 150;
+        gameActive = true;
         loop();
     }
 
-    // THUMB CONTROL
-    canvas.addEventListener('touchstart', (e) => { shooting = true; move(e); });
-    canvas.addEventListener('touchmove', move);
+    // THUMB CONTROL: Shoot when thumb is on ship
+    canvas.addEventListener('touchstart', (e) => { shooting = true; updatePos(e); });
+    canvas.addEventListener('touchmove', (e) => { updatePos(e); });
     canvas.addEventListener('touchend', () => shooting = false);
 
-    function move(e) { player.x = e.touches[0].clientX - 27; player.y = e.touches[0].clientY - 100; }
+    function updatePos(e) {
+        let t = e.touches[0];
+        player.x = t.clientX - 30;
+        player.y = t.clientY - 90; // Thumb offset
+    }
 
-    setInterval(() => { if(shooting && gameActive) bullets.push({ x: player.x + 25, y: player.y, w: 4, h: 15 }); }, 150);
-    setInterval(() => { if(!dragonActive) enemies.push({ x: Math.random()*(canvas.width-40), y: -50, w: 40, h: 40 }); }, 1200);
+    // Spawning Logic Fix
+    setInterval(() => { if(shooting && gameActive) shoot(); }, 140);
+    setInterval(() => { if(gameActive && !dragonActive) spawnEnemy(); }, 1500);
+    setInterval(() => { if(gameActive && Math.random() < 0.1) spawnPower(); }, 5000);
+
+    function shoot() {
+        bullets.push({ x: player.x + 28, y: player.y, w: 4, h: 18 });
+        playSound(800, 'sawtooth', 0.05, 0.03);
+    }
+
+    function spawnEnemy() {
+        enemies.push({ x: Math.random()*(canvas.width-50), y: -60, w: 50, h: 50, speed: 2 + (stage * 0.5) });
+    }
+
+    function spawnPower() {
+        powerUps.push({ x: Math.random()*(canvas.width-30), y: -30, w: 30, h: 30 });
+    }
 
     function loop() {
         if(!gameActive) return;
-        ctx.fillStyle = "black"; ctx.fillRect(0,0, canvas.width, canvas.height);
+        
+        // Background Scroll
+        bgY += 1; if(bgY > canvas.height) bgY = 0;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // Dragon Spawn
-        if(score >= 1000 && stage === 1 && !dragonActive) { dragonActive = true; document.getElementById('bossHealthWrap').style.display = 'block'; }
+        // Dragon Trigger
+        if(score >= 1000 && stage === 1 && !dragonActive) {
+            dragonActive = true;
+            document.getElementById('bossHealthWrap').style.display = 'block';
+        }
 
+        // Bullets
         bullets.forEach((b, i) => {
-            b.y -= 12; ctx.fillStyle = varColor(); ctx.fillRect(b.x, b.y, b.w, b.h);
+            b.y -= 12; ctx.fillStyle = stage === 1 ? 'yellow' : 'cyan';
+            ctx.fillRect(b.x, b.y, b.w, b.h);
             if(b.y < -20) bullets.splice(i, 1);
         });
 
+        // Enemies
         enemies.forEach((e, i) => {
-            e.y += (2 + stage);
-            ctx.drawImage(stage === 1 ? enemyImg : alienImg, e.x, e.y, e.w, e.h);
+            e.y += e.speed;
+            ctx.drawImage(enemyImg, e.x, e.y, e.w, e.h);
             if(e.y > canvas.height) { enemies.splice(i, 1); health -= 10; updateHUD(); }
-            
+
             bullets.forEach((b, bi) => {
                 if(b.x < e.x + e.w && b.x + b.w > e.x && b.y < e.y + e.h && b.y + b.h > e.y) {
-                    enemies.splice(i, 1); bullets.splice(bi, 1); score += 25; updateHUD();
+                    enemies.splice(i, 1); bullets.splice(bi, 1);
+                    score += 25; updateHUD(); playSound(200, 'square', 0.1, 0.05);
+                    if(navigator.vibrate) navigator.vibrate(20);
                 }
             });
         });
 
+        // Power Ups
+        powerUps.forEach((p, i) => {
+            p.y += 3;
+            ctx.fillStyle = 'var(--gold)'; ctx.beginPath();
+            ctx.arc(p.x+15, p.y+15, 15, 0, Math.PI*2); ctx.fill();
+            if(p.x < player.x+player.w && p.y < player.y+player.h && p.x+p.w > player.x && p.y+p.h > player.y) {
+                powerUps.splice(i, 1); health = Math.min(100, health+20); updateHUD();
+            }
+        });
+
+        // Boss Logic
         if(dragonActive) {
-            let dx = Math.sin(Date.now()/500) * (canvas.width/3) + (canvas.width/2 - 75);
-            ctx.drawImage(dragonImg, dx, 100, 150, 150);
+            let dx = Math.sin(Date.now()/500) * (canvas.width/3) + (canvas.width/2 - 80);
+            ctx.drawImage(dragonImg, dx, 100, 160, 160);
             bullets.forEach((b, bi) => {
-                if(b.x < dx+150 && b.x+b.w > dx && b.y < 250) { dragonHP -= 5; bullets.splice(bi, 1); document.getElementById('bossFill').style.width = (dragonHP/10) + "%"; }
+                if(b.x > dx && b.x < dx+160 && b.y < 260) {
+                    dragonHP -= 5; bullets.splice(bi, 1);
+                    document.getElementById('bossFill').style.width = (dragonHP/10) + "%";
+                }
             });
-            if(dragonHP <= 0) { dragonActive = false; document.getElementById('bossHealthWrap').style.display = 'none'; stageTransition(); }
+            if(dragonHP <= 0) { dragonActive = false; document.getElementById('bossHealthWrap').style.display = 'none'; transition(); }
         }
 
         ctx.drawImage(shipImg, player.x, player.y, player.w, player.h);
         if(health <= 0) { gameActive = false; alert("MISSION FAILED!"); location.reload(); }
+        
         requestAnimationFrame(loop);
     }
 
-    function varColor() { return stage === 1 ? 'yellow' : 'cyan'; }
-    function updateHUD() { document.getElementById('s').innerText = score; document.getElementById('h').innerText = health; document.getElementById('lv').innerText = stage; }
-    
-    function stageTransition() {
-        let up = setInterval(() => { player.y -= 15; if(player.y < -100) { clearInterval(up); stage = 2; player.y = canvas.height-150; updateHUD(); } }, 30);
+    function updateHUD() {
+        document.getElementById('s').innerText = score;
+        document.getElementById('lv').innerText = stage;
+        document.getElementById('h').innerText = health;
+    }
+
+    function transition() {
+        let t = setInterval(() => {
+            player.y -= 15;
+            if(player.y < -100) {
+                clearInterval(t); stage = 2; updateHUD();
+                player.y = canvas.height - 150;
+            }
+        }, 30);
     }
 </script>
 </body>
