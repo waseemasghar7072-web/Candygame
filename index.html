@@ -35,28 +35,15 @@
             <div><h2 style="margin:0; font-family:'Orbitron'; font-size:14px;">COMMANDER WASEEM</h2><p style="font-size:8px; color:var(--neon); margin:2px 0;">RANK: ELITE PILOT | LVL 12</p></div>
         </div>
         <div class="grid">
-            <a href="space-shooter.html" class="card card-space">
+            <a href="space-shootar.html" class="card card-space">
                 <div style="font-size:35px;">🚀</div>
                 <div><span class="status-badge">MISSION ACTIVE</span><h3 style="margin:5px 0 0;">SPACE VANGUARD</h3><p style="font-size:9px; color:#888;">DRAGON BOSS & ALIEN WAR</p></div>
                 <div style="margin-left:auto; color:var(--cyan);">▶</div>
             </a>
             <a href="jewel.html" class="card" style="border-left:5px solid var(--gold);"><div style="font-size:35px;">💎</div><div><h3>ROYAL GEMS</h3><p style="font-size:9px; color:#888;">3D GEMS PUZZLE</p></div></a>
             <a href="tetris.html" class="card" style="border-left:5px solid var(--neon);"><div style="font-size:35px;">🧱</div><div><h3>CYBER GRID</h3><p style="font-size:9px; color:#888;">NEON TACTICAL DEFENSE</p></div></a>
-            <a href="candy.html" class="card" style="border-left:5px solid var(--pink);"><div style="font-size:35px;">🍭</div><div><h3>CANDY MAFIA</h3><p style="font-size:9px; color:#888;">3D SURVIVAL ACTION</p></div></a>
         </div>
     </div>
     <div class="ticker-wrap"><div class="ticker">⚠️ WARNING: ALIEN SIGNAL DETECTED ... STAGE 2 UNLOCKED AFTER DRAGON DEFEAT ... 🚀 COMMANDER WASEEM PREPARE FOR DEPLOYMENT ...</div></div>
-    <script>
-        let aCtx;
-        function playClick() {
-            if(!aCtx) aCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if (aCtx.state === 'suspended') aCtx.resume();
-            let o = aCtx.createOscillator(), g = aCtx.createGain();
-            o.type = 'sine'; o.frequency.setValueAtTime(800, aCtx.currentTime);
-            g.gain.setValueAtTime(0.05, aCtx.currentTime);
-            o.connect(g); g.connect(aCtx.destination);
-            o.start(); o.stop(aCtx.currentTime + 0.1);
-        }
-    </script>
 </body>
 </html>
