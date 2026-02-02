@@ -3,15 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Space Vanguard: Blast Zone | BZ247</title>
+    <title>Vanguard Elite | BZ247 Studios</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&display=swap');
         :root { --neon: #00ff88; --pink: #ff0055; --cyan: #00d4ff; --gold: #ffd700; }
         * { user-select: none; touch-action: none; -webkit-tap-highlight-color: transparent; }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Orbitron', sans-serif; color: white; }
-        #gameCanvas { display: block; background: #000; }
+        
+        #gameCanvas { display: block; background: url('https://images.unsplash.com/photo-1475274047050-1d0c0975c63e?q=80&w=1000&auto=format&fit=crop') repeat-y; background-size: cover; }
+        
         .hud { position: absolute; top: 15px; width: 100%; display: flex; justify-content: space-around; pointer-events: none; z-index: 10; }
-        .stat { background: rgba(0,0,0,0.8); border: 2px solid var(--cyan); padding: 8px 15px; border-radius: 12px; text-align: center; }
+        .stat { background: rgba(0,0,0,0.85); border: 2px solid var(--cyan); padding: 8px 15px; border-radius: 12px; text-align: center; box-shadow: 0 0 15px rgba(0, 212, 255, 0.4); }
+        .stat b { font-size: 16px; color: #fff; text-shadow: 0 0 10px var(--cyan); }
+
+        #bossHealthWrap { position: absolute; top: 85px; width: 80%; left: 10%; display: none; z-index: 10; }
+        #bossFill { height: 12px; background: var(--pink); width: 100%; transition: 0.2s; border-radius: 6px; box-shadow: 0 0 15px var(--pink); }
+
         #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
         .start-btn { background: var(--cyan); color: #000; padding: 20px 50px; border-radius: 50px; font-weight: 900; font-size: 20px; border: none; cursor: pointer; box-shadow: 0 0 30px var(--cyan); }
     </style>
@@ -19,9 +26,9 @@
 <body onload="init()">
 
     <div id="overlay">
-        <h1 style="color:var(--cyan); margin-bottom:10px;">VANGUARD: BLAST MODE</h1>
-        <p style="color:#aaa; margin-bottom:25px;">COMMANDER WASEEM: ENEMY FIRING DETECTED</p>
-        <button class="start-btn" onclick="startMission()">INITIATE COMBAT ▶</button>
+        <h1 style="color:var(--cyan); margin-bottom:10px;">BZ247 ELITE COMBAT</h1>
+        <p style="color:#aaa; margin-bottom:25px;">STRIKE FORCE: COMMANDER WASEEM</p>
+        <button class="start-btn" onclick="startMission()">LAUNCH MISSION ▶</button>
     </div>
 
     <div class="hud">
@@ -29,24 +36,31 @@
         <div class="stat"><span>STAGE</span><br><b id="lv">1</b></div>
     </div>
 
+    <div id="bossHealthWrap">
+        <div style="background:#222; border-radius:6px; padding:2px;"><div id="bossFill"></div></div>
+        <center><small style="color:var(--pink); letter-spacing:2px; font-weight:bold;">BOSS HP</small></center>
+    </div>
+
     <canvas id="gameCanvas"></canvas>
 
 <script>
     const canvas = document.getElementById('gameCanvas'), ctx = canvas.getContext('2d');
     
-    // PRO FIGHTER JET ASSETS
+    // NEW PROFESSIONAL ASSETS
     let shipImg = new Image(), enemyImg = new Image(), dragonImg = new Image();
-    shipImg.src = 'https://cdn-icons-png.flaticon.com/512/3214/3214589.png'; // Fighter Jet Style
-    enemyImg.src = 'https://cdn-icons-png.flaticon.com/512/3214/3214643.png'; // Pro Alien Ship
+    shipImg.src = 'https://cdn-icons-png.flaticon.com/512/547/547434.png'; // Pro Fighter Jet (Top Down)
+    enemyImg.src = 'https://cdn-icons-png.flaticon.com/512/2590/2590137.png'; // Pro Alien Fighter
     dragonImg.src = 'https://cdn-icons-png.flaticon.com/512/3063/3063548.png';
 
-    let score = 0, stage = 1, gameActive = false, dragonActive = false;
-    let shooting = false, particles = [];
+    let score = 0, stage = 1, dragonHP = 1000, gameActive = false;
+    let shooting = false, dragonActive = false, bgY = 0;
     let player = { x: 0, y: 0, w: 70, h: 70, alive: true };
-    let bullets = [], enemyBullets = [], enemies = [];
+    let bullets = [], enemyBullets = [], enemies = [], explosions = [];
 
     let audioCtx;
-    function initAudio() { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    function initAudio() {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
 
     function playSound(f, type, d, v=0.05) {
         if(!audioCtx) return;
@@ -61,11 +75,13 @@
         document.getElementById('overlay').style.display = 'none';
         initAudio();
         canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-        player.x = canvas.width/2 - 35; player.y = canvas.height - 180;
-        gameActive = true; loop();
+        player.x = canvas.width/2 - 35; player.y = canvas.height - 200;
+        gameActive = true;
+        loop();
     }
 
-    canvas.addEventListener('touchstart', (e) => { shooting = true; updatePos(e); });
+    // THUMB CONTROL: Put thumb on ship to move and fire
+    canvas.addEventListener('touchstart', (e) => { if(gameActive && player.alive) shooting = true; updatePos(e); });
     canvas.addEventListener('touchmove', updatePos);
     canvas.addEventListener('touchend', () => shooting = false);
 
@@ -76,67 +92,79 @@
         player.y = t.clientY - 90;
     }
 
-    // Interval: Shooting Logic
-    setInterval(() => { if(shooting && gameActive && player.alive) firePlayer(); }, 150);
+    // GAME INTERVALS
+    setInterval(() => { if(shooting && gameActive && player.alive) firePlayer(); }, 140);
     setInterval(() => { if(gameActive && !dragonActive && player.alive) spawnEnemy(); }, 1200);
-    setInterval(() => { if(gameActive && player.alive) enemies.forEach(e => { if(Math.random() < 0.3) fireEnemy(e); }); }, 1800);
+    setInterval(() => { if(gameActive && player.alive) enemies.forEach(e => { if(Math.random() < 0.4) fireEnemy(e); }); }, 1500);
 
     function firePlayer() {
         bullets.push({ x: player.x + 32, y: player.y, w: 6, h: 22 });
-        playSound(800, 'sawtooth', 0.04, 0.03);
+        playSound(900, 'sawtooth', 0.04, 0.03);
     }
 
     function fireEnemy(e) {
-        enemyBullets.push({ x: e.x + e.w/2, y: e.y + e.h, w: 5, h: 15 });
+        enemyBullets.push({ x: e.x + e.w/2 - 2, y: e.y + e.h, w: 4, h: 18 });
     }
 
     function spawnEnemy() {
-        enemies.push({ x: Math.random()*(canvas.width-60), y: -70, w: 60, h: 60, s: 2.5 + (stage * 0.5) });
+        enemies.push({ x: Math.random()*(canvas.width-60), y: -70, w: 60, h: 60, s: 3 + (stage * 0.5) });
     }
 
-    // BLAST EFFECT LOGIC
-    function createExplosion(x, y, color) {
+    function createBlast(x, y, color) {
         for(let i=0; i<15; i++) {
-            particles.push({
+            explosions.push({
                 x: x, y: y,
-                vx: (Math.random()-0.5)*10, vy: (Math.random()-0.5)*10,
-                life: 30, color: color
+                vx: (Math.random()-0.5)*12, vy: (Math.random()-0.5)*12,
+                life: 25, color: color
             });
         }
     }
 
     function loop() {
         if(!gameActive) return;
+        
+        // Starfield Scrolling
+        bgY += 2; if(bgY > canvas.height) bgY = 0;
         ctx.fillStyle = "black"; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // --- BLAST PARTICLES ---
-        particles.forEach((p, i) => {
+        // --- EXPLOSIONS ---
+        explosions.forEach((p, i) => {
             p.x += p.vx; p.y += p.vy; p.life--;
             ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, 4, 4);
-            if(p.life <= 0) particles.splice(i, 1);
+            if(p.life <= 0) explosions.splice(i, 1);
         });
 
-        // --- PLAYER BULLETS (Gold) ---
+        // Dragon Boss Spawn
+        if(score >= 1200 && stage === 1 && !dragonActive) {
+            dragonActive = true;
+            document.getElementById('bossHealthWrap').style.display = 'block';
+        }
+
+        // --- PLAYER BULLETS (Yellow Glow) ---
         bullets.forEach((b, i) => {
             b.y -= 14;
-            ctx.fillStyle = (stage === 1) ? "#ffd700" : "#00d4ff";
+            ctx.shadowBlur = 15; ctx.shadowColor = "yellow";
+            ctx.fillStyle = "#FFD700";
             ctx.fillRect(b.x, b.y, b.w, b.h);
+            ctx.shadowBlur = 0;
             if(b.y < -30) bullets.splice(i, 1);
         });
 
-        // --- ENEMY BULLETS (Red) ---
+        // --- ENEMY BULLETS (Red Glow) ---
         enemyBullets.forEach((eb, i) => {
-            eb.y += 8;
-            ctx.shadowBlur = 10; ctx.shadowColor = "#ff0055";
-            ctx.fillStyle = "#ff0055"; ctx.fillRect(eb.x, eb.y, eb.w, eb.h);
+            eb.y += 9;
+            ctx.shadowBlur = 15; ctx.shadowColor = "red";
+            ctx.fillStyle = "#FF0000";
+            ctx.fillRect(eb.x, eb.y, eb.w, eb.h);
             ctx.shadowBlur = 0;
             
-            // SHIP BLAST: Enemy hit Player
+            // BLAST: Enemy hits Player
             if(player.alive && eb.x > player.x && eb.x < player.x + player.w && eb.y > player.y && eb.y < player.y + player.h) {
                 player.alive = false;
-                createExplosion(player.x + 35, player.y + 35, "#00d4ff");
-                playSound(100, 'square', 0.3, 0.2); 
-                setTimeout(() => { alert("SHIP BLASTED! MISSION FAILED."); location.reload(); }, 1000);
+                createBlast(player.x + 35, player.y + 35, "#00D4FF");
+                playSound(100, 'square', 0.4, 0.2); 
+                if(navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                setTimeout(() => { alert("MISSION FAILED! SHIP BLASTED."); location.reload(); }, 1200);
             }
             if(eb.y > canvas.height) enemyBullets.splice(i, 1);
         });
@@ -146,35 +174,59 @@
             e.y += e.s;
             ctx.drawImage(enemyImg, e.x, e.y, e.w, e.h);
             
-            // SHIP BLAST: Player hit Enemy
+            // BLAST: Player hits Enemy
             bullets.forEach((b, bi) => {
                 if(b.x < e.x + e.w && b.x + b.w > e.x && b.y < e.y + e.h && b.y + b.h > e.y) {
-                    createExplosion(e.x + 30, e.y + 30, "#ff5500");
+                    createBlast(e.x + 30, e.y + 30, "#FF4500");
                     enemies.splice(i, 1); bullets.splice(bi, 1);
-                    score += 50; document.getElementById('s').innerText = score;
+                    score += 40; document.getElementById('s').innerText = score;
                     playSound(200, 'square', 0.1, 0.1);
-                    if(navigator.vibrate) navigator.vibrate(30);
+                    if(navigator.vibrate) navigator.vibrate(25);
                 }
             });
 
-            // Collision Blast: Player hits Enemy ship
+            // Collision Blast
             if(player.alive && e.x < player.x + player.w && e.x + e.w > player.x && e.y < player.y + player.h && e.y + e.h > player.y) {
                 player.alive = false;
-                createExplosion(player.x + 35, player.y + 35, "white");
+                createBlast(player.x + 35, player.y + 35, "white");
                 enemies.splice(i, 1);
                 setTimeout(() => { alert("COLLISION BLAST! GAME OVER."); location.reload(); }, 1000);
             }
             if(e.y > canvas.height) enemies.splice(i, 1);
         });
 
-        // Drawing Player
+        // Boss Fight Logic
+        if(dragonActive) {
+            let dx = Math.sin(Date.now()/500) * (canvas.width/3) + (canvas.width/2 - 80);
+            ctx.drawImage(dragonImg, dx, 120, 160, 160);
+            bullets.forEach((b, bi) => {
+                if(b.x > dx && b.x < dx+160 && b.y < 280) {
+                    dragonHP -= 4; bullets.splice(bi, 1);
+                    document.getElementById('bossFill').style.width = (dragonHP/10) + "%";
+                }
+            });
+            if(dragonHP <= 0) { dragonActive = false; document.getElementById('bossHealthWrap').style.display = 'none'; transition(); }
+        }
+
+        // Professional Jet Drawing
         if(player.alive) {
-            ctx.shadowBlur = 15; ctx.shadowColor = "rgba(0, 212, 255, 0.4)";
+            ctx.shadowBlur = 20; ctx.shadowColor = "rgba(0, 212, 255, 0.6)";
             ctx.drawImage(shipImg, player.x, player.y, player.w, player.h);
             ctx.shadowBlur = 0;
         }
 
         requestAnimationFrame(loop);
+    }
+
+    function transition() {
+        shooting = false;
+        let t = setInterval(() => {
+            player.y -= 18;
+            if(player.y < -130) {
+                clearInterval(t); stage = 2; document.getElementById('lv').innerText = stage;
+                player.y = canvas.height - 200; shooting = true;
+            }
+        }, 30);
     }
 </script>
 </body>
