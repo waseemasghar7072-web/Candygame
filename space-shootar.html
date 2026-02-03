@@ -3,256 +3,208 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Space Vanguard: Real Combat | BZ247</title>
+    <title>Jet Vanguard V6 | BZ247 Studios</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&display=swap');
-        :root { --neon: #00ff88; --pink: #ff0055; --cyan: #00d4ff; --gold: #ffd700; --red: #ff3e3e; }
-        
-        * { user-select: none; -webkit-user-select: none; touch-action: none; -webkit-tap-highlight-color: transparent; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Orbitron', sans-serif; color: white; }
-        
+        :root { --neon: #00ff88; --cyan: #00d4ff; --gold: #ffd700; --red: #ff3e3e; }
+        * { user-select: none; -webkit-user-select: none; touch-action: none; overflow: hidden; margin: 0; padding: 0; }
+        body, html { width: 100%; height: 100%; background: #000; font-family: 'Orbitron', sans-serif; color: white; }
         #gameCanvas { display: block; background: #000; }
         
         /* ELITE HUD */
         .hud { position: absolute; top: 15px; width: 100%; display: flex; justify-content: space-around; pointer-events: none; z-index: 10; }
-        .stat { background: rgba(0,0,0,0.85); border: 2px solid var(--cyan); padding: 8px 15px; border-radius: 12px; text-align: center; box-shadow: 0 0 20px rgba(0, 212, 255, 0.2); backdrop-filter: blur(5px); }
+        .stat { background: rgba(0, 10, 20, 0.85); border-top: 3px solid var(--cyan); padding: 10px 15px; border-radius: 5px 5px 15px 15px; text-align: center; backdrop-filter: blur(10px); min-width: 80px; box-shadow: 0 5px 15px rgba(0, 212, 255, 0.1); }
+        .stat span { font-size: 7px; color: var(--cyan); display: block; letter-spacing: 1px; text-transform: uppercase; }
         .stat b { font-size: 18px; text-shadow: 0 0 10px var(--cyan); }
 
-        /* DRAGON HEALTH BAR */
-        #bossHealthWrap { position: absolute; top: 95px; width: 80%; left: 10%; display: none; z-index: 10; text-align: center; }
-        #bossBar { width: 100%; height: 12px; background: #111; border: 2px solid var(--pink); border-radius: 6px; overflow: hidden; box-shadow: 0 0 15px var(--pink); }
-        #bossFill { height: 100%; background: linear-gradient(to right, #660000, var(--pink)); width: 100%; transition: 0.2s; }
+        #hiDisplay { position: absolute; top: 85px; right: 20px; font-size: 10px; color: var(--gold); letter-spacing: 2px; }
 
-        /* UI BUTTONS */
-        #pauseBtn { position: absolute; top: 15px; right: 15px; width: 45px; height: 45px; background: rgba(255,255,255,0.1); border: 2px solid white; border-radius: 50%; color: white; z-index: 100; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 0 10px rgba(255,255,255,0.2); }
+        #superWrap { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 75%; text-align: center; z-index: 100; }
+        #superFill { height: 6px; background: linear-gradient(90deg, var(--gold), #fff); width: 0%; transition: 0.3s; border-radius: 3px; }
+        #superBtn { margin-top: 15px; background: var(--gold); color: #000; border: none; padding: 12px 40px; border-radius: 40px; font-weight: 900; display: none; box-shadow: 0 0 30px var(--gold); animation: pulse 0.7s infinite; }
 
-        #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; text-align: center; }
-        .start-btn { background: var(--cyan); color: #000; padding: 20px 55px; border-radius: 60px; font-weight: 900; font-size: 20px; border: none; cursor: pointer; box-shadow: 0 0 40px var(--cyan); margin-top: 25px; transition: 0.3s; }
-        .start-btn:active { transform: scale(0.9); }
-
-        /* DAMAGE FLASH EFFECT */
-        .shake { animation: shake 0.2s cubic-bezier(.36,.07,.19,.97) both; }
-        @keyframes shake { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
-        .damage-flash { position: fixed; inset: 0; background: rgba(255,0,0,0.3); z-index: 999; pointer-events: none; animation: flash 0.1s linear 2; display: none; }
-        @keyframes flash { from { opacity: 1; } to { opacity: 0; } }
+        #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.98); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
+        .start-btn { background: var(--neon); color: #000; padding: 25px 80px; border-radius: 70px; font-weight: 900; font-size: 24px; border: none; box-shadow: 0 0 60px var(--neon); }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.08); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body onload="init()">
-
-    <div id="damageOverlay" class="damage-flash"></div>
-
     <div id="overlay">
-        <h1 style="color:var(--cyan); margin:0; letter-spacing:5px;">JET VANGUARD</h1>
-        <p style="color:#555; font-size:10px; letter-spacing:4px;">REALISTIC COMBAT SYSTEM</p>
-        <button class="start-btn" onclick="startMission()">LAUNCH MISSION ▶</button>
+        <h1 style="color:var(--cyan); margin:0; letter-spacing:10px; font-size: 30px;">VANGUARD V6</h1>
+        <p style="color:#444; font-size:10px; letter-spacing:4px; margin-bottom:40px;">20-STAGE ETERNAL COMBAT</p>
+        <button class="start-btn" onclick="startMission()">DEPLOY SHIP ▶</button>
     </div>
 
-    <button id="pauseBtn" onclick="togglePause()">⏸</button>
+    <div id="hiDisplay">BEST: <span id="hi">0</span></div>
 
     <div class="hud">
-        <div class="stat"><span>SCORE</span><br><b id="s">0</b></div>
-        <div class="stat"><span>STAGE</span><br><b id="lv">1</b></div>
-        <div class="stat"><span>HP</span><br><b id="h">100</b></div>
+        <div class="stat"><span>SCORE</span><b id="s">0</b></div>
+        <div class="stat"><span>COMBO</span><b id="combo">x1</b></div>
+        <div class="stat"><span>STAGE</span><b id="stage">1/20</b></div>
     </div>
 
-    <div id="bossHealthWrap">
-        <div id="bossBar"><div id="bossFill"></div></div>
-        <small style="color:var(--pink); letter-spacing:3px; font-weight:bold;">DRAGON MOTHERSHIP</small>
+    <div id="superWrap">
+        <div id="superFill"></div>
+        <button id="superBtn" onclick="activateSuper()">ACTIVATE MEGA BLAST</button>
     </div>
 
     <canvas id="gameCanvas"></canvas>
 
 <script>
     const canvas = document.getElementById('gameCanvas'), ctx = canvas.getContext('2d');
+    let score = 0, combo = 1, comboTimer = 0, superCharge = 0, gameActive = false, stage = 1;
+    let shooting = false, screenShake = 0, shield = false, weaponLevel = 1;
+    let player = { x: 0, y: 0, tx: 0, ty: 0, alive: true, tilt: 0 };
+    let bullets = [], enemyBullets = [], enemies = [], particles = [], stars = [], powerups = [];
     
-    // REALISTIC ASSETS
-    let shipImg = new Image(), enemyImg = new Image(), bossImg = new Image();
-    shipImg.src = 'https://cdn-icons-png.flaticon.com/512/3214/3214589.png'; // More Realistic Jet
-    enemyImg.src = 'https://cdn-icons-png.flaticon.com/512/3214/3214643.png'; // Realistic Alien Ship
-    bossImg.src = 'https://cdn-icons-png.flaticon.com/512/3063/3063548.png'; // Dragon Boss
-
-    let score = 0, stage = 1, health = 100, gameActive = false, isPaused = false;
-    let dragonHP = 1000, dragonActive = false, shooting = false;
-    let player = { x: 0, y: 0, w: 65, h: 65, tx: 0, ty: 0, alive: true };
-    let bullets = [], enemyBullets = [], enemies = [], particles = [], stars = [];
-
-    let audioCtx;
-    function initAudio() { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
-    function playSound(f, type, d, v=0.04) {
-        if(!audioCtx || isPaused) return;
-        let o = audioCtx.createOscillator(), g = audioCtx.createGain();
-        o.type = type; o.frequency.setValueAtTime(f, audioCtx.currentTime);
-        g.gain.setValueAtTime(v, audioCtx.currentTime);
-        o.connect(g); g.connect(audioCtx.destination);
-        o.start(); o.stop(audioCtx.currentTime + d);
-    }
+    let hiScore = 0;
+    try { hiScore = localStorage.getItem('bz247_hi') || 0; } catch(e) {}
 
     function init() {
         canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-        for(let i=0; i<100; i++) stars.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*3+1, o: Math.random() });
+        document.getElementById('hi').innerText = hiScore;
+        for(let i=0; i<120; i++) stars.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*4+0.5, o: Math.random() });
     }
 
     function startMission() {
         document.getElementById('overlay').style.display = 'none';
-        initAudio(); gameActive = true;
-        player.tx = player.x = canvas.width/2 - 35;
+        gameActive = true; player.tx = player.x = canvas.width/2;
         player.ty = player.y = canvas.height - 180;
         loop();
     }
 
-    function togglePause() { isPaused = !isPaused; document.getElementById('pauseBtn').innerText = isPaused ? "▶" : "⏸"; }
+    function drawPlayer(x, y, tilt) {
+        ctx.save(); ctx.translate(x, y); ctx.rotate(tilt);
+        if(shield) {
+            ctx.beginPath(); ctx.arc(0, 0, 55, 0, Math.PI*2);
+            ctx.strokeStyle = "rgba(0, 212, 255, 0.4)"; ctx.lineWidth = 2; ctx.stroke();
+        }
+        ctx.fillStyle = "#fff"; ctx.shadowBlur = 20; ctx.shadowColor = "#00d4ff";
+        ctx.beginPath(); ctx.moveTo(0, -45); ctx.lineTo(20, 20); ctx.lineTo(0, 10); ctx.lineTo(-20, 20); ctx.closePath(); ctx.fill();
+        let f = Math.random()*15;
+        ctx.fillStyle = "rgba(0, 212, 255, 0.8)";
+        ctx.beginPath(); ctx.moveTo(-8, 15); ctx.lineTo(0, 45+f); ctx.lineTo(8, 15); ctx.fill();
+        ctx.restore(); ctx.shadowBlur = 0;
+    }
 
-    // TOUCH CONTROL
+    function drawEnemy(x, y, type) {
+        ctx.save(); ctx.translate(x, y);
+        ctx.shadowBlur = 15; ctx.shadowColor = type === 1 ? "#ff0055" : "#bc13fe";
+        ctx.fillStyle = type === 1 ? "#ff3e3e" : "#8a2be2";
+        ctx.beginPath(); ctx.moveTo(0, 30); ctx.lineTo(20, -15); ctx.lineTo(-20, -15); ctx.closePath(); ctx.fill();
+        ctx.restore(); ctx.shadowBlur = 0;
+    }
+
+    function activateSuper() {
+        if(superCharge < 100) return;
+        superCharge = 0; screenShake = 40;
+        enemies.forEach(e => explode(e.x, e.y, "#fff", 20));
+        enemies = []; score += 2000; updateHUD();
+        document.getElementById('superBtn').style.display = 'none';
+    }
+
     canvas.addEventListener('touchstart', (e) => { shooting = true; updateT(e); });
     canvas.addEventListener('touchmove', updateT);
     canvas.addEventListener('touchend', () => shooting = false);
-    function updateT(e) { if(!gameActive || isPaused || !player.alive) return; player.tx = e.touches[0].clientX - 35; player.ty = e.touches[0].clientY - 100; }
+    function updateT(e) { if(!gameActive || !player.alive) return; player.tx = e.touches[0].clientX; player.ty = e.touches[0].clientY - 90; }
 
-    // GAME CYCLES
-    setInterval(() => { if(shooting && gameActive && !isPaused && player.alive) fire(); }, 140);
-    setInterval(() => { if(gameActive && !dragonActive && !isPaused && player.alive) spawn(); }, 1200);
-    setInterval(() => { if(dragonActive && !isPaused) bossFire(); }, 1500);
-    setInterval(() => { if(gameActive && player.alive && !isPaused) enemyFire(); }, 1800);
-
-    function fire() {
-        bullets.push({ x: player.x + 10, y: player.y, w: 5, h: 22 });
-        bullets.push({ x: player.x + 50, y: player.y, w: 5, h: 22 });
-        playSound(700, 'sawtooth', 0.04, 0.02);
-    }
-
-    function bossFire() {
-        let bx = Math.sin(Date.now()/500) * (canvas.width/4) + (canvas.width/2);
-        for(let i=-2; i<=2; i++) enemyBullets.push({ x: bx, y: 240, vx: i*3, vy: 7, r: 8, c: '#ff0055' });
-        playSound(100, 'square', 0.2, 0.1);
-    }
-
-    function enemyFire() {
-        enemies.forEach(e => {
-            if(Math.random() < 0.3) {
-                enemyBullets.push({ x: e.x + e.w/2, y: e.y + e.h, vx: 0, vy: 6, r: 5, c: '#ff3e3e' });
+    setInterval(() => { 
+        if(shooting && gameActive && player.alive) {
+            bullets.push({ x: player.x, y: player.y - 40, vx: 0 });
+            if(weaponLevel >= 2) {
+                bullets.push({ x: player.x - 15, y: player.y - 20, vx: -2 });
+                bullets.push({ x: player.x + 15, y: player.y - 20, vx: 2 });
             }
-        });
-    }
+        }
+    }, 140);
 
-    function spawn() {
-        enemies.push({ x: Math.random()*(canvas.width-60), y: -70, w: 60, h: 60, s: 2.5 + (stage * 0.7), hp: stage });
-    }
+    // Dynamic Enemy Spawn based on Stage
+    setInterval(() => { 
+        if(gameActive && player.alive) {
+            let count = Math.min(3, 1 + Math.floor(stage/7));
+            for(let i=0; i<count; i++) {
+                enemies.push({ 
+                    x: Math.random()*canvas.width, 
+                    y: -60, 
+                    s: 3.5 + (stage * 0.4), 
+                    type: Math.random() > 0.8 ? 2 : 1 
+                });
+            }
+        }
+    }, 1000 - (stage * 30));
 
-    function explode(x, y, color) {
-        for(let i=0; i<15; i++) particles.push({ x: x, y: y, vx: (Math.random()-0.5)*12, vy: (Math.random()-0.5)*12, l: 30, c: color });
-    }
-
-    function damagePlayer() {
-        health -= 15; updateHUD();
-        document.getElementById('damageOverlay').style.display = 'block';
-        canvas.classList.add('shake');
-        playSound(100, 'sawtooth', 0.1, 0.15);
-        if(navigator.vibrate) navigator.vibrate(80);
-        setTimeout(() => {
-            document.getElementById('damageOverlay').style.display = 'none';
-            canvas.classList.remove('shake');
-        }, 200);
-    }
+    function explode(x, y, color, count=15) { for(let i=0; i<count; i++) particles.push({ x, y, vx: (Math.random()-0.5)*15, vy: (Math.random()-0.5)*15, l: 30, c: color }); }
 
     function loop() {
         if(!gameActive) return;
-        if(!isPaused) {
-            ctx.fillStyle = "#000"; ctx.fillRect(0,0, canvas.width, canvas.height);
+        let sx = (Math.random()-0.5)*screenShake, sy = (Math.random()-0.5)*screenShake;
+        if(screenShake > 0) screenShake *= 0.9;
+        ctx.setTransform(1,0,0,1,sx,sy);
+        
+        ctx.fillStyle = "#000"; ctx.fillRect(-50,-50, canvas.width+100, canvas.height+100);
 
-            // 1. Parallax Stars
-            stars.forEach(st => {
-                st.y += st.s; if(st.y > canvas.height) st.y = -5;
-                ctx.fillStyle = `rgba(255,255,255,${st.o})`; ctx.fillRect(st.x, st.y, st.s/2, st.s/2);
-            });
+        stars.forEach(st => {
+            st.y += st.s * (combo > 5 ? 1.5 : 1); if(st.y > canvas.height) st.y = -10;
+            ctx.fillStyle = `rgba(255,255,255,${st.o})`; ctx.fillRect(st.x, st.y, 2, 2);
+        });
 
-            // 2. Smooth Interpolation
-            player.x += (player.tx - player.x) * 0.2;
-            player.y += (player.ty - player.y) * 0.2;
+        player.x += (player.tx - player.x) * 0.2; player.y += (player.ty - player.y) * 0.2;
+        player.tilt = (player.tx - player.x) * 0.006;
 
-            // 3. Particles
-            particles.forEach((p, i) => {
-                p.x += p.vx; p.y += p.vy; p.l--;
-                ctx.fillStyle = p.c; ctx.fillRect(p.x, p.y, 3, 3);
-                if(p.l <= 0) particles.splice(i, 1);
-            });
+        particles.forEach((p, i) => {
+            p.x += p.vx; p.y += p.vy; p.l--; ctx.fillStyle = p.c; ctx.fillRect(p.x, p.y, 3, 3);
+            if(p.l <= 0) particles.splice(i, 1);
+        });
 
-            // Boss Trigger
-            if(score >= 1000 && stage === 1 && !dragonActive) {
-                dragonActive = true; document.getElementById('bossHealthWrap').style.display = 'block';
-            }
+        bullets.forEach((b, i) => {
+            b.y -= 18; b.x += b.vx; ctx.fillStyle = "#ffd700"; ctx.fillRect(b.x-2, b.y, 4, 25);
+            if(b.y < -40) bullets.splice(i, 1);
+        });
 
-            // 4. Bullets (Yellow Glow)
-            bullets.forEach((b, i) => {
-                b.y -= 15;
-                ctx.shadowBlur = 10; ctx.shadowColor = "var(--gold)";
-                ctx.fillStyle = "var(--gold)"; ctx.fillRect(b.x, b.y, b.w, b.h);
-                ctx.shadowBlur = 0;
-                if(b.y < -30) bullets.splice(i, 1);
-            });
-
-            // 5. Enemy Projectiles (Red Glow & Damage Logic)
-            enemyBullets.forEach((eb, i) => {
-                eb.x += eb.vx || 0; eb.y += eb.vy || 8;
-                ctx.shadowBlur = 10; ctx.shadowColor = eb.c;
-                ctx.fillStyle = eb.c; ctx.beginPath(); ctx.arc(eb.x, eb.y, eb.r, 0, Math.PI*2); ctx.fill();
-                ctx.shadowBlur = 0;
-                
-                if(player.alive && eb.x > player.x && eb.x < player.x+player.w && eb.y > player.y && eb.y < player.y+player.h) {
-                    damagePlayer(); enemyBullets.splice(i, 1);
+        enemies.forEach((e, i) => {
+            e.y += e.s; drawEnemy(e.x, e.y, e.type);
+            bullets.forEach((b, bi) => {
+                if(Math.hypot(b.x - e.x, b.y - e.y) < 35) {
+                    explode(e.x, e.y, "#ff7700", 20); enemies.splice(i, 1); bullets.splice(bi, 1);
+                    score += 50 * combo; combo++; comboTimer = 60; superCharge = Math.min(100, superCharge + 7);
+                    updateHUD(); screenShake = 10;
+                    if(Math.random() < 0.08) powerups.push({ x: e.x, y: e.y, type: Math.random()>0.5?'S':'W' });
                 }
-                if(eb.y > canvas.height) enemyBullets.splice(i, 1);
             });
-
-            // 6. Enemies
-            enemies.forEach((e, i) => {
-                e.y += e.s; ctx.drawImage(enemyImg, e.x, e.y, e.w, e.h);
-                bullets.forEach((b, bi) => {
-                    if(b.x < e.x+e.w && b.x+b.w > e.x && b.y < e.y+e.h && b.y+b.h > e.y) {
-                        e.hp--; bullets.splice(bi, 1);
-                        if(e.hp <= 0) {
-                            explode(e.x+30, e.y+30, "orange"); enemies.splice(i, 1); score += 50; updateHUD();
-                            playSound(200, 'square', 0.08, 0.06);
-                        }
-                    }
-                });
-                if(e.y > canvas.height) enemies.splice(i, 1);
-            });
-
-            // 7. Dragon Boss
-            if(dragonActive) {
-                let bx = Math.sin(Date.now()/500) * (canvas.width/4) + (canvas.width/2 - 75);
-                ctx.drawImage(bossImg, bx, 110, 150, 150);
-                bullets.forEach((b, bi) => {
-                    if(b.x > bx && b.x < bx+150 && b.y < 260) {
-                        dragonHP -= 4; bullets.splice(bi, 1);
-                        document.getElementById('bossFill').style.width = (dragonHP/10) + "%";
-                        if(dragonHP <= 0) {
-                            explode(bx+75, 185, "white"); dragonActive = false;
-                            document.getElementById('bossHealthWrap').style.display = 'none';
-                            stage++; score += 5000; updateHUD();
-                        }
-                    }
-                });
+            if(player.alive && Math.hypot(e.x - player.x, e.y - player.y) < 45) {
+                if(shield) { shield = false; enemies.splice(i, 1); screenShake = 20; updateHUD(); }
+                else { player.alive = false; explode(player.x, player.y, "#00d4ff", 40); setTimeout(() => location.reload(), 1500); }
             }
+            if(e.y > canvas.height) { enemies.splice(i, 1); combo = 1; updateHUD(); }
+        });
 
-            // 8. Player Jet
-            if(player.alive) {
-                ctx.shadowBlur = 20; ctx.shadowColor = "var(--cyan)";
-                ctx.drawImage(shipImg, player.x, player.y, player.w, player.h);
-                ctx.shadowBlur = 0;
+        powerups.forEach((pw, i) => {
+            pw.y += 3; ctx.fillStyle = pw.type === 'S' ? "#0088ff" : "#ffd700";
+            ctx.beginPath(); ctx.arc(pw.x, pw.y, 18, 0, Math.PI*2); ctx.fill();
+            if(Math.hypot(pw.x - player.x, pw.y - player.y) < 40) {
+                if(pw.type === 'S') shield = true; else weaponLevel = 2;
+                powerups.splice(i, 1); updateHUD();
             }
+        });
 
-            if(health <= 0 && player.alive) { 
-                player.alive = false; explode(player.x+35, player.y+35, "cyan");
-                setTimeout(() => { alert("MISSION FAILED: SHIP BLASTED!"); location.reload(); }, 1000);
-            }
-        }
+        if(comboTimer > 0) { comboTimer--; if(comboTimer === 0) { combo = 1; updateHUD(); } }
+        
+        // Stage Logic (Up to 20)
+        let newStage = Math.min(20, Math.floor(score / 5000) + 1);
+        if(newStage > stage) stage = newStage;
+
+        if(player.alive) drawPlayer(player.x, player.y, player.tilt);
         requestAnimationFrame(loop);
     }
 
     function updateHUD() {
-        document.getElementById('s').innerText = score;
-        document.getElementById('h').innerText = health;
+        if(score > hiScore) { hiScore = score; try { localStorage.setItem('bz247_hi', hiScore); } catch(e) {} }
+        document.getElementById('s').innerText = score; 
+        document.getElementById('hi').innerText = hiScore;
+        document.getElementById('combo').innerText = "x" + combo;
+        document.getElementById('stage').innerText = stage + "/20";
+        document.getElementById('superFill').style.width = superCharge + '%';
+        if(superCharge >= 100) document.getElementById('superBtn').style.display = 'inline-block';
     }
 </script>
 </body>
