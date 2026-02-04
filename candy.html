@@ -3,258 +3,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Jewel Realm: Ultimate Smooth</title>
+    <title>Fruit Farm Grand Frame | BZ247 Studios</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@900&family=Montserrat:wght@700;900&display=swap');
-        
-        :root { 
-            --accent: #00ff88; --bg-inner: #1a002b; --bg-outer: #050008; 
-            --glass: rgba(45, 0, 70, 0.85); --gold: #ffd700; --fail-red: #ff0055;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&display=swap');
+        * { user-select: none; -webkit-tap-highlight-color: transparent; box-sizing: border-box; margin: 0; padding: 0; }
         
         body { 
-            margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; 
-            background: radial-gradient(circle at center, var(--bg-inner) 0%, var(--bg-outer) 100%);
-            color: #fff; overflow: hidden; height: 100vh; display: flex; flex-direction: column; align-items: center; touch-action: none;
+            background: linear-gradient(180deg, #4facfe 0%, #00f2fe 100%);
+            color: #fff; font-family: 'Fredoka', sans-serif; height: 100vh; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; 
         }
 
-        #fx-canvas { position: absolute; inset: 0; pointer-events: none; z-index: 200; }
+        /* LIVING SKY BACKGROUND */
+        .clouds { position: fixed; top: 0; left: 0; width: 200%; height: 100%; background: url('https://www.transparenttextures.com/patterns/clouds.png'); opacity: 0.3; animation: drift 60s linear infinite; z-index: -1; }
+        @keyframes drift { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
         /* HUD */
-        .hud { 
-            width: 92%; max-width: 450px; margin-top: 15px; display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 10px; 
-            padding: 12px; background: var(--glass); backdrop-filter: blur(25px); border-radius: 20px; 
-            border: 2px solid var(--accent); box-shadow: 0 15px 50px rgba(0,0,0,0.8); z-index: 100; 
-        }
-        .stat-box { text-align: center; }
-        .stat-box span { font-size: 8px; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; font-weight: 900; }
-        .stat-box b { font-size: 19px; display: block; text-shadow: 0 0 15px var(--accent); }
-        .stage-box { background: linear-gradient(135deg, var(--gold), #b8860b); border-radius: 14px; padding: 5px; color: #000; border: 2.5px solid #fff; box-shadow: 0 0 25px var(--gold); }
+        .header { width: 95%; max-width: 440px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; z-index: 10; }
+        .stat-box { background: rgba(255, 255, 255, 0.25); border: 2.5px solid rgba(255, 255, 255, 0.6); padding: 12px; border-radius: 25px; text-align: center; backdrop-filter: blur(15px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .stat-box b { font-size: 22px; display: block; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
-        .board-container { 
-            position: relative; margin-top: 15px; padding: 12px; background: rgba(0,0,0,0.5); border-radius: 30px; 
-            border: 3.5px solid var(--accent); box-shadow: 0 0 80px rgba(0,0,0,1); z-index: 10; 
-        }
-        .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; width: 92vw; max-width: 380px; height: 92vw; max-height: 380px; }
-        
-        /* FIXED NEON RINGS */
-        .slot { 
-            background: rgba(255,255,255,0.02); border-radius: 15px; 
-            display: flex; align-items: center; justify-content: center; position: relative;
-            background-image: radial-gradient(circle, transparent 60%, rgba(0, 255, 136, 0.15) 65%, var(--accent) 70%, transparent 75%);
-            background-size: 110% 110%; background-position: center;
+        /* --- THE GRAND FRAME UPDATE --- */
+        #board-wrap { 
+            background: rgba(255, 255, 255, 0.25); 
+            padding: 18px; 
+            border-radius: 45px; /* Bigger rounded corners */
+            border: 6px solid rgba(255, 255, 255, 0.5); 
+            box-shadow: 0 35px 70px rgba(0,0,0,0.15), inset 0 0 25px rgba(255,255,255,0.3);
+            backdrop-filter: blur(12px);
+            overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
         }
 
-        .candy { width: 85%; height: 85%; cursor: pointer; filter: drop-shadow(0 8px 8px rgba(0,0,0,0.8)); transition: transform 0.4s ease-in-out; z-index: 5; }
-        .candy svg { width: 100%; height: 100%; }
-
-        /* --- SLOWER CINEMATIC ANIMATIONS --- */
-        .fall-anim { animation: smoothDrop 1.2s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
-        @keyframes smoothDrop { 0% { transform: translateY(-400px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
-        
-        .pop { animation: jewelPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        @keyframes jewelPop { 0% { transform: scale(1); } 40% { transform: scale(1.4) brightness(2); } 100% { transform: scale(0); opacity: 0; } }
-
-        .toolbar { margin-top: 15px; display: flex; gap: 20px; z-index: 100; }
-        .tool-btn { 
-            width: 60px; height: 60px; background: var(--glass); border: 2px solid var(--gold); border-radius: 15px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer;
-            transition: 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        #board { 
+            display: grid; 
+            grid-template-columns: repeat(8, 1fr); 
+            grid-gap: 8px; 
+            width: 90vw; height: 90vw; /* Increased width on mobile */
+            max-width: 400px; max-height: 400px; /* Increased Max Size */
         }
-        .tool-btn.active { background: var(--gold); color: #000; box-shadow: 0 0 20px var(--gold); }
 
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.96); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(20px); }
-        .card { border: 4px solid var(--gold); background: var(--bg-inner); padding: 50px; border-radius: 35px; text-align: center; box-shadow: 0 0 100px var(--gold); animation: popUp 0.6s ease-out; }
-        @keyframes popUp { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .btn { background: linear-gradient(to right, var(--gold), #b8860b); border: none; padding: 18px 50px; border-radius: 40px; font-weight: 900; color: #000; cursor: pointer; margin-top: 30px; font-family: 'Montserrat'; font-size: 20px; }
+        .cell { 
+            background: rgba(255, 255, 255, 0.12); 
+            border-radius: 18px; 
+            position: relative; 
+            display: flex; align-items: center; justify-content: center;
+        }
 
-        .footer { margin-top: 10px; text-align: center; z-index: 10; }
-        .footer b { font-size: 42px; color: white; text-shadow: 0 0 25px var(--accent); font-family: 'Playfair Display', serif; }
+        /* FRUITS SIZE INCREASE */
+        .candy { 
+            font-size: 40px; /* Bigger Fruits */
+            position: relative; 
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+            z-index: 2;
+        }
+
+        .cell.selected .candy { 
+            transform: scale(1.15); /* More prominent selection */
+        }
+
+        .c-0::before { content: '🍓'; } .c-1::before { content: '🍊'; }
+        .c-2::before { content: '🍇'; } .c-3::before { content: '🍏'; }
+
+        /* OVERLAY */
+        #overlay { position: fixed; inset: 0; background: linear-gradient(135deg, #a8e063, #56ab2f); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
+        .btn { background: linear-gradient(to bottom, #ffa502, #ff6348); color: #fff; padding: 25px 100px; border-radius: 70px; border: 5px solid #fff; font-weight: 900; font-size: 26px; cursor: pointer; box-shadow: 0 15px 40px rgba(0,0,0,0.2); }
     </style>
 </head>
-<body onclick="initAudio()">
-
-    <canvas id="fx-canvas"></canvas>
-
-    <div class="hud">
-        <div class="stat-box"><span>Target</span><b id="targetTxt">500</b></div>
-        <div class="stage-box">STAGE <b id="lvlTxt">1</b></div>
-        <div class="stat-box"><span>Moves</span><b id="movesTxt">10</b></div>
+<body>
+    <div class="clouds"></div>
+    <div id="overlay">
+        <h1 style="color:#fff; font-size: 48px; text-shadow: 0 4px 8px rgba(0,0,0,0.2);">FRUIT FARM</h1>
+        <p style="color:#fff; margin: 15px 0 40px 0; letter-spacing: 2px; font-weight: 600;">GRAND FRAME V25</p>
+        <button class="btn" onclick="startGame()">PLAY GRAND ▶</button>
     </div>
 
-    <div class="board-container" id="boardWrapper">
-        <div class="grid" id="grid"></div>
+    <div class="header">
+        <div class="stat-box"><small>MOVES</small><b id="mDisplay">25</b></div>
+        <div class="stat-box"><small>TARGET</small><b id="tDisplay">4500</b></div>
+        <div class="stat-box"><small>SCORE</small><b id="sDisplay">0</b></div>
     </div>
 
-    <div class="toolbar">
-        <div class="tool-btn" id="hammerBtn" onclick="activateHammer()"><span>🔨</span><label style="font-size:8px; font-weight:900;">HAMMER</label></div>
-    </div>
-
-    <div class="footer">
-        <span style="font-size: 10px; color: var(--accent); letter-spacing: 4px; font-weight: 900;">REWARD LOOT</span><br>
-        <b id="loot">0</b>
-    </div>
-
-    <div id="winScreen" class="overlay"><div class="card"><h1 style="color:var(--gold); font-size: 48px; margin:0;">FANTASTIC!</h1><button class="btn" onclick="nextLevel()">NEXT STAGE</button></div></div>
-    <div id="failScreen" class="overlay"><div class="card" style="border-color:var(--fail-red); box-shadow:0 0 100px var(--fail-red);"><h1 style="color:var(--fail-red); font-size: 48px; margin:0;">FAILED!</h1><button class="btn" style="background:var(--fail-red); color:#fff;" onclick="retryLevel()">RETRY</button></div></div>
+    <div id="board-wrap"><div id="board"></div></div>
 
 <script>
-    const canvas = document.getElementById('fx-canvas'), ctx = canvas.getContext('2d');
-    const gridEl = document.getElementById('grid'), lootEl = document.getElementById('loot'), movesEl = document.getElementById('movesTxt');
-    const lvlEl = document.getElementById('lvlTxt'), targetEl = document.getElementById('targetTxt'), hammerBtn = document.getElementById('hammerBtn');
+    // CORE GAME LOGIC
+    const board = document.getElementById('board'), sDisplay = document.getElementById('sDisplay'), 
+          mDisplay = document.getElementById('mDisplay'), tDisplay = document.getElementById('tDisplay');
+    const width = 8, candyColors = 4;
+    let grid = [], score = 0, moves = 25, target = 4500, isProcessing = false, selectedCell = null;
 
-    let audioCtx, hammerActive = false;
-    function initAudio() { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if(audioCtx.state === 'suspended') audioCtx.resume(); }
+    function startGame() { document.getElementById('overlay').style.display = 'none'; createBoard(); updateHUD(); }
 
-    function playMatchSound(isSpecial) {
-        if (!audioCtx) return;
-        const now = audioCtx.currentTime;
-        let osc1 = audioCtx.createOscillator(), g1 = audioCtx.createGain();
-        osc1.connect(g1); g1.connect(audioCtx.destination);
-        osc1.type = "sine"; osc1.frequency.setValueAtTime(isSpecial ? 1200 : 900, now);
-        osc1.frequency.exponentialRampToValueAtTime(600, now + 0.2);
-        g1.gain.setValueAtTime(0.2, now); g1.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
-        osc1.start(now); osc1.stop(now + 0.2);
-        let osc2 = audioCtx.createOscillator(), g2 = audioCtx.createGain();
-        osc2.connect(g2); g2.connect(audioCtx.destination);
-        osc2.type = "triangle"; osc2.frequency.setValueAtTime(isSpecial ? 400 : 250, now);
-        osc2.frequency.exponentialRampToValueAtTime(40, now + 0.3);
-        g2.gain.setValueAtTime(0.3, now); g2.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-        osc2.start(now); osc2.stop(now + 0.3);
-    }
-
-    let particles = [];
-    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-    window.addEventListener('resize', resize); resize();
-
-    class Particle {
-        constructor(x, y, color) { this.x = x; this.y = y; this.color = color; this.size = Math.random()*5+2; this.speedX = Math.random()*8-4; this.speedY = Math.random()*8-4; this.life = 1; }
-        update() { this.x += this.speedX; this.y += this.speedY; this.life -= 0.015; }
-        draw() { ctx.fillStyle = this.color; ctx.globalAlpha = this.life; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill(); }
-    }
-
-    function animate() {
-        ctx.clearRect(0,0,canvas.width, canvas.height);
-        particles.forEach((p, i) => { p.update(); p.draw(); if(p.life <= 0) particles.splice(i, 1); });
-        requestAnimationFrame(animate);
-    }
-    animate();
-
-    const STAGES = [
-        { t: 500, m: 15 }, { t: 1200, m: 15 }, { t: 2500, m: 14 }, { t: 4000, m: 14 }, { t: 6000, m: 13 },
-        { t: 9000, m: 13 }, { t: 13000, m: 12 }, { t: 18000, m: 12 }, { t: 25000, m: 11 }, { t: 35000, m: 10 },
-        { t: 48000, m: 10 }, { t: 65000, m: 9 }, { t: 85000, m: 9 }, { t: 110000, m: 8 }, { t: 140000, m: 8 },
-        { t: 180000, m: 7 }, { t: 230000, m: 7 }, { t: 300000, m: 6 }, { t: 400000, m: 6 }, { t: 600000, m: 5 }
-    ];
-
-    const jewelSVG = (base, dark, light, special = 0) => `
-    <svg viewBox="0 0 100 100">
-        <defs><radialGradient id="grad${base.replace('#','')}" cx="35%" cy="35%" r="65%"><stop offset="0%" stop-color="${light}"/><stop offset="100%" stop-color="${base}"/></radialGradient></defs>
-        <rect x="15" y="15" width="70" height="70" rx="20" fill="url(#grad${base.replace('#','')})" stroke="#ffffff" stroke-width="4"/>
-        ${special === 1 ? '<path d="M15 35 L85 35 M15 50 L85 50 M15 65 L85 65" stroke="white" stroke-width="6" opacity="0.8"/>' : ''}
-        ${special === 2 ? '<circle cx="50" cy="50" r="18" fill="white" opacity="0.6"><animate attributeName="opacity" values="0.2;0.8;0.2" dur="0.8s" repeatCount="indefinite"/></circle>' : ''}
-        <path d="M25 30 Q50 20 75 30" fill="none" stroke="#ffd700" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
-    </svg>`;
-
-    const COLORS = [{b: '#ff0055', d: '#990033', l: '#ff6699'}, {b: '#0088ff', d: '#004499', l: '#66bbff'}, {b: '#ff00ff', d: '#880088', l: '#ff88ff'}, {b: '#9900ff', d: '#440099', l: '#cc66ff'}, {b: '#ffaa00', d: '#cc5500', l: '#ffdd66'}];
-
-    let squares = [], score=0, moves=0, currentLvl=0, isProcessing=false, sX, sY;
-
-    function init() {
-        gridEl.innerHTML = ''; squares = []; const cfg = STAGES[currentLvl];
-        score = 0; moves = cfg.m; lootEl.innerText = score; movesEl.innerText = moves;
-        targetEl.innerText = cfg.t; lvlEl.innerText = currentLvl + 1;
-        isProcessing = false; hammerActive = false; hammerBtn.classList.remove('active');
-        for(let i=0; i<49; i++) {
-            const slot = document.createElement('div'); slot.className = 'slot';
-            const candy = document.createElement('div'); candy.className = 'candy fall-anim';
-            let t = Math.floor(Math.random()*COLORS.length);
-            candy.innerHTML = jewelSVG(COLORS[t].b, COLORS[t].d, COLORS[t].l);
-            candy.dataset.type = t; candy.dataset.special = 0;
-            candy.ontouchstart = (e) => { sX = e.touches[0].clientX; sY = e.touches[0].clientY; initAudio(); };
-            candy.ontouchend = (e) => handleSwipe(e, i);
-            candy.onclick = () => useHammer(i);
-            slot.appendChild(candy); gridEl.appendChild(slot); squares.push(candy);
+    function createBoard() {
+        grid = []; board.innerHTML = '';
+        for (let i = 0; i < width * width; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell'; cell.setAttribute('data-id', i);
+            cell.onclick = () => handleCellClick(cell);
+            cell.appendChild(createFruit(Math.floor(Math.random() * candyColors)));
+            board.appendChild(cell); grid.push(cell);
         }
-        setTimeout(checkMatches, 1500);
+        checkMatches();
     }
 
-    function activateHammer() { if(isProcessing || moves <= 0) return; hammerActive = !hammerActive; hammerBtn.classList.toggle('active'); }
-
-    function useHammer(i) {
-        if(!hammerActive || isProcessing) return;
-        isProcessing = true; hammerActive = false; hammerBtn.classList.remove('active');
-        playMatchSound(true); const r = squares[i].getBoundingClientRect();
-        for(let j=0; j<20; j++) particles.push(new Particle(r.left + r.width/2, r.top + r.height/2, COLORS[squares[i].dataset.type].b));
-        squares[i].classList.add('pop');
-        setTimeout(refill, 800);
+    function createFruit(color) {
+        const c = document.createElement('div');
+        c.className = `candy c-${color}`; c.setAttribute('data-color', color);
+        return c;
     }
 
-    function handleSwipe(e, i) {
-        if(isProcessing || moves <= 0 || hammerActive) return;
-        let dX = e.changedTouches[0].clientX - sX, dY = e.changedTouches[0].clientY - sY;
-        if(Math.abs(dX) > 25 || Math.abs(dY) > 25) {
-            let dir = Math.abs(dX) > Math.abs(dY) ? (dX > 0 ? 1 : -1) : (dY > 0 ? 7 : -7);
-            swap(i, i + dir);
+    function handleCellClick(cell) {
+        if (isProcessing) return;
+        if (!selectedCell) { selectedCell = cell; cell.classList.add('selected'); }
+        else {
+            const id1 = parseInt(selectedCell.getAttribute('data-id')), id2 = parseInt(cell.getAttribute('data-id'));
+            if ([id1-1, id1+1, id1-width, id1+width].includes(id2)) {
+                const c1 = selectedCell.firstChild, c2 = cell.firstChild;
+                selectedCell.appendChild(c2); cell.appendChild(c1);
+                moves--; updateHUD(); setTimeout(checkMatches, 300);
+            }
+            selectedCell.classList.remove('selected'); selectedCell = null;
         }
     }
 
-    async function swap(id1, id2) {
-        if (id2 < 0 || id2 >= 49 || (Math.abs(id1-id2)===1 && Math.floor(id1/7)!==Math.floor(id2/7))) return;
+    function checkMatches() {
         isProcessing = true;
-        let h1 = squares[id1].innerHTML, h2 = squares[id2].innerHTML, t1 = squares[id1].dataset.type, t2 = squares[id2].dataset.type, s1 = squares[id1].dataset.special, s2 = squares[id2].dataset.special;
-        squares[id1].innerHTML = h2; squares[id1].dataset.type = t2; squares[id1].dataset.special = s2;
-        squares[id2].innerHTML = h1; squares[id2].dataset.type = t1; squares[id2].dataset.special = s1;
-        await new Promise(r => setTimeout(r, 600)); // RELAXED SWAP DELAY
-        if(!checkMatches(id2)) {
-            squares[id1].innerHTML = h1; squares[id1].dataset.type = t1; squares[id1].dataset.special = s1;
-            squares[id2].innerHTML = h2; squares[id2].dataset.type = t2; squares[id2].dataset.special = s2;
-            isProcessing = false;
-        } else { moves--; movesEl.innerText = moves; }
-    }
-
-    function checkMatches(lastId = null) {
-        let matches = new Set();
-        for(let r=0; r<7; r++) for(let c=0; c<5; c++) { let i=r*7+c; if(squares[i].dataset.type === squares[i+1].dataset.type && squares[i].dataset.type === squares[i+2].dataset.type) { matches.add(i); matches.add(i+1); matches.add(i+2); }}
-        for(let c=0; c<7; c++) for(let r=0; r<5; r++) { let i=r*7+c; if(squares[i].dataset.type === squares[i+7].dataset.type && squares[i].dataset.type === squares[i+14].dataset.type) { matches.add(i); matches.add(i+7); matches.add(i+14); }}
-
-        if(matches.size > 0) {
-            playMatchSound(matches.size > 3);
-            if(lastId && matches.has(lastId)) { if(matches.size === 4) makeSpecial(lastId, 1); else if(matches.size >= 5) makeSpecial(lastId, 2); }
-            matches.forEach(id => {
-                if(squares[id].dataset.special > 0) triggerPower(id, squares[id].dataset.special);
-                const r = squares[id].getBoundingClientRect();
-                for(let j=0; j<15; j++) particles.push(new Particle(r.left + r.width/2, r.top + r.height/2, COLORS[squares[id].dataset.type].b));
-                squares[id].classList.add('pop');
-            });
-            score += matches.size * 25; lootEl.innerText = score;
-            if(score >= STAGES[currentLvl].t) { setTimeout(() => document.getElementById('winScreen').style.display = 'flex', 1000); return true; }
-            setTimeout(refill, 1000); // SLOW REFILL
-            return true;
+        let matched = new Set();
+        for (let r = 0; r < width; r++) {
+            for (let c = 0; c < width - 2; c++) {
+                let i = r * width + c;
+                let clr = grid[i].firstChild?.getAttribute('data-color');
+                if (clr && grid[i+1].firstChild?.getAttribute('data-color') === clr && grid[i+2].firstChild?.getAttribute('data-color') === clr) {
+                    matched.add(i); matched.add(i+1); matched.add(i+2);
+                }
+            }
         }
-        isProcessing = false; if(moves <= 0 && score < STAGES[currentLvl].t) document.getElementById('failScreen').style.display = 'flex';
-        return false;
+        for (let c = 0; c < width; c++) {
+            for (let r = 0; r < width - 2; r++) {
+                let i = r * width + c;
+                let clr = grid[i].firstChild?.getAttribute('data-color');
+                if (clr && grid[i+width].firstChild?.getAttribute('data-color') === clr && grid[i+width*2].firstChild?.getAttribute('data-color') === clr) {
+                    matched.add(i); matched.add(i+width); matched.add(i+width*2);
+                }
+            }
+        }
+
+        if (matched.size > 0) {
+            matched.forEach(i => { if(grid[i].firstChild) grid[i].firstChild.style.transform = 'scale(0)'; });
+            score += matched.size * 30; updateHUD();
+            setTimeout(() => {
+                matched.forEach(i => { if(grid[i].firstChild) grid[i].removeChild(grid[i].firstChild); });
+                applyGravity();
+            }, 300);
+        } else { isProcessing = false; }
     }
 
-    function makeSpecial(id, type) { let t = squares[id].dataset.type; squares[id].innerHTML = jewelSVG(COLORS[t].b, COLORS[t].d, COLORS[t].l, type); squares[id].dataset.special = type; }
-
-    function triggerPower(id, type) {
-        if(type == 1) { let row = Math.floor(id / 7); for(let i=0; i<7; i++) squares[row * 7 + i].classList.add('pop'); }
-        else if(type == 2) { let r = Math.floor(id/7), c = id%7; for(let i=r-1; i<=r+1; i++) for(let j=c-1; j<=c+1; j++) if(i>=0&&i<7&&j>=0&&j<7) squares[i*7+j].classList.add('pop'); }
+    function applyGravity() {
+        for (let c = 0; c < width; c++) {
+            let empty = 0;
+            for (let r = width - 1; r >= 0; r--) {
+                let i = r * width + c;
+                if (!grid[i].firstChild) empty++;
+                else if (empty > 0) grid[i + (empty * width)].appendChild(grid[i].firstChild);
+            }
+            for (let i = 0; i < empty; i++) {
+                const n = createFruit(Math.floor(Math.random() * candyColors));
+                n.style.animation = "drop 0.4s ease-in";
+                grid[i * width + c].appendChild(n);
+            }
+        }
+        setTimeout(checkMatches, 500);
     }
 
-    function refill() {
-        squares.forEach(s => { if(s.classList.contains('pop')) { 
-            let t = Math.floor(Math.random()*COLORS.length); 
-            s.innerHTML = jewelSVG(COLORS[t].b, COLORS[t].d, COLORS[t].l); s.dataset.type = t; s.dataset.special = 0;
-            s.classList.remove('pop'); s.classList.add('fall-anim'); 
-        }});
-        setTimeout(() => { squares.forEach(s => s.classList.remove('fall-anim')); checkMatches(); }, 1400);
+    function updateHUD() {
+        sDisplay.innerText = score; mDisplay.innerText = moves; tDisplay.innerText = target;
+        if (score >= target) { target += 3000; moves += 10; }
+        if (moves <= 0) { alert("HEIST OVER!"); location.reload(); }
     }
-
-    function retryLevel() { document.getElementById('failScreen').style.display = 'none'; init(); }
-    function nextLevel() { currentLvl++; if(currentLvl >= 20) currentLvl = 0; document.getElementById('winScreen').style.display = 'none'; init(); }
-    window.onload = init;
 </script>
 </body>
 </html>
