@@ -3,81 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fruit Farm Grand Frame | BZ247 Studios</title>
+    <title>Fruit Farm Frame-Less V48 | BZ247 Studios</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&display=swap');
         * { user-select: none; -webkit-tap-highlight-color: transparent; box-sizing: border-box; margin: 0; padding: 0; }
         
         body { 
-            background: linear-gradient(180deg, #4facfe 0%, #00f2fe 100%);
-            color: #fff; font-family: 'Fredoka', sans-serif; height: 100vh; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; 
+            background: linear-gradient(180deg, #4facfe 0%, #00f2fe 100%); /* */
+            color: #fff; font-family: 'Fredoka', sans-serif; 
+            height: 100vh; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; /* */
+            overflow: hidden; 
         }
 
-        /* LIVING SKY BACKGROUND */
-        .clouds { position: fixed; top: 0; left: 0; width: 200%; height: 100%; background: url('https://www.transparenttextures.com/patterns/clouds.png'); opacity: 0.3; animation: drift 60s linear infinite; z-index: -1; }
-        @keyframes drift { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        /* HUD BOXES */
+        .header { width: 95%; max-width: 440px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 30px; z-index: 10; }
+        .stat-box { 
+            background: rgba(255, 255, 255, 0.35); 
+            border: 3px solid rgba(255, 255, 255, 0.5); 
+            padding: 12px 5px; border-radius: 22px; text-align: center; backdrop-filter: blur(12px);
+        }
+        .stat-box b { font-size: 18px; display: block; color: #fff; }
 
-        /* HUD */
-        .header { width: 95%; max-width: 440px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; z-index: 10; }
-        .stat-box { background: rgba(255, 255, 255, 0.25); border: 2.5px solid rgba(255, 255, 255, 0.6); padding: 12px; border-radius: 25px; text-align: center; backdrop-filter: blur(15px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .stat-box b { font-size: 22px; display: block; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-
-        /* --- THE GRAND FRAME UPDATE --- */
+        /* --- THE FRAME-LESS BOARD WRAP --- */
         #board-wrap { 
-            background: rgba(255, 255, 255, 0.25); 
-            padding: 18px; 
-            border-radius: 45px; /* Bigger rounded corners */
-            border: 6px solid rgba(255, 255, 255, 0.5); 
-            box-shadow: 0 35px 70px rgba(0,0,0,0.15), inset 0 0 25px rgba(255,255,255,0.3);
-            backdrop-filter: blur(12px);
-            overflow: hidden;
+            background: none; /* */
+            border: none; /* */
+            box-shadow: none; /* */
+            padding: 10px; 
             display: flex; justify-content: center; align-items: center;
         }
 
         #board { 
             display: grid; 
-            grid-template-columns: repeat(8, 1fr); 
+            grid-template-columns: repeat(7, 1fr); /* */
+            grid-template-rows: repeat(6, 1fr);    /* */
             grid-gap: 8px; 
-            width: 90vw; height: 90vw; /* Increased width on mobile */
-            max-width: 400px; max-height: 400px; /* Increased Max Size */
+            width: 86vw; height: calc((86vw * 6 / 7) + 5px); 
+            max-width: 360px; max-height: 315px; 
         }
 
+        /* CELL BORDERS */
         .cell { 
             background: rgba(255, 255, 255, 0.12); 
-            border-radius: 18px; 
+            border-radius: 15px; 
             position: relative; 
+            border: 2px solid rgba(255, 255, 255, 0.15); /* */
             display: flex; align-items: center; justify-content: center;
         }
 
-        /* FRUITS SIZE INCREASE */
+        /* GLOSSY CANDY */
         .candy { 
-            font-size: 40px; /* Bigger Fruits */
-            position: relative; 
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+            font-size: 34px; 
+            display: flex; align-items: center; justify-content: center;
+            position: relative; width: 100%; height: 100%; border-radius: 50%;
+            transition: all 0.8s cubic-bezier(0.45, 0.05, 0.55, 0.95); 
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2)) brightness(1.1) contrast(1.1);
             z-index: 2;
+            line-height: 0;
         }
 
-        .cell.selected .candy { 
-            transform: scale(1.15); /* More prominent selection */
+        /* GLOSS SHINE */
+        .candy::after {
+            content: ''; position: absolute; top: 12%; left: 16%; width: 30%; height: 20%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.1) 70%);
+            border-radius: 50%; transform: rotate(-15deg); pointer-events: none;
         }
 
         .c-0::before { content: '🍓'; } .c-1::before { content: '🍊'; }
         .c-2::before { content: '🍇'; } .c-3::before { content: '🍏'; }
 
-        /* OVERLAY */
-        #overlay { position: fixed; inset: 0; background: linear-gradient(135deg, #a8e063, #56ab2f); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
-        .btn { background: linear-gradient(to bottom, #ffa502, #ff6348); color: #fff; padding: 25px 100px; border-radius: 70px; border: 5px solid #fff; font-weight: 900; font-size: 26px; cursor: pointer; box-shadow: 0 15px 40px rgba(0,0,0,0.2); }
+        /* COMBO TEXT */
+        #combo-msg { 
+            position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%) scale(0);
+            font-size: 42px; font-weight: 900; color: #fff; text-shadow: 0 0 25px #ffa502;
+            pointer-events: none; z-index: 100; transition: 0.6s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        }
+        .show-combo { transform: translate(-50%, -60%) scale(1.1) !important; opacity: 1 !important; }
+
+        .falling { animation: bouncyDrop 1.2s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards; }
+        @keyframes bouncyDrop { 
+            0% { transform: translateY(-180%) scale(0.6); opacity: 0; } 
+            75% { transform: translateY(0) scale(1.05); opacity: 1; }
+            100% { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        #overlay { position: fixed; inset: 0; background: #4facfe; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
+        .btn { background: white; color: #4facfe; padding: 22px 95px; border-radius: 60px; font-weight: 900; font-size: 24px; cursor: pointer; border: none; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
-    <div class="clouds"></div>
     <div id="overlay">
-        <h1 style="color:#fff; font-size: 48px; text-shadow: 0 4px 8px rgba(0,0,0,0.2);">FRUIT FARM</h1>
-        <p style="color:#fff; margin: 15px 0 40px 0; letter-spacing: 2px; font-weight: 600;">GRAND FRAME V25</p>
-        <button class="btn" onclick="startGame()">PLAY GRAND ▶</button>
+        <h1 style="font-size: 45px;">FRUIT FARM</h1>
+        <p style="margin-bottom: 35px; font-weight: 600;">FRAME-LESS V48</p>
+        <button class="btn" onclick="startGame()">START ▶</button>
     </div>
+
+    <div id="combo-msg">SWEET!</div>
 
     <div class="header">
         <div class="stat-box"><small>MOVES</small><b id="mDisplay">25</b></div>
@@ -88,17 +110,31 @@
     <div id="board-wrap"><div id="board"></div></div>
 
 <script>
-    // CORE GAME LOGIC
     const board = document.getElementById('board'), sDisplay = document.getElementById('sDisplay'), 
-          mDisplay = document.getElementById('mDisplay'), tDisplay = document.getElementById('tDisplay');
-    const width = 8, candyColors = 4;
+          mDisplay = document.getElementById('mDisplay'), tDisplay = document.getElementById('tDisplay'),
+          comboMsg = document.getElementById('combo-msg');
+    
+    const width = 7, rows = 6;
+    const candyColors = 4;
     let grid = [], score = 0, moves = 25, target = 4500, isProcessing = false, selectedCell = null;
 
-    function startGame() { document.getElementById('overlay').style.display = 'none'; createBoard(); updateHUD(); }
+    let aCtx;
+    function initA() { if(!aCtx) aCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    function pPop(f) {
+        if(!aCtx) return;
+        let o = aCtx.createOscillator(), g = aCtx.createGain();
+        o.frequency.setValueAtTime(f, aCtx.currentTime);
+        o.frequency.exponentialRampToValueAtTime(60, aCtx.currentTime + 0.15);
+        g.gain.setValueAtTime(0.1, aCtx.currentTime);
+        o.connect(g); g.connect(aCtx.destination);
+        o.start(); o.stop(aCtx.currentTime + 0.15);
+    }
+
+    function startGame() { document.getElementById('overlay').style.display = 'none'; initA(); createBoard(); updateHUD(); }
 
     function createBoard() {
         grid = []; board.innerHTML = '';
-        for (let i = 0; i < width * width; i++) {
+        for (let i = 0; i < width * rows; i++) {
             const cell = document.createElement('div');
             cell.className = 'cell'; cell.setAttribute('data-id', i);
             cell.onclick = () => handleCellClick(cell);
@@ -119,10 +155,12 @@
         if (!selectedCell) { selectedCell = cell; cell.classList.add('selected'); }
         else {
             const id1 = parseInt(selectedCell.getAttribute('data-id')), id2 = parseInt(cell.getAttribute('data-id'));
-            if ([id1-1, id1+1, id1-width, id1+width].includes(id2)) {
-                const c1 = selectedCell.firstChild, c2 = cell.firstChild;
-                selectedCell.appendChild(c2); cell.appendChild(c1);
-                moves--; updateHUD(); setTimeout(checkMatches, 300);
+            const isAdjacent = [id1-1, id1+1, id1-width, id1+width].includes(id2);
+            if (isAdjacent) {
+                const f1 = selectedCell.firstChild, f2 = cell.firstChild;
+                selectedCell.appendChild(f2); cell.appendChild(f1);
+                moves--; updateHUD(); 
+                setTimeout(checkMatches, 750); 
             }
             selectedCell.classList.remove('selected'); selectedCell = null;
         }
@@ -131,7 +169,7 @@
     function checkMatches() {
         isProcessing = true;
         let matched = new Set();
-        for (let r = 0; r < width; r++) {
+        for (let r = 0; r < rows; r++) {
             for (let c = 0; c < width - 2; c++) {
                 let i = r * width + c;
                 let clr = grid[i].firstChild?.getAttribute('data-color');
@@ -141,7 +179,7 @@
             }
         }
         for (let c = 0; c < width; c++) {
-            for (let r = 0; r < width - 2; r++) {
+            for (let r = 0; r < rows - 2; r++) {
                 let i = r * width + c;
                 let clr = grid[i].firstChild?.getAttribute('data-color');
                 if (clr && grid[i+width].firstChild?.getAttribute('data-color') === clr && grid[i+width*2].firstChild?.getAttribute('data-color') === clr) {
@@ -151,36 +189,44 @@
         }
 
         if (matched.size > 0) {
-            matched.forEach(i => { if(grid[i].firstChild) grid[i].firstChild.style.transform = 'scale(0)'; });
-            score += matched.size * 30; updateHUD();
+            pPop(450);
+            if (matched.size >= 4) showCombo();
+            matched.forEach(i => { if(grid[i].firstChild) grid[i].firstChild.style.transform = 'scale(0) rotate(45deg)'; });
+            score += matched.size * 35; updateHUD();
             setTimeout(() => {
                 matched.forEach(i => { if(grid[i].firstChild) grid[i].removeChild(grid[i].firstChild); });
                 applyGravity();
-            }, 300);
+            }, 800); 
         } else { isProcessing = false; }
+    }
+
+    function showCombo() {
+        const msgs = ["SWEET!", "AMAZING!", "JUICY!", "FANTASTIC!"];
+        comboMsg.innerText = msgs[Math.floor(Math.random() * msgs.length)];
+        comboMsg.classList.add('show-combo');
+        setTimeout(() => comboMsg.classList.remove('show-combo'), 700);
     }
 
     function applyGravity() {
         for (let c = 0; c < width; c++) {
             let empty = 0;
-            for (let r = width - 1; r >= 0; r--) {
+            for (let r = rows - 1; r >= 0; r--) {
                 let i = r * width + c;
                 if (!grid[i].firstChild) empty++;
                 else if (empty > 0) grid[i + (empty * width)].appendChild(grid[i].firstChild);
             }
             for (let i = 0; i < empty; i++) {
                 const n = createFruit(Math.floor(Math.random() * candyColors));
-                n.style.animation = "drop 0.4s ease-in";
-                grid[i * width + c].appendChild(n);
+                n.classList.add('falling'); grid[i * width + c].appendChild(n);
             }
         }
-        setTimeout(checkMatches, 500);
+        setTimeout(checkMatches, 1200); 
     }
 
     function updateHUD() {
         sDisplay.innerText = score; mDisplay.innerText = moves; tDisplay.innerText = target;
-        if (score >= target) { target += 3000; moves += 10; }
-        if (moves <= 0) { alert("HEIST OVER!"); location.reload(); }
+        if (score >= target) { target += 3000; moves += 10; pPop(800); }
+        if (moves <= 0) { alert("HARVEST OVER!"); location.reload(); }
     }
 </script>
 </body>
