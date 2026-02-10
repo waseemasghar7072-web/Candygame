@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Candy Realm V85 | BZ247 Studios</title>
+    <title>Candy Realm V86 | BZ247 Studios</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap');
         * { user-select: none; -webkit-tap-highlight-color: transparent; box-sizing: border-box; margin: 0; padding: 0; }
@@ -16,34 +16,37 @@
         }
         @keyframes bgShift { 0% {background-position: 0% 50%} 50% {background-position: 100% 50%} 100% {background-position: 0% 50%} }
 
-        /* --- MAP & OVERLAYS --- */
+        /* --- MAP SCREEN --- */
         #map-overlay { position: fixed; inset: 0; background: radial-gradient(circle at center, rgba(10, 10, 20, 0.98), #000); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(25px); padding: 20px 0; }
         .map-card { background: rgba(255, 255, 255, 0.04); padding: 30px 20px; border-radius: 40px; border: 2px solid rgba(255, 255, 255, 0.1); width: 92%; max-width: 400px; max-height: 75vh; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; scrollbar-width: none; }
         .map-card::-webkit-scrollbar { display: none; }
-        .level-node.unlocked { background: linear-gradient(90deg, #ff00cc, #3333ff, #ff00cc); cursor: pointer; border: 3px solid rgba(255, 255, 255, 0.3); border-radius: 22px; padding: 22px 30px; display: flex; justify-content: space-between; align-items: center; }
-        
-        .game-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 3000; display: none; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
-        .status-card { background: rgba(255, 255, 255, 0.1); padding: 40px; border-radius: 50px; text-align: center; width: 85%; max-width: 350px; }
-        .star-rating-3d { font-size: 20px; font-weight: 900; background: linear-gradient(180deg, #fff 0%, #ffd700 45%, #b8860b 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 2px 0 #8b4513) drop-shadow(0 4px 10px rgba(0,0,0,0.5)); }
+        .level-node { width: 100%; padding: 22px 30px; border-radius: 22px; border: none; font-weight: 700; font-size: 19px; color: #fff; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; position: relative; flex-shrink: 0; }
+        .level-node.unlocked { background: linear-gradient(90deg, #ff00cc, #3333ff, #ff00cc); background-size: 200% auto; animation: chromaMove 5s linear infinite; cursor: pointer; border: 3px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 20px rgba(255, 0, 204, 0.3); }
 
-        /* --- HUD --- */
+        /* --- OVERLAYS --- */
+        .game-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 3000; display: none; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
+        .status-card { background: rgba(255, 255, 255, 0.1); padding: 40px; border-radius: 50px; border: 2px solid rgba(255, 255, 255, 0.2); text-align: center; width: 85%; max-width: 350px; }
+        .star-rating-3d { font-size: 20px; font-weight: 900; background: linear-gradient(180deg, #fff 0%, #ffd700 45%, #b8860b 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 2px 0 #8b4513) drop-shadow(0 4px 10px rgba(0,0,0,0.5)); }
+        #victory-canvas { position: absolute; inset: 0; pointer-events: none; z-index: 3001; }
+
+        /* --- GAME UI --- */
         #game-ui { display: none; flex-direction: column; align-items: center; width: 100%; }
         .header-glass { width: 94%; max-width: 440px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(25px); border-radius: 30px; padding: 15px; margin-bottom: 20px; border: 3.5px solid #ff0080; }
         .stats-top { display: grid; grid-template-columns: repeat(3, 1fr) 45px 45px; gap: 8px; align-items: center; text-align: center; }
         .task-row { width: 100%; margin-top: 10px; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 15px; display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 16px; font-weight: 700; color: #00ff00; }
 
-        /* --- BOARD --- */
+        /* --- BOARD & OBSTACLES --- */
         #board-container { position: relative; }
         #board { display: grid; grid-template-columns: repeat(7, 1fr); grid-template-rows: repeat(8, 1fr); grid-gap: 8px; width: 90vw; max-width: 360px; transition: transform 0.1s; }
         .cell { background: rgba(255, 255, 255, 0.12); border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 1.5px solid rgba(255,255,255,0.15); position: relative; }
         .candy { font-size: 32px; pointer-events: none; transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1); }
+        .matched { transform: scale(0); opacity: 0; }
         
         .candy.bomb { filter: drop-shadow(0 0 10px #ff0000); animation: pulse 0.8s infinite; }
         .candy.bomb::before { content: '💣'; position: absolute; font-size: 14px; top: -8px; right: -8px; }
         .shake { animation: boardShake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
         @keyframes boardShake { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-6px, 0, 0); } 40%, 60% { transform: translate3d(6px, 0, 0); } }
 
-        .matched { transform: scale(0); opacity: 0; }
         .chained::after { content: '⛓️'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 28px; background: rgba(0,0,0,0.3); border-radius: 12px; }
         .frozen::after { content: '❄️'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 28px; background: rgba(100,200,255,0.4); border-radius: 12px; }
     </style>
@@ -51,12 +54,12 @@
 <body>
 
     <div id="map-overlay">
-        <h1 style="font-size: 30px; margin-bottom: 25px;">CANDY MAP</h1>
+        <h1 style="font-size: 30px; margin-bottom: 25px; letter-spacing: 3px;">CANDY MAP</h1>
         <div class="map-card" id="map-nodes"></div>
     </div>
 
     <div id="victory-screen" class="game-overlay">
-        <canvas id="victory-canvas" style="position:absolute; inset:0; pointer-events:none;"></canvas>
+        <canvas id="victory-canvas"></canvas>
         <div class="status-card">
             <h1 style="color:#ffd700; margin-bottom:15px; font-size: 32px;">GREAT JOB!</h1>
             <div class="star-rating-3d" style="font-size: 40px;">★★★</div>
@@ -83,6 +86,11 @@
     function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
     function playPop(f = 400) { if (isMuted || !audioCtx) return; let o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.frequency.setValueAtTime(f, audioCtx.currentTime); g.gain.setValueAtTime(0.1, audioCtx.currentTime); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + 0.1); }
     function toggleAudio() { isMuted = !isMuted; document.getElementById('audioToggle').innerText = isMuted ? '🔇' : '🔊'; }
+
+    const canvas = document.getElementById('victory-canvas'), ctx = canvas.getContext('2d');
+    let particles = [];
+    function spawnParticles() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; for(let i=0; i<80; i++) { particles.push({ x: canvas.width/2, y: canvas.height/2, vx: (Math.random()-0.5)*15, vy: (Math.random()-0.5)*15, color: `hsl(${Math.random()*360}, 100%, 50%)`, size: Math.random()*4+2, life: 1 }); } }
+    function animateParticles() { if (document.getElementById('victory-screen').style.display !== 'flex') return; ctx.clearRect(0,0,canvas.width,canvas.height); particles.forEach((p, i) => { p.x += p.vx; p.y += p.vy; p.vy += 0.2; p.life -= 0.01; ctx.fillStyle = p.color; ctx.globalAlpha = p.life; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill(); if(p.life <= 0) particles.splice(i, 1); }); if(particles.length < 40) spawnParticles(); requestAnimationFrame(animateParticles); }
 
     let taskEmoji = '', taskCount = 0, taskTarget = 0, currentLevel = 1, unlockedLevel = 1;
     let score = 0, moves = 30, targetScore = 2000, isProcessing = false, grid = [], isInitialCheck = false;
@@ -113,7 +121,13 @@
         updateHUD(); initGame();
     }
 
-    function backToMap() { document.getElementById('map-overlay').style.display = 'flex'; document.getElementById('game-ui').style.display = 'none'; renderMap(); }
+    /* --- FIXED BACK TO MAP LOGIC --- */
+    function backToMap() { 
+        document.getElementById('map-overlay').style.display = 'flex'; 
+        document.getElementById('game-ui').style.display = 'none'; 
+        document.getElementById('victory-screen').style.display = 'none'; // CRITICAL FIX
+        renderMap(); 
+    }
 
     function initGame() {
         grid = []; document.getElementById('board').innerHTML = '';
@@ -162,7 +176,6 @@
     function checkMatches() {
         let matched = new Set();
         let bombsToCreate = [];
-
         for (let r = 0; r < rows; r++) {
             for (let c = 0; c < width - 2; c++) {
                 let i = r * width + c, c1 = grid[i].querySelector('.candy')?.getAttribute('data-color');
@@ -181,7 +194,6 @@
                 }
             }
         }
-
         if (matched.size > 0) {
             playPop(500);
             matched.forEach(i => {
@@ -198,20 +210,10 @@
                     candy?.classList.add('matched');
                 }
             });
-
             bombsToCreate.forEach(i => { setTimeout(() => { const c = grid[i].querySelector('.candy'); if(c) { c.classList.add('bomb'); c.classList.remove('matched'); } }, 400); });
-
             if (!isInitialCheck) score += matched.size * 50; updateHUD();
             if(!isInitialCheck && taskCount >= taskTarget && score >= targetScore) { checkWin(); return; }
-            
-            // REMOVE MATCHED IMMEDIATELY BEFORE GRAVITY
-            setTimeout(() => { 
-                matched.forEach(i => { 
-                    const c = grid[i].querySelector('.candy.matched'); 
-                    if(c) grid[i].removeChild(c); 
-                }); 
-                applyGravity(); 
-            }, 800);
+            setTimeout(() => { matched.forEach(i => { const c = grid[i].querySelector('.candy.matched'); if(c) grid[i].removeChild(c); }); applyGravity(); }, 800);
         } else { isInitialCheck = false; isProcessing = false; checkWin(); }
     }
 
@@ -224,7 +226,7 @@
                 if (nr >= 0 && nr < rows && nc >= 0 && nc < width) {
                     let target = nr * width + nc;
                     const cnd = grid[target].querySelector('.candy');
-                    if(cnd) cnd.classList.add('matched'); // Mark for removal
+                    if(cnd) cnd.classList.add('matched');
                     grid[target].classList.remove('frozen', 'chained');
                 }
             }
@@ -233,40 +235,27 @@
 
     function checkWin() {
         if(taskCount >= taskTarget && score >= targetScore) { 
-            if(currentLevel === unlockedLevel) unlockedLevel++;
-            document.getElementById('victory-screen').style.display = 'flex';
+            // FIXED UNLOCK LOGIC
+            if(currentLevel >= unlockedLevel) unlockedLevel = currentLevel + 1;
+            document.getElementById('victory-screen').style.display = 'flex'; 
+            particles = []; spawnParticles(); animateParticles();
         } else if (moves <= 0) { backToMap(); }
     }
 
-    /* --- FIXED TRIPLE-SCAN GRAVITY --- */
     function applyGravity() {
         const count = Math.min(6, 4 + Math.floor(currentLevel / 15));
-        let boardChanged = false;
-
         for (let c = 0; c < width; c++) {
-            let emptySpaces = 0;
+            let empty = 0;
             for (let r = rows - 1; r >= 0; r--) {
                 let i = r * width + c;
-                let candy = grid[i].querySelector('.candy');
-                
-                if (!candy || candy.classList.contains('matched')) {
-                    if(candy) grid[i].removeChild(candy); // Hard clear
-                    emptySpaces++;
-                } else if (emptySpaces > 0) {
-                    // Shift down
-                    grid[i + (emptySpaces * width)].appendChild(candy);
-                    boardChanged = true;
-                }
+                if (!grid[i].querySelector('.candy') || grid[i].querySelector('.candy.matched')) {
+                    const bad = grid[i].querySelector('.candy'); if(bad) grid[i].removeChild(bad);
+                    empty++;
+                } else if (empty > 0) { grid[i + (empty * width)].appendChild(grid[i].querySelector('.candy')); }
             }
-            // Fill new candies from top
-            for (let i = 0; i < emptySpaces; i++) {
-                grid[i * width + c].appendChild(createCandy(count));
-                boardChanged = true;
-            }
+            for (let i = 0; i < empty; i++) { grid[i * width + c].appendChild(createCandy(count)); }
         }
-        
-        if(boardChanged) setTimeout(checkMatches, 1000);
-        else isProcessing = false;
+        setTimeout(checkMatches, 1000);
     }
 
     function updateHUD() { 
