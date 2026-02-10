@@ -3,231 +3,277 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fruit Farm Frame-Less V48 | BZ247 Studios</title>
+    <title>Candy Realm V85 | BZ247 Studios</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap');
         * { user-select: none; -webkit-tap-highlight-color: transparent; box-sizing: border-box; margin: 0; padding: 0; }
         
         body { 
-            background: linear-gradient(180deg, #4facfe 0%, #00f2fe 100%); /* */
-            color: #fff; font-family: 'Fredoka', sans-serif; 
-            height: 100vh; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; /* */
-            overflow: hidden; 
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%; animation: bgShift 15s ease infinite;
+            color: #fff; font-family: 'Fredoka', sans-serif; height: 100vh; display: flex; 
+            flex-direction: column; align-items: center; justify-content: center; overflow: hidden; 
         }
+        @keyframes bgShift { 0% {background-position: 0% 50%} 50% {background-position: 100% 50%} 100% {background-position: 0% 50%} }
 
-        /* HUD BOXES */
-        .header { width: 95%; max-width: 440px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 30px; z-index: 10; }
-        .stat-box { 
-            background: rgba(255, 255, 255, 0.35); 
-            border: 3px solid rgba(255, 255, 255, 0.5); 
-            padding: 12px 5px; border-radius: 22px; text-align: center; backdrop-filter: blur(12px);
-        }
-        .stat-box b { font-size: 18px; display: block; color: #fff; }
+        /* --- MAP & OVERLAYS --- */
+        #map-overlay { position: fixed; inset: 0; background: radial-gradient(circle at center, rgba(10, 10, 20, 0.98), #000); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(25px); padding: 20px 0; }
+        .map-card { background: rgba(255, 255, 255, 0.04); padding: 30px 20px; border-radius: 40px; border: 2px solid rgba(255, 255, 255, 0.1); width: 92%; max-width: 400px; max-height: 75vh; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; scrollbar-width: none; }
+        .map-card::-webkit-scrollbar { display: none; }
+        .level-node.unlocked { background: linear-gradient(90deg, #ff00cc, #3333ff, #ff00cc); cursor: pointer; border: 3px solid rgba(255, 255, 255, 0.3); border-radius: 22px; padding: 22px 30px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .game-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 3000; display: none; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
+        .status-card { background: rgba(255, 255, 255, 0.1); padding: 40px; border-radius: 50px; text-align: center; width: 85%; max-width: 350px; }
+        .star-rating-3d { font-size: 20px; font-weight: 900; background: linear-gradient(180deg, #fff 0%, #ffd700 45%, #b8860b 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 2px 0 #8b4513) drop-shadow(0 4px 10px rgba(0,0,0,0.5)); }
 
-        /* --- THE FRAME-LESS BOARD WRAP --- */
-        #board-wrap { 
-            background: none; /* */
-            border: none; /* */
-            box-shadow: none; /* */
-            padding: 10px; 
-            display: flex; justify-content: center; align-items: center;
-        }
+        /* --- HUD --- */
+        #game-ui { display: none; flex-direction: column; align-items: center; width: 100%; }
+        .header-glass { width: 94%; max-width: 440px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(25px); border-radius: 30px; padding: 15px; margin-bottom: 20px; border: 3.5px solid #ff0080; }
+        .stats-top { display: grid; grid-template-columns: repeat(3, 1fr) 45px 45px; gap: 8px; align-items: center; text-align: center; }
+        .task-row { width: 100%; margin-top: 10px; padding: 8px; background: rgba(0,0,0,0.2); border-radius: 15px; display: flex; justify-content: center; align-items: center; gap: 10px; font-size: 16px; font-weight: 700; color: #00ff00; }
 
-        #board { 
-            display: grid; 
-            grid-template-columns: repeat(7, 1fr); /* */
-            grid-template-rows: repeat(6, 1fr);    /* */
-            grid-gap: 8px; 
-            width: 86vw; height: calc((86vw * 6 / 7) + 5px); 
-            max-width: 360px; max-height: 315px; 
-        }
+        /* --- BOARD --- */
+        #board-container { position: relative; }
+        #board { display: grid; grid-template-columns: repeat(7, 1fr); grid-template-rows: repeat(8, 1fr); grid-gap: 8px; width: 90vw; max-width: 360px; transition: transform 0.1s; }
+        .cell { background: rgba(255, 255, 255, 0.12); border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 1.5px solid rgba(255,255,255,0.15); position: relative; }
+        .candy { font-size: 32px; pointer-events: none; transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1); }
+        
+        .candy.bomb { filter: drop-shadow(0 0 10px #ff0000); animation: pulse 0.8s infinite; }
+        .candy.bomb::before { content: '💣'; position: absolute; font-size: 14px; top: -8px; right: -8px; }
+        .shake { animation: boardShake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes boardShake { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-6px, 0, 0); } 40%, 60% { transform: translate3d(6px, 0, 0); } }
 
-        /* CELL BORDERS */
-        .cell { 
-            background: rgba(255, 255, 255, 0.12); 
-            border-radius: 15px; 
-            position: relative; 
-            border: 2px solid rgba(255, 255, 255, 0.15); /* */
-            display: flex; align-items: center; justify-content: center;
-        }
-
-        /* GLOSSY CANDY */
-        .candy { 
-            font-size: 34px; 
-            display: flex; align-items: center; justify-content: center;
-            position: relative; width: 100%; height: 100%; border-radius: 50%;
-            transition: all 0.8s cubic-bezier(0.45, 0.05, 0.55, 0.95); 
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2)) brightness(1.1) contrast(1.1);
-            z-index: 2;
-            line-height: 0;
-        }
-
-        /* GLOSS SHINE */
-        .candy::after {
-            content: ''; position: absolute; top: 12%; left: 16%; width: 30%; height: 20%;
-            background: linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.1) 70%);
-            border-radius: 50%; transform: rotate(-15deg); pointer-events: none;
-        }
-
-        .c-0::before { content: '🍓'; } .c-1::before { content: '🍊'; }
-        .c-2::before { content: '🍇'; } .c-3::before { content: '🍏'; }
-
-        /* COMBO TEXT */
-        #combo-msg { 
-            position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%) scale(0);
-            font-size: 42px; font-weight: 900; color: #fff; text-shadow: 0 0 25px #ffa502;
-            pointer-events: none; z-index: 100; transition: 0.6s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-        }
-        .show-combo { transform: translate(-50%, -60%) scale(1.1) !important; opacity: 1 !important; }
-
-        .falling { animation: bouncyDrop 1.2s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards; }
-        @keyframes bouncyDrop { 
-            0% { transform: translateY(-180%) scale(0.6); opacity: 0; } 
-            75% { transform: translateY(0) scale(1.05); opacity: 1; }
-            100% { transform: translateY(0) scale(1); opacity: 1; }
-        }
-
-        #overlay { position: fixed; inset: 0; background: #4facfe; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
-        .btn { background: white; color: #4facfe; padding: 22px 95px; border-radius: 60px; font-weight: 900; font-size: 24px; cursor: pointer; border: none; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .matched { transform: scale(0); opacity: 0; }
+        .chained::after { content: '⛓️'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 28px; background: rgba(0,0,0,0.3); border-radius: 12px; }
+        .frozen::after { content: '❄️'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 28px; background: rgba(100,200,255,0.4); border-radius: 12px; }
     </style>
 </head>
 <body>
-    <div id="overlay">
-        <h1 style="font-size: 45px;">FRUIT FARM</h1>
-        <p style="margin-bottom: 35px; font-weight: 600;">FRAME-LESS V48</p>
-        <button class="btn" onclick="startGame()">START ▶</button>
+
+    <div id="map-overlay">
+        <h1 style="font-size: 30px; margin-bottom: 25px;">CANDY MAP</h1>
+        <div class="map-card" id="map-nodes"></div>
     </div>
 
-    <div id="combo-msg">SWEET!</div>
-
-    <div class="header">
-        <div class="stat-box"><small>MOVES</small><b id="mDisplay">25</b></div>
-        <div class="stat-box"><small>TARGET</small><b id="tDisplay">4500</b></div>
-        <div class="stat-box"><small>SCORE</small><b id="sDisplay">0</b></div>
+    <div id="victory-screen" class="game-overlay">
+        <canvas id="victory-canvas" style="position:absolute; inset:0; pointer-events:none;"></canvas>
+        <div class="status-card">
+            <h1 style="color:#ffd700; margin-bottom:15px; font-size: 32px;">GREAT JOB!</h1>
+            <div class="star-rating-3d" style="font-size: 40px;">★★★</div>
+            <button onclick="backToMap()" style="padding: 15px 40px; border-radius: 30px; border: none; background: linear-gradient(90deg, #ff00cc, #3333ff); color: #fff; font-weight: 700; cursor: pointer; margin-top: 25px;">CONTINUE ▶</button>
+        </div>
     </div>
 
-    <div id="board-wrap"><div id="board"></div></div>
+    <div id="game-ui">
+        <div class="header-glass">
+            <div class="stats-top">
+                <div class="stat-item"><small style="color:#ffd700; font-size:9px;">MOVES</small><b id="mDisplay" style="display:block; font-size:20px;">30</b></div>
+                <div class="stat-item"><small style="color:#ffd700; font-size:9px;">LEVEL</small><b id="lDisplay" style="display:block; font-size:20px;">1</b></div>
+                <div class="stat-item"><small style="color:#ffd700; font-size:9px;">SCORE</small><b id="sDisplay" style="display:block; font-size:20px;">0</b></div>
+                <div style="cursor:pointer; font-size:18px;" onclick="toggleAudio()" id="audioToggle">🔊</div>
+                <div style="cursor:pointer; font-size:18px;" onclick="backToMap()">⏸</div>
+            </div>
+            <div class="task-row"><span id="taskDisplay">🍎 0/20</span></div>
+        </div>
+        <div id="board-container"><div id="board"></div></div>
+    </div>
 
 <script>
-    const board = document.getElementById('board'), sDisplay = document.getElementById('sDisplay'), 
-          mDisplay = document.getElementById('mDisplay'), tDisplay = document.getElementById('tDisplay'),
-          comboMsg = document.getElementById('combo-msg');
-    
-    const width = 7, rows = 6;
-    const candyColors = 4;
-    let grid = [], score = 0, moves = 25, target = 4500, isProcessing = false, selectedCell = null;
+    let audioCtx = null, isMuted = false;
+    function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    function playPop(f = 400) { if (isMuted || !audioCtx) return; let o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.frequency.setValueAtTime(f, audioCtx.currentTime); g.gain.setValueAtTime(0.1, audioCtx.currentTime); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + 0.1); }
+    function toggleAudio() { isMuted = !isMuted; document.getElementById('audioToggle').innerText = isMuted ? '🔇' : '🔊'; }
 
-    let aCtx;
-    function initA() { if(!aCtx) aCtx = new (window.AudioContext || window.webkitAudioContext)(); }
-    function pPop(f) {
-        if(!aCtx) return;
-        let o = aCtx.createOscillator(), g = aCtx.createGain();
-        o.frequency.setValueAtTime(f, aCtx.currentTime);
-        o.frequency.exponentialRampToValueAtTime(60, aCtx.currentTime + 0.15);
-        g.gain.setValueAtTime(0.1, aCtx.currentTime);
-        o.connect(g); g.connect(aCtx.destination);
-        o.start(); o.stop(aCtx.currentTime + 0.15);
+    let taskEmoji = '', taskCount = 0, taskTarget = 0, currentLevel = 1, unlockedLevel = 1;
+    let score = 0, moves = 30, targetScore = 2000, isProcessing = false, grid = [], isInitialCheck = false;
+    let touchStartX, touchStartY, activeCell = null;
+    const width = 7, rows = 8, emojisMaster = ['🍓', '🍊', '🍇', '🍏', '🍋', '🍒'];
+
+    function renderMap() {
+        const container = document.getElementById('map-nodes'); container.innerHTML = '';
+        for(let i=1; i<=50; i++) {
+            const btn = document.createElement('button');
+            const isUnlocked = i <= unlockedLevel;
+            btn.className = 'level-node' + (isUnlocked ? ' unlocked' : ' locked');
+            btn.innerHTML = `<div>LEVEL ${i}</div> <div class="star-rating-3d">${isUnlocked ? "★★★" : "☆☆☆"}</div>`;
+            if(isUnlocked) btn.onclick = () => { initAudio(); startLevel(i); };
+            container.appendChild(btn);
+        }
     }
 
-    function startGame() { document.getElementById('overlay').style.display = 'none'; initA(); createBoard(); updateHUD(); }
+    function startLevel(lvl) {
+        currentLevel = lvl; isInitialCheck = true;
+        document.getElementById('map-overlay').style.display = 'none';
+        document.getElementById('game-ui').style.display = 'flex';
+        taskEmoji = emojisMaster[(lvl - 1) % 4];
+        taskTarget = 20 + (lvl * 5); targetScore = 1500 + (lvl * 800);
+        moves = Math.max(10, 40 - Math.floor(lvl * 0.5));
+        score = 0; taskCount = 0;
+        document.getElementById('lDisplay').innerText = lvl;
+        updateHUD(); initGame();
+    }
 
-    function createBoard() {
-        grid = []; board.innerHTML = '';
+    function backToMap() { document.getElementById('map-overlay').style.display = 'flex'; document.getElementById('game-ui').style.display = 'none'; renderMap(); }
+
+    function initGame() {
+        grid = []; document.getElementById('board').innerHTML = '';
+        const count = Math.min(6, 4 + Math.floor(currentLevel / 15));
         for (let i = 0; i < width * rows; i++) {
-            const cell = document.createElement('div');
-            cell.className = 'cell'; cell.setAttribute('data-id', i);
-            cell.onclick = () => handleCellClick(cell);
-            cell.appendChild(createFruit(Math.floor(Math.random() * candyColors)));
-            board.appendChild(cell); grid.push(cell);
+            const cell = document.createElement('div'); cell.className = 'cell'; cell.setAttribute('data-id', i);
+            cell.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; activeCell = cell; });
+            cell.addEventListener('touchend', (e) => { if (activeCell) handleSwipe(e.changedTouches[0].clientX, e.changedTouches[0].clientY); });
+            const candy = createCandy(count);
+            if (currentLevel >= 5 && Math.random() < 0.1) cell.classList.add('frozen');
+            if (currentLevel >= 12 && Math.random() < 0.1) cell.classList.add('chained');
+            cell.appendChild(candy); document.getElementById('board').appendChild(cell); grid.push(cell);
         }
-        checkMatches();
+        setTimeout(checkMatches, 800);
     }
 
-    function createFruit(color) {
-        const c = document.createElement('div');
-        c.className = `candy c-${color}`; c.setAttribute('data-color', color);
-        return c;
+    function createCandy(count) {
+        const c = document.createElement('div'); c.className = 'candy';
+        const clr = Math.floor(Math.random() * count); c.setAttribute('data-color', clr);
+        c.innerHTML = emojisMaster[clr]; return c;
     }
 
-    function handleCellClick(cell) {
+    function handleSwipe(endX, endY) {
         if (isProcessing) return;
-        if (!selectedCell) { selectedCell = cell; cell.classList.add('selected'); }
-        else {
-            const id1 = parseInt(selectedCell.getAttribute('data-id')), id2 = parseInt(cell.getAttribute('data-id'));
-            const isAdjacent = [id1-1, id1+1, id1-width, id1+width].includes(id2);
-            if (isAdjacent) {
-                const f1 = selectedCell.firstChild, f2 = cell.firstChild;
-                selectedCell.appendChild(f2); cell.appendChild(f1);
-                moves--; updateHUD(); 
-                setTimeout(checkMatches, 750); 
+        let dX = endX - touchStartX, dY = endY - touchStartY;
+        let id = parseInt(activeCell.getAttribute('data-id')), tId = -1;
+        if (Math.abs(dX) > Math.abs(dY)) { if (Math.abs(dX) > 30) tId = dX > 0 ? id + 1 : id - 1; }
+        else { if (Math.abs(dY) > 30) tId = dY > 0 ? id + width : id - width; }
+        if (tId >= 0 && tId < grid.length) {
+            if (Math.abs(id - tId) === 1 && Math.floor(id / width) !== Math.floor(tId / width)) tId = -1;
+            if (tId !== -1 && !activeCell.classList.contains('chained') && !grid[tId].classList.contains('chained') && !activeCell.classList.contains('frozen') && !grid[tId].classList.contains('frozen')) {
+                performSwap(activeCell, grid[tId]);
             }
-            selectedCell.classList.remove('selected'); selectedCell = null;
         }
+        activeCell = null;
+    }
+
+    function performSwap(c1, c2) {
+        isProcessing = true;
+        const f1 = c1.querySelector('.candy'), f2 = c2.querySelector('.candy');
+        c1.appendChild(f2); c2.appendChild(f1);
+        playPop(300); moves--; updateHUD();
+        setTimeout(checkMatches, 800);
     }
 
     function checkMatches() {
-        isProcessing = true;
         let matched = new Set();
+        let bombsToCreate = [];
+
         for (let r = 0; r < rows; r++) {
             for (let c = 0; c < width - 2; c++) {
-                let i = r * width + c;
-                let clr = grid[i].firstChild?.getAttribute('data-color');
-                if (clr && grid[i+1].firstChild?.getAttribute('data-color') === clr && grid[i+2].firstChild?.getAttribute('data-color') === clr) {
+                let i = r * width + c, c1 = grid[i].querySelector('.candy')?.getAttribute('data-color');
+                if (c1 && c1 === grid[i+1].querySelector('.candy')?.getAttribute('data-color') && c1 === grid[i+2].querySelector('.candy')?.getAttribute('data-color')) {
                     matched.add(i); matched.add(i+1); matched.add(i+2);
+                    if (c < width-3 && grid[i+3].querySelector('.candy')?.getAttribute('data-color') === c1) { matched.add(i+3); bombsToCreate.push(i+3); }
                 }
             }
         }
         for (let c = 0; c < width; c++) {
             for (let r = 0; r < rows - 2; r++) {
-                let i = r * width + c;
-                let clr = grid[i].firstChild?.getAttribute('data-color');
-                if (clr && grid[i+width].firstChild?.getAttribute('data-color') === clr && grid[i+width*2].firstChild?.getAttribute('data-color') === clr) {
+                let i = r * width + c, c1 = grid[i].querySelector('.candy')?.getAttribute('data-color');
+                if (c1 && c1 === grid[i+width].querySelector('.candy')?.getAttribute('data-color') && c1 === grid[i+width*2].querySelector('.candy')?.getAttribute('data-color')) {
                     matched.add(i); matched.add(i+width); matched.add(i+width*2);
+                    if (r < rows-3 && grid[i+width*3].querySelector('.candy')?.getAttribute('data-color') === c1) { matched.add(i+width*3); bombsToCreate.push(i+width*3); }
                 }
             }
         }
 
         if (matched.size > 0) {
-            pPop(450);
-            if (matched.size >= 4) showCombo();
-            matched.forEach(i => { if(grid[i].firstChild) grid[i].firstChild.style.transform = 'scale(0) rotate(45deg)'; });
-            score += matched.size * 35; updateHUD();
-            setTimeout(() => {
-                matched.forEach(i => { if(grid[i].firstChild) grid[i].removeChild(grid[i].firstChild); });
-                applyGravity();
-            }, 800); 
-        } else { isProcessing = false; }
+            playPop(500);
+            matched.forEach(i => {
+                const cell = grid[i], candy = cell.querySelector('.candy');
+                if (candy && candy.classList.contains('bomb')) {
+                    document.getElementById('board').classList.add('shake');
+                    setTimeout(() => document.getElementById('board').classList.remove('shake'), 400);
+                    explodeArea(i);
+                }
+                if (cell.classList.contains('frozen')) cell.classList.remove('frozen');
+                if (cell.classList.contains('chained')) cell.classList.remove('chained');
+                else {
+                    if (!isInitialCheck && emojisMaster[candy?.getAttribute('data-color')] === taskEmoji) taskCount++;
+                    candy?.classList.add('matched');
+                }
+            });
+
+            bombsToCreate.forEach(i => { setTimeout(() => { const c = grid[i].querySelector('.candy'); if(c) { c.classList.add('bomb'); c.classList.remove('matched'); } }, 400); });
+
+            if (!isInitialCheck) score += matched.size * 50; updateHUD();
+            if(!isInitialCheck && taskCount >= taskTarget && score >= targetScore) { checkWin(); return; }
+            
+            // REMOVE MATCHED IMMEDIATELY BEFORE GRAVITY
+            setTimeout(() => { 
+                matched.forEach(i => { 
+                    const c = grid[i].querySelector('.candy.matched'); 
+                    if(c) grid[i].removeChild(c); 
+                }); 
+                applyGravity(); 
+            }, 800);
+        } else { isInitialCheck = false; isProcessing = false; checkWin(); }
     }
 
-    function showCombo() {
-        const msgs = ["SWEET!", "AMAZING!", "JUICY!", "FANTASTIC!"];
-        comboMsg.innerText = msgs[Math.floor(Math.random() * msgs.length)];
-        comboMsg.classList.add('show-combo');
-        setTimeout(() => comboMsg.classList.remove('show-combo'), 700);
-    }
-
-    function applyGravity() {
-        for (let c = 0; c < width; c++) {
-            let empty = 0;
-            for (let r = rows - 1; r >= 0; r--) {
-                let i = r * width + c;
-                if (!grid[i].firstChild) empty++;
-                else if (empty > 0) grid[i + (empty * width)].appendChild(grid[i].firstChild);
-            }
-            for (let i = 0; i < empty; i++) {
-                const n = createFruit(Math.floor(Math.random() * candyColors));
-                n.classList.add('falling'); grid[i * width + c].appendChild(n);
+    function explodeArea(index) {
+        playPop(200);
+        const r = Math.floor(index / width), c = index % width;
+        for (let i = -1; i <= 1; i++) {
+            for (let j = -1; j <= 1; j++) {
+                let nr = r + i, nc = c + j;
+                if (nr >= 0 && nr < rows && nc >= 0 && nc < width) {
+                    let target = nr * width + nc;
+                    const cnd = grid[target].querySelector('.candy');
+                    if(cnd) cnd.classList.add('matched'); // Mark for removal
+                    grid[target].classList.remove('frozen', 'chained');
+                }
             }
         }
-        setTimeout(checkMatches, 1200); 
     }
 
-    function updateHUD() {
-        sDisplay.innerText = score; mDisplay.innerText = moves; tDisplay.innerText = target;
-        if (score >= target) { target += 3000; moves += 10; pPop(800); }
-        if (moves <= 0) { alert("HARVEST OVER!"); location.reload(); }
+    function checkWin() {
+        if(taskCount >= taskTarget && score >= targetScore) { 
+            if(currentLevel === unlockedLevel) unlockedLevel++;
+            document.getElementById('victory-screen').style.display = 'flex';
+        } else if (moves <= 0) { backToMap(); }
     }
+
+    /* --- FIXED TRIPLE-SCAN GRAVITY --- */
+    function applyGravity() {
+        const count = Math.min(6, 4 + Math.floor(currentLevel / 15));
+        let boardChanged = false;
+
+        for (let c = 0; c < width; c++) {
+            let emptySpaces = 0;
+            for (let r = rows - 1; r >= 0; r--) {
+                let i = r * width + c;
+                let candy = grid[i].querySelector('.candy');
+                
+                if (!candy || candy.classList.contains('matched')) {
+                    if(candy) grid[i].removeChild(candy); // Hard clear
+                    emptySpaces++;
+                } else if (emptySpaces > 0) {
+                    // Shift down
+                    grid[i + (emptySpaces * width)].appendChild(candy);
+                    boardChanged = true;
+                }
+            }
+            // Fill new candies from top
+            for (let i = 0; i < emptySpaces; i++) {
+                grid[i * width + c].appendChild(createCandy(count));
+                boardChanged = true;
+            }
+        }
+        
+        if(boardChanged) setTimeout(checkMatches, 1000);
+        else isProcessing = false;
+    }
+
+    function updateHUD() { 
+        document.getElementById('sDisplay').innerText = score; document.getElementById('mDisplay').innerText = moves; 
+        document.getElementById('taskDisplay').innerText = `GOAL: ${taskEmoji} ${Math.min(taskCount, taskTarget)}/${taskTarget}`;
+    }
+    renderMap();
 </script>
 </body>
 </html>
